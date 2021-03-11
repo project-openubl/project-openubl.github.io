@@ -4,9 +4,16 @@
         <title>Project OpenUBL Blog</title>
         <link>https://project-openubl.github.io/blog</link>
         <description>Project OpenUBL Blog</description>
-        <lastBuildDate>Sat, 30 Jan 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 11 Mar 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[XBuilder 1.1.6.Final]]></title>
+            <link>https://project-openubl.github.io/blog/2021/03/11/xbuilder-forma-pago</link>
+            <guid>XBuilder 1.1.6.Final</guid>
+            <pubDate>Thu, 11 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[¡XBuilder 1.1.6.Final fue lanzado!]]></description>
+        </item>
         <item>
             <title><![CDATA[Searchpe Beta1 released]]></title>
             <link>https://project-openubl.github.io/blog/2021/01/30/searchpe-beta-released</link>
