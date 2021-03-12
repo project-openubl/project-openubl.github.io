@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Project OpenUBL Blog</title>
+        <link>https://project-openubl.github.io/blog</link>
+        <description>Project OpenUBL Blog</description>
+        <lastBuildDate>Thu, 11 Mar 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[XBuilder 1.1.6.Final]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/03/11/xbuilder-forma-pago</link>
+            <guid>XBuilder 1.1.6.Final</guid>
+            <pubDate>Thu, 11 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[¡XBuilder 1.1.6.Final fue lanzado!]]></description>
+        </item>
+        <item>
+            <title><![CDATA[Searchpe Beta1 released]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/01/30/searchpe-beta-released</link>
+            <guid>Searchpe Beta1 released</guid>
+            <pubDate>Sat, 30 Jan 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[¡Searchpe Beta1 fue lanzado!]]></description>
+        </item>
+        <item>
+            <title><![CDATA[XBuilder 1.1.4.Final released]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/01/10/xbuilder-released_114Final</link>
+            <guid>XBuilder 1.1.4.Final released</guid>
+            <pubDate>Sun, 10 Jan 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[XBuilder 1.1.4.Final fue lanzado. Puedes ver la libreria publicada en el repositorio central de Maven.]]></description>
+        </item>
+        <item>
+            <title><![CDATA[Project OpenUBL]]></title>
+            <link>https://project-openubl.github.io/en/blog/project-openubl</link>
+            <guid>project-openubl</guid>
+            <pubDate>Mon, 09 Dec 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[¿Qué es Project OpenUBL?]]></description>
+        </item>
+    </channel>
+</rss>
