@@ -2,11 +2,18 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://project-openubl.github.io/blog</id>
     <title>Project OpenUBL Blog</title>
-    <updated>2021-03-11T00:00:00.000Z</updated>
+    <updated>2021-03-28T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://project-openubl.github.io/blog"/>
     <subtitle>Project OpenUBL Blog</subtitle>
     <icon>https://project-openubl.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[XBuilder 1.1.7.Final]]></title>
+        <id>XBuilder 1.1.7.Final</id>
+        <link href="https://project-openubl.github.io/en/blog/2021/03/28/xbuilder-1.1.7.Final"/>
+        <updated>2021-03-28T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[¡XBuilder 1.1.7.Final fue lanzado!]]></summary>
+    </entry>
     <entry>
         <title type="html"><![CDATA[XBuilder 1.1.6.Final]]></title>
         <id>XBuilder 1.1.6.Final</id>
