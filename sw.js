@@ -86,174 +86,17 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./node_modules/@docusaurus/plugin-pwa/src lazy recursive":
-/*!***********************************************************************!*\
-  !*** ./node_modules/@docusaurus/plugin-pwa/src lazy namespace object ***!
-  \***********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function webpackEmptyAsyncContext(req) {
-	// Here Promise.resolve().then() is used instead of new Promise() to prevent
-	// uncaught exception popping up in devtools
-	return Promise.resolve().then(function() {
-		var e = new Error("Cannot find module '" + req + "'");
-		e.code = 'MODULE_NOT_FOUND';
-		throw e;
-	});
-}
-webpackEmptyAsyncContext.keys = function() { return []; };
-webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-module.exports = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = "./node_modules/@docusaurus/plugin-pwa/src lazy recursive";
-
-/***/ }),
-
-/***/ "./node_modules/@docusaurus/plugin-pwa/src/sw.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/@docusaurus/plugin-pwa/src/sw.js ***!
-  \*******************************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var workbox_precaching__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-precaching */ "./node_modules/workbox-precaching/index.mjs");
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-/* eslint-disable no-restricted-globals */
-
-
-
-function parseSwParams() {
-  const params = JSON.parse(
-    new URLSearchParams(self.location.search).get('params'),
-  );
-  if (params.debug) {
-    console.log('[Docusaurus-PWA][SW]: Service Worker params:', params);
-  }
-  return params;
-}
-
-// doc advise against dynamic imports in SW
-// https://developers.google.com/web/tools/workbox/guides/using-bundlers#code_splitting_and_dynamic_imports
-// https://twitter.com/sebastienlorber/status/1280155204575518720
-// but I think it's working fine as it's inlined by webpack, need to double check?
-async function runSWCustomCode(params) {
-  if (undefined) {
-    const customSW = await __webpack_require__("./node_modules/@docusaurus/plugin-pwa/src lazy recursive")(undefined);
-    if (typeof customSW.default === 'function') {
-      customSW.default(params);
-    } else if (params.debug) {
-      console.warn(
-        '[Docusaurus-PWA][SW]: swCustom should have a default export function',
-      );
-    }
-  }
-}
-
-/**
- * Gets different possible variations for a request URL. Similar to
- * https://git.io/JvixK
- *
- * @param {string} url
- */
-function getPossibleURLs(url) {
-  const possibleURLs = [];
-  const urlObject = new URL(url, self.location.href);
-
-  if (urlObject.origin !== self.location.origin) {
-    return possibleURLs;
-  }
-
-  // Ignore search params and hash
-  urlObject.search = '';
-  urlObject.hash = '';
-
-  // /blog.html
-  possibleURLs.push(urlObject.href);
-
-  // /blog/ => /blog/index.html
-  if (urlObject.pathname.endsWith('/')) {
-    possibleURLs.push(`${urlObject.href}index.html`);
-  } else {
-    // /blog => /blog/index.html
-    possibleURLs.push(`${urlObject.href}/index.html`);
-  }
-
-  return possibleURLs;
-}
-
-(async () => {
-  const params = parseSwParams();
-
-  const precacheManifest = [{"revision":"20eb34a1b7808da06a7d399d2b2afd8e","url":"404.html"},{"revision":"08139a080d04da0376f839da55526bca","url":"about/index.html"},{"revision":"9be937847fbf6bf4ffa49cc93230db8d","url":"assets/css/styles.30f51833.css"},{"revision":"22fdf194e4e9a836bf9e95ff1cf92f58","url":"assets/js/01a85c17.b7f79aee.js"},{"revision":"261e1b1379a5d1f521a938fe5e1edb5f","url":"assets/js/01cccc65.866bbada.js"},{"revision":"21470b32aaf0e424a52400d83a0845c2","url":"assets/js/02e12c9d.3908eb71.js"},{"revision":"2c497c98533edc66ca96028824ac3674","url":"assets/js/035c2795.7e8f8904.js"},{"revision":"4cf546e636313b5b4b3e338f45170026","url":"assets/js/05a378b2.912f43cc.js"},{"revision":"ba6accfcac8c78bc143472fe614e36c7","url":"assets/js/0c5e8260.6f0132c4.js"},{"revision":"588130c9665e70e3ce46e22bdc97fb32","url":"assets/js/0ce3d8ed.5f7bc48d.js"},{"revision":"2faf8ee394a8bf17daa81791dd95bae8","url":"assets/js/1.11e868b9.js"},{"revision":"090f161a4147b02ea9d0e661132a899b","url":"assets/js/110403ef.3481baef.js"},{"revision":"a1954605d3854b89f59331ea0c16ac51","url":"assets/js/17896441.5f2881ce.js"},{"revision":"ee321e2772938bdfe25245d4d1a30ede","url":"assets/js/1be78505.64933ddf.js"},{"revision":"2943f984bb82f180676d53337d15b31e","url":"assets/js/2.e9e0b322.js"},{"revision":"414984d4b05e60d4beb97ad41217d060","url":"assets/js/234e427a.f7e5314b.js"},{"revision":"f93763a637f2d9093f05a4c9d3840c4a","url":"assets/js/24d4e59a.1dd1ef4a.js"},{"revision":"00ecf1eaa98f86edce38b747a1dc6aef","url":"assets/js/2c133a1e.6d792b9e.js"},{"revision":"8b7cfa6d083b9f5e1f1365dd68dc083c","url":"assets/js/2c6365d6.a9b3f335.js"},{"revision":"3437ea54ccfecb962118f2243fff4607","url":"assets/js/2c9c6297.21e53872.js"},{"revision":"058c9ed3a7f1838dc4405efe6bfa376a","url":"assets/js/3.719d3b4e.js"},{"revision":"c1878c0ff85ec1eed5bb0befac7fdb1b","url":"assets/js/326b0507.63a0cefd.js"},{"revision":"3c41510512a3729f7e10bccf3e4aa5da","url":"assets/js/3bacd9c2.12ad79d2.js"},{"revision":"a251ccae63ef7d64d28aa9fca94152dc","url":"assets/js/42b79686.2af6025c.js"},{"revision":"25cbb341ed5da5580ca52dbd207fae23","url":"assets/js/4d54d076.7dc76e9e.js"},{"revision":"42382d656763cdd2fded0b45870fc02e","url":"assets/js/52f9c50d.39c6703c.js"},{"revision":"0119adbd7ac4f20a062e621ac6ff3036","url":"assets/js/54b87529.fb4e99fa.js"},{"revision":"594f8926ea60e426eff7f9ffd3a77c22","url":"assets/js/56815036.54162f43.js"},{"revision":"d46906e21d5bd46f6827aedbf31f235f","url":"assets/js/589bfca7.9d6e4f64.js"},{"revision":"b1fd4d6f09c23edb2d08a8922b513b1e","url":"assets/js/593be2e5.32aee012.js"},{"revision":"9ea232d4898eb2a333d3703d952b2687","url":"assets/js/5a7a2ad8.2f4960e7.js"},{"revision":"e7579250bbcac040c0c9037d1f2a8ff8","url":"assets/js/605b7d02.909701f4.js"},{"revision":"99854b95743fc5e57890d59d489d937a","url":"assets/js/63782524.7c56c2a7.js"},{"revision":"2c4a261701982e893be0ae5e6440323f","url":"assets/js/63b30d4e.b7a14dc3.js"},{"revision":"557c400c9c48e9568759b189189c83c0","url":"assets/js/6875c492.9484ee6b.js"},{"revision":"6ec297260ebdaa55c58f573dac9692e5","url":"assets/js/6b14769d.b4269c58.js"},{"revision":"ecb053f5b7dd254829642bee8078884d","url":"assets/js/6b680af1.b3e72187.js"},{"revision":"e2e548b71929fba14eb380eb4e03057d","url":"assets/js/6d30dfea.d0e67a09.js"},{"revision":"15d747187083d0b73f062c27175c9ce9","url":"assets/js/72cc1e64.ad5cd07e.js"},{"revision":"2d2c572848073836fca030e8ac4537f1","url":"assets/js/788b735a.88da2063.js"},{"revision":"4a307d317c73572b8e5d21c5b56d3dfc","url":"assets/js/83.29924bff.js"},{"revision":"248c2e8378a39ca337a6ee5215f072c6","url":"assets/js/84.fa5db992.js"},{"revision":"46428f45d00f0d66e88f02a32dde99ca","url":"assets/js/844acde5.ba7219fc.js"},{"revision":"72d2781716648a2f17dcd521b33fd4a1","url":"assets/js/85.d558ce6a.js"},{"revision":"ddfc91830384db2076c9ed09858a3c88","url":"assets/js/86.9072ec0c.js"},{"revision":"91fda0319ba96cd07191dd763c7f39c2","url":"assets/js/87.5faf9115.js"},{"revision":"0285cc54b44e56df61dae1f090cd3852","url":"assets/js/876fde0c.48a6d496.js"},{"revision":"6197d015e4f88eacc6db79f9cf93ce15","url":"assets/js/88.8025cae3.js"},{"revision":"985ce05ba7c7da03ee533ce64e8d776b","url":"assets/js/89.d0218b53.js"},{"revision":"58b77fe7724d16f027ced691e8ae2b80","url":"assets/js/90.e35a5a16.js"},{"revision":"4efd8b9786315b9f39c894499f021fc2","url":"assets/js/935f2afb.bbfec6a4.js"},{"revision":"3dea48b326bc5c5aaef1a3e9af867831","url":"assets/js/958aeffe.9458a580.js"},{"revision":"9aae0a1147327dd694f35168d0690f55","url":"assets/js/98a1353b.6eea9484.js"},{"revision":"00b834443ca49c57e5736594edc33d15","url":"assets/js/9dca3b40.aa9ceebb.js"},{"revision":"7506e6835e94e0f16a3c41ba4de534d5","url":"assets/js/a09c2993.9451b8c4.js"},{"revision":"41f02b01324ef1146dec61f7e680ec16","url":"assets/js/a6aa9e1f.e7499504.js"},{"revision":"a3d8d03f87a2010453de30e02876302a","url":"assets/js/a7023ddc.187594ab.js"},{"revision":"0f032fb43cfb9749a78c46edf7ecffef","url":"assets/js/a82b3eda.c2687e8e.js"},{"revision":"0095c0c67030f1bccbb378ac79c7768c","url":"assets/js/a90e01b8.58dc870b.js"},{"revision":"4c48b94e19640c15e095b5840df74cf1","url":"assets/js/aada2811.54b2b744.js"},{"revision":"9111642779f8bca1773b22f0818589a1","url":"assets/js/ac59fbb1.aafeed66.js"},{"revision":"bb9bf358607f99d6689eff0b2f18ee1d","url":"assets/js/b2b675dd.38607dcc.js"},{"revision":"601fde14b2ebd23c6019e8252346f999","url":"assets/js/b74786c6.09fcb9ae.js"},{"revision":"565c6d4c037d7ef1e6cc3fecb5c4f35b","url":"assets/js/ba118d21.b847d9ad.js"},{"revision":"9fd6a2db66fec6b1cecfdac1fd9238d2","url":"assets/js/c22f3b86.9966dfe8.js"},{"revision":"f360b583c538ac4646e2501c347090f7","url":"assets/js/c4f5d8e4.b3246e7b.js"},{"revision":"3fb5c38d2c293beee22685dda3e4e666","url":"assets/js/c5e2ed22.626dfd0e.js"},{"revision":"0344e71adeef0e2287c16bf5dcb54d95","url":"assets/js/c6c8b6d7.dfd61d05.js"},{"revision":"5eb5202b1d95a0a6ab9dece886199149","url":"assets/js/c9de4fd4.598e970f.js"},{"revision":"9a955ceedb3927b76b57fc8f1bef4aaf","url":"assets/js/ccc49370.d8c624bd.js"},{"revision":"9320b03f3e84c7055d34ab5a022ef7fb","url":"assets/js/d5d108fe.137b3911.js"},{"revision":"16bb43b0dfb99e7029b7c1ab83e79d45","url":"assets/js/d8f25dd1.3c589e66.js"},{"revision":"7b78a12c0cea5ad57ff1e2320c3edbbe","url":"assets/js/dd4aadd1.65fb95c5.js"},{"revision":"190fc920d6e09f550fe2b14f5bb02dca","url":"assets/js/e3f34e86.6221b6ca.js"},{"revision":"06395951dd274d46001ec1e0e571e9c2","url":"assets/js/e74b34c0.a0ec9622.js"},{"revision":"9d5dd294bd03198ba441d8386765b4d1","url":"assets/js/e8568434.a008419a.js"},{"revision":"e9eb48b7047afeea20909adffa67765f","url":"assets/js/ea4bc704.cf357da1.js"},{"revision":"1f9aa52996e461a97ebae3385023ca27","url":"assets/js/eb75ae42.38ba9132.js"},{"revision":"39c7823192bf8a6d66c5371b01d32923","url":"assets/js/ebd73a5f.58ce521d.js"},{"revision":"5bdf3d107e8627a942a2b1f09eb6503b","url":"assets/js/ec9f61ae.625a7109.js"},{"revision":"d2a7bcb793f2c6a444a2c7f146383b84","url":"assets/js/f202f0e0.a549b7e5.js"},{"revision":"248efb5649ab9be9c65b8d7bdf0bffa7","url":"assets/js/f204b3cb.d97010fd.js"},{"revision":"ae801a79dd89dd96d424e46b131d1c2a","url":"assets/js/f387baa4.a5ab6818.js"},{"revision":"40ca0c2753e03d9949e00a282750ab0e","url":"assets/js/f3a1ae3e.9dfc90a8.js"},{"revision":"0c04ae204b9de23d8d62754861825bfb","url":"assets/js/f4d5c255.3aa29784.js"},{"revision":"05b406d501e05a11d1f9551419f15a75","url":"assets/js/f5648edd.55f9c9cd.js"},{"revision":"34355519901bd35aad74310541261e80","url":"assets/js/f7bb608f.9af3511b.js"},{"revision":"6d8e955135733a9a1f55712de58b6970","url":"assets/js/fcea95a9.b50fd4c2.js"},{"revision":"f573bcc83373599e14f61051d621b294","url":"assets/js/fe03b707.8d90cf10.js"},{"revision":"08a13522786fe100640da36bd505a88e","url":"assets/js/feae855a.49ac740c.js"},{"revision":"a18f34b3bd4873d165b6f1d6a55c0012","url":"assets/js/ffcc59b9.a4cc41a3.js"},{"revision":"831364f51a55f7ae1b6edee9d8238a14","url":"assets/js/main.339ef230.js"},{"revision":"3115f7bf1d3a945f5e7636a1016edb47","url":"assets/js/runtime~main.e94130dc.js"},{"revision":"fef5968262c806a6142f4f8f52d470b8","url":"assets/js/styles.396190d2.js"},{"revision":"3101640703b025025ef38a789b7542b1","url":"blog/2021/01/10/xbuilder-released_114Final/index.html"},{"revision":"cad496cb9809badb06841b5244c5a892","url":"blog/2021/01/30/searchpe-beta-released/index.html"},{"revision":"0da7d02a3c69831bbd0eecd533032f51","url":"blog/2021/03/11/xbuilder-forma-pago/index.html"},{"revision":"0068ff783b5eb56bd89695ca578f2ace","url":"blog/2021/03/28/xbuilder-1.1.7.Final/index.html"},{"revision":"907783c2d4ecd404154c96cc7e74775b","url":"blog/2021/04/06/xbuilder-1.1.9.Final/index.html"},{"revision":"1f4651d4e55070a5d07ccd37e392e0a1","url":"blog/2021/04/14/searchpe-2.0.1/index.html"},{"revision":"b5de65cae2bffe8594a808c04f5f4db0","url":"blog/index.html"},{"revision":"07e4008d2e0e5555234a6f011fdaac3e","url":"blog/project-openubl/index.html"},{"revision":"64317d378a3d5d75f6325c72654e2c37","url":"blog/tags/index.html"},{"revision":"cb5bb44b7453cca4e3c608197a768e00","url":"blog/tags/project/index.html"},{"revision":"15fa470e20ef05c465122bd8c860bc83","url":"blog/tags/searchpe/index.html"},{"revision":"f82cf8046242410fa05797d10867f1e4","url":"blog/tags/xbuilder/index.html"},{"revision":"624ae2cdd61e95c98e5c1d8c5f77ed57","url":"docs/consulta-ruc/index.html"},{"revision":"c27e8c18bd5c2dc45cfd84b5532c975e","url":"docs/contributing/index.html"},{"revision":"6e5ac36b5addc542050c085b2d1b61cf","url":"docs/design-principles/index.html"},{"revision":"d69d8fd8ff41200e41760e21864c9791","url":"docs/index.html"},{"revision":"a9d8c9ca17ad9a7d97b08786d948012d","url":"docs/java-library-xbuilder/index.html"},{"revision":"57835306a51bf26534df969fd48f82f2","url":"docs/java-library-xsender/index.html"},{"revision":"b078f6c8b004d1b36de52860a508fdd7","url":"docs/searchpe/api/index.html"},{"revision":"c006248c9c4e59e286c80c246376047a","url":"docs/searchpe/index.html"},{"revision":"18792d833550a23306b89c7c5c437227","url":"docs/searchpe/installation-docker-compose/index.html"},{"revision":"0a3aa024f101b60ed7b599369b717c0d","url":"docs/searchpe/installation-docker/index.html"},{"revision":"ee22b15c47aa156f1f43c32b72507e51","url":"docs/searchpe/installation-so/index.html"},{"revision":"d5abea16063ca7be586dbb55475ef583","url":"docs/searchpe/uso/index.html"},{"revision":"577d62d2253dbbbfb217bd90cdf802a1","url":"docs/xbuilder/concepts/index.html"},{"revision":"72848e5822fdb8962196c0ab6a7387e6","url":"docs/xbuilder/createXml/index.html"},{"revision":"096b5faf9ff4778f0d3450b9d0dc33e7","url":"docs/xbuilder/ejemplos/creditNote/index.html"},{"revision":"fcedd05ce9fc02fceb72d98476557f5f","url":"docs/xbuilder/ejemplos/debitNote/index.html"},{"revision":"093a4562e39114898f4de4c71d55bfd8","url":"docs/xbuilder/ejemplos/formaPago/index.html"},{"revision":"a04fd5ca95a9a3e6fabdc77200936204","url":"docs/xbuilder/ejemplos/icb/index.html"},{"revision":"6904d77377f17671b4928a1d4654a714","url":"docs/xbuilder/ejemplos/igv/index.html"},{"revision":"c360763e275b6b2ef3583aa3441538e6","url":"docs/xbuilder/ejemplos/invoice/index.html"},{"revision":"928854f97ff5678790290ee99e4a3f9c","url":"docs/xbuilder/ejemplos/sellingPrice/index.html"},{"revision":"5928080b1fdb06772fb07e76c426495d","url":"docs/xbuilder/ejemplos/summaryDocument/index.html"},{"revision":"744649e5b681510efa0b66e561361411","url":"docs/xbuilder/ejemplos/voidedDocument/index.html"},{"revision":"5f3cd63df8fb03d1f9d10fd625ddb884","url":"docs/xbuilder/index.html"},{"revision":"023846f829dc32701f10fdd6b715de47","url":"docs/xbuilder/installation/index.html"},{"revision":"de5cf32c522479acc7c29cde633c3cbe","url":"docs/xbuilder/introduction/index.html"},{"revision":"ac28ab6020bd96d49b7b9412b97b7206","url":"docs/xbuilder/qa/index.html"},{"revision":"661d93047c0222d55c0f91472bb93279","url":"docs/xbuilder/server/api/index.html"},{"revision":"75d039b52d27f6911f24431804c6842a","url":"docs/xbuilder/server/concepts/index.html"},{"revision":"d50872c45f546577ece5deeee57257b6","url":"docs/xbuilder/server/configuration/index.html"},{"revision":"f35fa7a4172c465265dfa97713e7466d","url":"docs/xbuilder/server/createXml/index.html"},{"revision":"819174bebb00a7bcaf0787270fdac4e4","url":"docs/xbuilder/server/gettingStarted/index.html"},{"revision":"d8fc89c0cba37ad00811a24ff89fb698","url":"docs/xbuilder/server/installation/index.html"},{"revision":"2b7dffd232471f5f72ef912bafa5653f","url":"docs/xbuilder/server/introduction/index.html"},{"revision":"ff8a88a3bebd7807e61bd77c89fbf664","url":"docs/xbuilder/server/signXml/index.html"},{"revision":"cf6cc184beea0e429988f40ce5d97512","url":"docs/xbuilder/signXml/index.html"},{"revision":"e15e16fad415c15e212a16f4b8312808","url":"docs/xsender/codigosErrorSunat/index.html"},{"revision":"91ce233c9f14be32db6fe9012a380bc0","url":"docs/xsender/index.html"},{"revision":"af5780dac2358a9d03fc34fbaf7da00e","url":"docs/xsender/library/billConsultService/getStatus/index.html"},{"revision":"cf7ea76d8d08982861d290e2ff791003","url":"docs/xsender/library/billConsultService/getStatusCrd/index.html"},{"revision":"3ca68777ee5a1edca29ea9b21253d0d8","url":"docs/xsender/library/billService/getStatus/index.html"},{"revision":"5a4addf8c67048aa70d6a35f494f98b9","url":"docs/xsender/library/billService/sendBill/index.html"},{"revision":"cdccbf12b4477399fd3cd6352916abe4","url":"docs/xsender/library/billService/sendSummary/index.html"},{"revision":"558f77d8cc1fb4c6c59b487bd61cebf6","url":"docs/xsender/library/billValidService/getStatus/index.html"},{"revision":"2ca23fe4ef6769228f9cfc2a9ec6c803","url":"docs/xsender/library/gettingStarted/index.html"},{"revision":"6ddaa821feafb8c921ebd297b77c145a","url":"docs/xsender/library/installation/index.html"},{"revision":"12002100df2775bc972536d35167211a","url":"docs/xsender/library/smartSend/index.html"},{"revision":"588629b6d9454bda0d7365da6ca528c6","url":"docs/xsender/server/installation/index.html"},{"revision":"163884007c4dd50f80725b1e829c0766","url":"index.html"},{"revision":"6b0893861940426de93007e8d18cb5d0","url":"manifest.json"},{"revision":"ad5369a2a040ac4f201fbaf0d7a431a0","url":"search/index.html"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"assets/images/concepts-equation-72f76f9c8fa662735cb81335cb29f3aa.svg"},{"revision":"1c4b25ca660cf8b0b24df25445751ad1","url":"assets/images/consulta-ruc-914ea374f41acca519cfa08373724e0f.png"},{"revision":"c4f9733dea799c146a582190006bdb1f","url":"assets/images/distribution-folder-tree-f25be2245edc3e1317ddbc0eed1fa1c8.png"},{"revision":"7f9db3cccf05d56d1ce1ad7671922d4b","url":"assets/images/new-version-2b343c1b37590f494da98fdf527cc88a.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"assets/images/search-51bacfc8dfa9210e092e6bdbf27a2d50.png"},{"revision":"0aae22d5cb7bc8f7124459452787ab7f","url":"assets/images/searchpe-releases-f110ebb82872b10d30def4e3188f4d51.png"},{"revision":"6ada3056f231a7a890a58e89c66bfd93","url":"assets/images/searchpe-ui-releases-2a033ce4a56ad61ba90ec65a97a79926.png"},{"revision":"6e0bf33b9dac368162f5c056a39164f5","url":"img/boxes.png"},{"revision":"337a7f16d5404cb8ef03449cec62382c","url":"img/company.png"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"img/concepts-equation.svg"},{"revision":"1a59e66493d76ce242b31851454ce49d","url":"img/developer.png"},{"revision":"6944cbb9b7e51bb2e5b6d6660309b00a","url":"img/developer1.png"},{"revision":"4f745f39a4fdc0400f90120ef5db52b3","url":"img/favicon.ico"},{"revision":"9bcf9cfd77a6f7b72003e1569869faf4","url":"img/icons/icon-1024x1024.png"},{"revision":"750bf1a17cb605a3356e32a92718a6a1","url":"img/icons/icon-128x128.png"},{"revision":"826c874e9e71bd16c90de6b1fade3178","url":"img/icons/icon-16x16.png"},{"revision":"6ec18ba1dc9f89d91f2441e37504e2de","url":"img/icons/icon-24x24.png"},{"revision":"18fc021fbb337f43f4bda828396d0316","url":"img/icons/icon-256x256.png"},{"revision":"88c2406885269874d92631b120ffafa0","url":"img/icons/icon-32x32.png"},{"revision":"7599a1cf973630609e76089fb922a1a5","url":"img/icons/icon-48x48.png"},{"revision":"5a3ce5a81ca264afd17fecb75593fc47","url":"img/icons/icon-512x512.png"},{"revision":"784f78a42703759fd1bc629fce7e4e4d","url":"img/icons/icon-64x64.png"},{"revision":"5113c5165ef1d032ae57d5c1ab863fd4","url":"img/opensource.png"},{"revision":"9b4f3b1cf150c006c0f86f6ccf78e1fa","url":"img/project-openubl-logo.png"},{"revision":"8aa2cfe2ff5a1c246c1a749166db2824","url":"img/project-openubl.svg"},{"revision":"a7e92c07e6502e17f08c9c637fd62700","url":"img/searchpe-logo.svg"},{"revision":"1c4b25ca660cf8b0b24df25445751ad1","url":"img/searchpe/consulta-ruc.png"},{"revision":"c4f9733dea799c146a582190006bdb1f","url":"img/searchpe/distribution-folder-tree.png"},{"revision":"7f9db3cccf05d56d1ce1ad7671922d4b","url":"img/searchpe/new-version.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"img/searchpe/search.png"},{"revision":"0aae22d5cb7bc8f7124459452787ab7f","url":"img/searchpe/searchpe-releases.png"},{"revision":"6ada3056f231a7a890a58e89c66bfd93","url":"img/searchpe/searchpe-ui-releases.png"},{"revision":"05bb476ab6fd3f8f80c78ab543fb9e50","url":"img/sunat.svg"},{"revision":"99bf1d3554085080c5bff59bed12f91a","url":"img/undraw_Choose_bwbs.svg"},{"revision":"8d04d316f4d1777793ee773fcbf16cea","url":"img/undraw_docusaurus_mountain.svg"},{"revision":"3d3d63efa464a74e2befd1569465ed21","url":"img/undraw_docusaurus_react.svg"},{"revision":"932b535fc71feb29877bc4b9d708b1d0","url":"img/undraw_docusaurus_tree.svg"},{"revision":"0428d007032dbafc6105490eac579fcf","url":"img/undraw_open_source_1qxw.svg"},{"revision":"3a65f17f1f7b03783400b11e3324d4f1","url":"img/undraw_server_q2pb.svg"},{"revision":"99d207903010089b928aabc03cf4e904","url":"img/undraw_software_engineer_lvl5.svg"},{"revision":"b291cd34030cbf47069f980a46cc643e","url":"img/undraw_web_developer_p3e5.svg"},{"revision":"72eba4f056cfaf92af6fda1b0a506f3a","url":"img/xbuilder-logo.svg"},{"revision":"7b8a4a90b42586511ce2f2a37f3dd38e","url":"img/xbuilder-server-black.svg"},{"revision":"86eaf7afbcf43af06f0d467370520b2b","url":"img/xbuilder.svg"},{"revision":"4a0930dc70478b7b5eeaa30e1398e31e","url":"img/xml-example.png"},{"revision":"6a5af821deddcef8b9dc4473907def62","url":"img/xsender-logo.svg"},{"revision":"96d23c0059e31be9a75a903ba6c5372c","url":"img/xsender-server-black.svg"},{"revision":"aa034d54316a0ac080cc2eea78790744","url":"img/xsender.svg"}];
-  const controller = new workbox_precaching__WEBPACK_IMPORTED_MODULE_0__["PrecacheController"]();
-
-  if (params.offlineMode) {
-    controller.addToCacheList(precacheManifest);
-  }
-
-  await runSWCustomCode(params);
-
-  self.addEventListener('install', (event) => {
-    event.waitUntil(controller.install());
-  });
-
-  self.addEventListener('activate', (event) => {
-    event.waitUntil(controller.activate());
-  });
-
-  self.addEventListener('fetch', async (event) => {
-    if (params.offlineMode) {
-      const requestURL = event.request.url;
-      const possibleURLs = getPossibleURLs(requestURL);
-      for (let i = 0; i < possibleURLs.length; i += 1) {
-        const possibleURL = possibleURLs[i];
-        const cacheKey = controller.getCacheKeyForURL(possibleURL);
-        if (cacheKey) {
-          if (params.debug) {
-            console.log('[Docusaurus-PWA][SW]: serving cached asset', {
-              requestURL,
-              possibleURL,
-              possibleURLs,
-              cacheKey,
-            });
-          }
-          event.respondWith(caches.match(cacheKey));
-          break;
-        }
-      }
-    }
-  });
-
-  self.addEventListener('message', async (event) => {
-    const type = event.data && event.data.type;
-
-    if (type === 'SKIP_WAITING') {
-      self.skipWaiting();
-    }
-  });
-})();
-
-
-/***/ }),
-
-/***/ "./node_modules/workbox-core/_private/Deferred.js":
-/*!********************************************************!*\
-  !*** ./node_modules/workbox-core/_private/Deferred.js ***!
-  \********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/Deferred.js":
+/*!********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/Deferred.js ***!
+  \********************************************************************************************/
 /*! exports provided: Deferred */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Deferred", function() { return Deferred; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -287,18 +130,18 @@ class Deferred {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/WorkboxError.js":
-/*!************************************************************!*\
-  !*** ./node_modules/workbox-core/_private/WorkboxError.js ***!
-  \************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js":
+/*!************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js ***!
+  \************************************************************************************************/
 /*! exports provided: WorkboxError */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "WorkboxError", function() { return WorkboxError; });
-/* harmony import */ var _models_messages_messageGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/messages/messageGenerator.js */ "./node_modules/workbox-core/models/messages/messageGenerator.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _models_messages_messageGenerator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/messages/messageGenerator.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messageGenerator.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -339,18 +182,18 @@ class WorkboxError extends Error {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/assert.js":
-/*!******************************************************!*\
-  !*** ./node_modules/workbox-core/_private/assert.js ***!
-  \******************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js":
+/*!******************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js ***!
+  \******************************************************************************************/
 /*! exports provided: assert */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "assert", function() { return finalAssertExports; });
-/* harmony import */ var _private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -422,17 +265,17 @@ const finalAssertExports =  false ? undefined : {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/cacheMatchIgnoreParams.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/workbox-core/_private/cacheMatchIgnoreParams.js ***!
-  \**********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheMatchIgnoreParams.js":
+/*!**********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheMatchIgnoreParams.js ***!
+  \**********************************************************************************************************/
 /*! exports provided: cacheMatchIgnoreParams */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cacheMatchIgnoreParams", function() { return cacheMatchIgnoreParams; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2020 Google LLC
@@ -482,17 +325,17 @@ async function cacheMatchIgnoreParams(cache, request, ignoreParams, matchOptions
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/cacheNames.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/workbox-core/_private/cacheNames.js ***!
-  \**********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js ***!
+  \**********************************************************************************************/
 /*! exports provided: cacheNames */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cacheNames", function() { return cacheNames; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -547,17 +390,17 @@ const cacheNames = {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js ***!
-  \**********************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js":
+/*!**********************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js ***!
+  \**********************************************************************************************************************/
 /*! exports provided: canConstructResponseFromBodyStream */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "canConstructResponseFromBodyStream", function() { return canConstructResponseFromBodyStream; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2019 Google LLC
@@ -598,19 +441,19 @@ function canConstructResponseFromBodyStream() {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js ***!
-  \**************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js":
+/*!**************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js ***!
+  \**************************************************************************************************************/
 /*! exports provided: executeQuotaErrorCallbacks */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "executeQuotaErrorCallbacks", function() { return executeQuotaErrorCallbacks; });
-/* harmony import */ var _private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _models_quotaErrorCallbacks_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/quotaErrorCallbacks.js */ "./node_modules/workbox-core/models/quotaErrorCallbacks.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _models_quotaErrorCallbacks_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/quotaErrorCallbacks.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/quotaErrorCallbacks.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_2__);
 /*
   Copyright 2018 Google LLC
@@ -649,17 +492,17 @@ async function executeQuotaErrorCallbacks() {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/getFriendlyURL.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/workbox-core/_private/getFriendlyURL.js ***!
-  \**************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js":
+/*!**************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js ***!
+  \**************************************************************************************************/
 /*! exports provided: getFriendlyURL */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getFriendlyURL", function() { return getFriendlyURL; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -680,17 +523,17 @@ const getFriendlyURL = (url) => {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/logger.js":
-/*!******************************************************!*\
-  !*** ./node_modules/workbox-core/_private/logger.js ***!
-  \******************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js":
+/*!******************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js ***!
+  \******************************************************************************************/
 /*! exports provided: logger */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "logger", function() { return logger; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2019 Google LLC
@@ -758,17 +601,17 @@ const logger = ( false ? undefined : (() => {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/timeout.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/workbox-core/_private/timeout.js ***!
-  \*******************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/timeout.js":
+/*!*******************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/timeout.js ***!
+  \*******************************************************************************************/
 /*! exports provided: timeout */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeout", function() { return timeout; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2019 Google LLC
@@ -792,17 +635,17 @@ function timeout(ms) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_private/waitUntil.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/workbox-core/_private/waitUntil.js ***!
-  \*********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/waitUntil.js":
+/*!*********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/waitUntil.js ***!
+  \*********************************************************************************************/
 /*! exports provided: waitUntil */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "waitUntil", function() { return waitUntil; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2020 Google LLC
@@ -830,10 +673,10 @@ function waitUntil(event, asyncFn) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/_version.js":
-/*!***********************************************!*\
-  !*** ./node_modules/workbox-core/_version.js ***!
-  \***********************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js ***!
+  \***********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -848,19 +691,19 @@ catch (e) { }
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/copyResponse.js":
-/*!***************************************************!*\
-  !*** ./node_modules/workbox-core/copyResponse.js ***!
-  \***************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/copyResponse.js":
+/*!***************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/copyResponse.js ***!
+  \***************************************************************************************/
 /*! exports provided: copyResponse */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "copyResponse", function() { return copyResponse; });
-/* harmony import */ var _private_canConstructResponseFromBodyStream_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./_private/canConstructResponseFromBodyStream.js */ "./node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js");
-/* harmony import */ var _private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _private_canConstructResponseFromBodyStream_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./_private/canConstructResponseFromBodyStream.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/canConstructResponseFromBodyStream.js");
+/* harmony import */ var _private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_2__);
 /*
   Copyright 2019 Google LLC
@@ -922,18 +765,18 @@ async function copyResponse(response, modifier) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/models/messages/messageGenerator.js":
-/*!***********************************************************************!*\
-  !*** ./node_modules/workbox-core/models/messages/messageGenerator.js ***!
-  \***********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messageGenerator.js":
+/*!***********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messageGenerator.js ***!
+  \***********************************************************************************************************/
 /*! exports provided: messageGenerator */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "messageGenerator", function() { return messageGenerator; });
-/* harmony import */ var _messages_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./messages.js */ "./node_modules/workbox-core/models/messages/messages.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _messages_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./messages.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messages.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -964,17 +807,17 @@ const messageGenerator = ( false) ?
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/models/messages/messages.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/workbox-core/models/messages/messages.js ***!
-  \***************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messages.js":
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/messages/messages.js ***!
+  \***************************************************************************************************/
 /*! exports provided: messages */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "messages", function() { return messages; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -1196,17 +1039,17 @@ const messages = {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-core/models/quotaErrorCallbacks.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/workbox-core/models/quotaErrorCallbacks.js ***!
-  \*****************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/quotaErrorCallbacks.js":
+/*!*****************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/models/quotaErrorCallbacks.js ***!
+  \*****************************************************************************************************/
 /*! exports provided: quotaErrorCallbacks */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "quotaErrorCallbacks", function() { return quotaErrorCallbacks; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-core/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -1223,28 +1066,28 @@ const quotaErrorCallbacks = new Set();
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/PrecacheController.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/workbox-precaching/PrecacheController.js ***!
-  \***************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheController.js":
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheController.js ***!
+  \***************************************************************************************************/
 /*! exports provided: PrecacheController */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheController", function() { return PrecacheController; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/workbox-core/_private/cacheNames.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var workbox_core_private_waitUntil_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/waitUntil.js */ "./node_modules/workbox-core/_private/waitUntil.js");
-/* harmony import */ var _utils_createCacheKey_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/createCacheKey.js */ "./node_modules/workbox-precaching/utils/createCacheKey.js");
-/* harmony import */ var _utils_PrecacheInstallReportPlugin_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/PrecacheInstallReportPlugin.js */ "./node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js");
-/* harmony import */ var _utils_PrecacheCacheKeyPlugin_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/PrecacheCacheKeyPlugin.js */ "./node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js");
-/* harmony import */ var _utils_printCleanupDetails_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/printCleanupDetails.js */ "./node_modules/workbox-precaching/utils/printCleanupDetails.js");
-/* harmony import */ var _utils_printInstallDetails_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/printInstallDetails.js */ "./node_modules/workbox-precaching/utils/printInstallDetails.js");
-/* harmony import */ var _PrecacheStrategy_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PrecacheStrategy.js */ "./node_modules/workbox-precaching/PrecacheStrategy.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var workbox_core_private_waitUntil_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/waitUntil.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/waitUntil.js");
+/* harmony import */ var _utils_createCacheKey_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/createCacheKey.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/createCacheKey.js");
+/* harmony import */ var _utils_PrecacheInstallReportPlugin_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/PrecacheInstallReportPlugin.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js");
+/* harmony import */ var _utils_PrecacheCacheKeyPlugin_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/PrecacheCacheKeyPlugin.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js");
+/* harmony import */ var _utils_printCleanupDetails_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./utils/printCleanupDetails.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printCleanupDetails.js");
+/* harmony import */ var _utils_printInstallDetails_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./utils/printInstallDetails.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printInstallDetails.js");
+/* harmony import */ var _PrecacheStrategy_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PrecacheStrategy.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheStrategy.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_11__);
 /*
   Copyright 2019 Google LLC
@@ -1528,18 +1371,18 @@ class PrecacheController {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/PrecacheFallbackPlugin.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/workbox-precaching/PrecacheFallbackPlugin.js ***!
-  \*******************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheFallbackPlugin.js":
+/*!*******************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheFallbackPlugin.js ***!
+  \*******************************************************************************************************/
 /*! exports provided: PrecacheFallbackPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheFallbackPlugin", function() { return PrecacheFallbackPlugin; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2020 Google LLC
@@ -1592,21 +1435,21 @@ class PrecacheFallbackPlugin {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/PrecacheRoute.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/workbox-precaching/PrecacheRoute.js ***!
-  \**********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheRoute.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheRoute.js ***!
+  \**********************************************************************************************/
 /*! exports provided: PrecacheRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheRoute", function() { return PrecacheRoute; });
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/workbox-core/_private/getFriendlyURL.js");
-/* harmony import */ var workbox_routing_Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-routing/Route.js */ "./node_modules/workbox-routing/Route.js");
-/* harmony import */ var _utils_generateURLVariations_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/generateURLVariations.js */ "./node_modules/workbox-precaching/utils/generateURLVariations.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js");
+/* harmony import */ var workbox_routing_Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-routing/Route.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Route.js");
+/* harmony import */ var _utils_generateURLVariations_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/generateURLVariations.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/generateURLVariations.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_4__);
 /*
   Copyright 2020 Google LLC
@@ -1669,23 +1512,23 @@ class PrecacheRoute extends workbox_routing_Route_js__WEBPACK_IMPORTED_MODULE_2_
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/PrecacheStrategy.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/workbox-precaching/PrecacheStrategy.js ***!
-  \*************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheStrategy.js":
+/*!*************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheStrategy.js ***!
+  \*************************************************************************************************/
 /*! exports provided: PrecacheStrategy */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheStrategy", function() { return PrecacheStrategy; });
-/* harmony import */ var workbox_core_copyResponse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/copyResponse.js */ "./node_modules/workbox-core/copyResponse.js");
-/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/workbox-core/_private/cacheNames.js");
-/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/workbox-core/_private/getFriendlyURL.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var workbox_strategies_Strategy_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-strategies/Strategy.js */ "./node_modules/workbox-strategies/Strategy.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_copyResponse_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/copyResponse.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/copyResponse.js");
+/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js");
+/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var workbox_strategies_Strategy_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-strategies/Strategy.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/Strategy.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_6__);
 /*
   Copyright 2020 Google LLC
@@ -1886,10 +1729,10 @@ PrecacheStrategy.copyRedirectedCacheableResponsesPlugin = {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/_version.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-precaching/_version.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js ***!
+  \*****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1904,18 +1747,18 @@ catch (e) { }
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/addPlugins.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/workbox-precaching/addPlugins.js ***!
-  \*******************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addPlugins.js":
+/*!*******************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addPlugins.js ***!
+  \*******************************************************************************************/
 /*! exports provided: addPlugins */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addPlugins", function() { return addPlugins; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -1942,20 +1785,20 @@ function addPlugins(plugins) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/addRoute.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-precaching/addRoute.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addRoute.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addRoute.js ***!
+  \*****************************************************************************************/
 /*! exports provided: addRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addRoute", function() { return addRoute; });
-/* harmony import */ var workbox_routing_registerRoute_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-routing/registerRoute.js */ "./node_modules/workbox-routing/registerRoute.js");
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _PrecacheRoute_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrecacheRoute.js */ "./node_modules/workbox-precaching/PrecacheRoute.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_routing_registerRoute_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-routing/registerRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/registerRoute.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _PrecacheRoute_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrecacheRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheRoute.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_3__);
 /*
   Copyright 2019 Google LLC
@@ -1992,20 +1835,20 @@ function addRoute(options) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/cleanupOutdatedCaches.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/workbox-precaching/cleanupOutdatedCaches.js ***!
-  \******************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/cleanupOutdatedCaches.js":
+/*!******************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/cleanupOutdatedCaches.js ***!
+  \******************************************************************************************************/
 /*! exports provided: cleanupOutdatedCaches */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cleanupOutdatedCaches", function() { return cleanupOutdatedCaches; });
-/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/workbox-core/_private/cacheNames.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _utils_deleteOutdatedCaches_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/deleteOutdatedCaches.js */ "./node_modules/workbox-precaching/utils/deleteOutdatedCaches.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _utils_deleteOutdatedCaches_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/deleteOutdatedCaches.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/deleteOutdatedCaches.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_3__);
 /*
   Copyright 2019 Google LLC
@@ -2043,18 +1886,18 @@ function cleanupOutdatedCaches() {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/createHandlerBoundToURL.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/workbox-precaching/createHandlerBoundToURL.js ***!
-  \********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/createHandlerBoundToURL.js":
+/*!********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/createHandlerBoundToURL.js ***!
+  \********************************************************************************************************/
 /*! exports provided: createHandlerBoundToURL */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createHandlerBoundToURL", function() { return createHandlerBoundToURL; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2091,18 +1934,18 @@ function createHandlerBoundToURL(url) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/getCacheKeyForURL.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/workbox-precaching/getCacheKeyForURL.js ***!
-  \**************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/getCacheKeyForURL.js":
+/*!**************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/getCacheKeyForURL.js ***!
+  \**************************************************************************************************/
 /*! exports provided: getCacheKeyForURL */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCacheKeyForURL", function() { return getCacheKeyForURL; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2141,52 +1984,52 @@ function getCacheKeyForURL(url) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/index.js":
-/*!**************************************************!*\
-  !*** ./node_modules/workbox-precaching/index.js ***!
-  \**************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.js":
+/*!**************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.js ***!
+  \**************************************************************************************/
 /*! exports provided: addPlugins, addRoute, cleanupOutdatedCaches, createHandlerBoundToURL, getCacheKeyForURL, matchPrecache, precache, precacheAndRoute, PrecacheController, PrecacheRoute, PrecacheStrategy, PrecacheFallbackPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _addPlugins_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addPlugins.js */ "./node_modules/workbox-precaching/addPlugins.js");
+/* harmony import */ var _addPlugins_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addPlugins.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addPlugins.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addPlugins", function() { return _addPlugins_js__WEBPACK_IMPORTED_MODULE_0__["addPlugins"]; });
 
-/* harmony import */ var _addRoute_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./addRoute.js */ "./node_modules/workbox-precaching/addRoute.js");
+/* harmony import */ var _addRoute_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./addRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addRoute.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addRoute", function() { return _addRoute_js__WEBPACK_IMPORTED_MODULE_1__["addRoute"]; });
 
-/* harmony import */ var _cleanupOutdatedCaches_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./cleanupOutdatedCaches.js */ "./node_modules/workbox-precaching/cleanupOutdatedCaches.js");
+/* harmony import */ var _cleanupOutdatedCaches_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./cleanupOutdatedCaches.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/cleanupOutdatedCaches.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "cleanupOutdatedCaches", function() { return _cleanupOutdatedCaches_js__WEBPACK_IMPORTED_MODULE_2__["cleanupOutdatedCaches"]; });
 
-/* harmony import */ var _createHandlerBoundToURL_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./createHandlerBoundToURL.js */ "./node_modules/workbox-precaching/createHandlerBoundToURL.js");
+/* harmony import */ var _createHandlerBoundToURL_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./createHandlerBoundToURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/createHandlerBoundToURL.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createHandlerBoundToURL", function() { return _createHandlerBoundToURL_js__WEBPACK_IMPORTED_MODULE_3__["createHandlerBoundToURL"]; });
 
-/* harmony import */ var _getCacheKeyForURL_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./getCacheKeyForURL.js */ "./node_modules/workbox-precaching/getCacheKeyForURL.js");
+/* harmony import */ var _getCacheKeyForURL_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./getCacheKeyForURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/getCacheKeyForURL.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getCacheKeyForURL", function() { return _getCacheKeyForURL_js__WEBPACK_IMPORTED_MODULE_4__["getCacheKeyForURL"]; });
 
-/* harmony import */ var _matchPrecache_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./matchPrecache.js */ "./node_modules/workbox-precaching/matchPrecache.js");
+/* harmony import */ var _matchPrecache_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./matchPrecache.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/matchPrecache.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "matchPrecache", function() { return _matchPrecache_js__WEBPACK_IMPORTED_MODULE_5__["matchPrecache"]; });
 
-/* harmony import */ var _precache_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./precache.js */ "./node_modules/workbox-precaching/precache.js");
+/* harmony import */ var _precache_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./precache.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precache.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "precache", function() { return _precache_js__WEBPACK_IMPORTED_MODULE_6__["precache"]; });
 
-/* harmony import */ var _precacheAndRoute_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./precacheAndRoute.js */ "./node_modules/workbox-precaching/precacheAndRoute.js");
+/* harmony import */ var _precacheAndRoute_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./precacheAndRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precacheAndRoute.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "precacheAndRoute", function() { return _precacheAndRoute_js__WEBPACK_IMPORTED_MODULE_7__["precacheAndRoute"]; });
 
-/* harmony import */ var _PrecacheController_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PrecacheController.js */ "./node_modules/workbox-precaching/PrecacheController.js");
+/* harmony import */ var _PrecacheController_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheController.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PrecacheController", function() { return _PrecacheController_js__WEBPACK_IMPORTED_MODULE_8__["PrecacheController"]; });
 
-/* harmony import */ var _PrecacheRoute_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PrecacheRoute.js */ "./node_modules/workbox-precaching/PrecacheRoute.js");
+/* harmony import */ var _PrecacheRoute_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./PrecacheRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheRoute.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PrecacheRoute", function() { return _PrecacheRoute_js__WEBPACK_IMPORTED_MODULE_9__["PrecacheRoute"]; });
 
-/* harmony import */ var _PrecacheStrategy_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PrecacheStrategy.js */ "./node_modules/workbox-precaching/PrecacheStrategy.js");
+/* harmony import */ var _PrecacheStrategy_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./PrecacheStrategy.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheStrategy.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PrecacheStrategy", function() { return _PrecacheStrategy_js__WEBPACK_IMPORTED_MODULE_10__["PrecacheStrategy"]; });
 
-/* harmony import */ var _PrecacheFallbackPlugin_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PrecacheFallbackPlugin.js */ "./node_modules/workbox-precaching/PrecacheFallbackPlugin.js");
+/* harmony import */ var _PrecacheFallbackPlugin_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PrecacheFallbackPlugin.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheFallbackPlugin.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "PrecacheFallbackPlugin", function() { return _PrecacheFallbackPlugin_js__WEBPACK_IMPORTED_MODULE_11__["PrecacheFallbackPlugin"]; });
 
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_12__);
 /*
   Copyright 2018 Google LLC
@@ -2225,16 +2068,16 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/index.mjs":
-/*!***************************************************!*\
-  !*** ./node_modules/workbox-precaching/index.mjs ***!
-  \***************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.mjs":
+/*!***************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.mjs ***!
+  \***************************************************************************************/
 /*! exports provided: addPlugins, addRoute, cleanupOutdatedCaches, createHandlerBoundToURL, getCacheKeyForURL, matchPrecache, precache, precacheAndRoute, PrecacheController, PrecacheRoute, PrecacheStrategy, PrecacheFallbackPlugin */
 /***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./index.js */ "./node_modules/workbox-precaching/index.js");
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./index.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addPlugins", function() { return _index_js__WEBPACK_IMPORTED_MODULE_0__["addPlugins"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addRoute", function() { return _index_js__WEBPACK_IMPORTED_MODULE_0__["addRoute"]; });
@@ -2263,18 +2106,18 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/matchPrecache.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/workbox-precaching/matchPrecache.js ***!
-  \**********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/matchPrecache.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/matchPrecache.js ***!
+  \**********************************************************************************************/
 /*! exports provided: matchPrecache */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matchPrecache", function() { return matchPrecache; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2309,18 +2152,18 @@ function matchPrecache(request) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/precache.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-precaching/precache.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precache.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precache.js ***!
+  \*****************************************************************************************/
 /*! exports provided: precache */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "precache", function() { return precache; });
-/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _utils_getOrCreatePrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/getOrCreatePrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2359,19 +2202,19 @@ function precache(entries) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/precacheAndRoute.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/workbox-precaching/precacheAndRoute.js ***!
-  \*************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precacheAndRoute.js":
+/*!*************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precacheAndRoute.js ***!
+  \*************************************************************************************************/
 /*! exports provided: precacheAndRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "precacheAndRoute", function() { return precacheAndRoute; });
-/* harmony import */ var _addRoute_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addRoute.js */ "./node_modules/workbox-precaching/addRoute.js");
-/* harmony import */ var _precache_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./precache.js */ "./node_modules/workbox-precaching/precache.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _addRoute_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./addRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/addRoute.js");
+/* harmony import */ var _precache_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./precache.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/precache.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_2__);
 /*
   Copyright 2019 Google LLC
@@ -2406,17 +2249,17 @@ function precacheAndRoute(entries, options) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js":
-/*!*************************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js ***!
-  \*************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js":
+/*!*************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheCacheKeyPlugin.js ***!
+  \*************************************************************************************************************/
 /*! exports provided: PrecacheCacheKeyPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheCacheKeyPlugin", function() { return PrecacheCacheKeyPlugin; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2020 Google LLC
@@ -2447,17 +2290,17 @@ class PrecacheCacheKeyPlugin {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js":
-/*!******************************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js ***!
-  \******************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js":
+/*!******************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/PrecacheInstallReportPlugin.js ***!
+  \******************************************************************************************************************/
 /*! exports provided: PrecacheInstallReportPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrecacheInstallReportPlugin", function() { return PrecacheInstallReportPlugin; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2020 Google LLC
@@ -2503,18 +2346,18 @@ class PrecacheInstallReportPlugin {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/createCacheKey.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/createCacheKey.js ***!
-  \*****************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/createCacheKey.js":
+/*!*****************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/createCacheKey.js ***!
+  \*****************************************************************************************************/
 /*! exports provided: createCacheKey */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCacheKey", function() { return createCacheKey; });
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -2576,17 +2419,17 @@ function createCacheKey(entry) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/deleteOutdatedCaches.js":
-/*!***********************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/deleteOutdatedCaches.js ***!
-  \***********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/deleteOutdatedCaches.js":
+/*!***********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/deleteOutdatedCaches.js ***!
+  \***********************************************************************************************************/
 /*! exports provided: deleteOutdatedCaches */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteOutdatedCaches", function() { return deleteOutdatedCaches; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -2630,18 +2473,18 @@ const deleteOutdatedCaches = async (currentPrecacheName, substringToFind = SUBST
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/generateURLVariations.js":
-/*!************************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/generateURLVariations.js ***!
-  \************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/generateURLVariations.js":
+/*!************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/generateURLVariations.js ***!
+  \************************************************************************************************************/
 /*! exports provided: generateURLVariations */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateURLVariations", function() { return generateURLVariations; });
-/* harmony import */ var _removeIgnoredSearchParams_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./removeIgnoredSearchParams.js */ "./node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _removeIgnoredSearchParams_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./removeIgnoredSearchParams.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2689,18 +2532,18 @@ function* generateURLVariations(url, { ignoreURLParametersMatching = [/^utm_/, /
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js":
-/*!********************************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js ***!
-  \********************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js":
+/*!********************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/getOrCreatePrecacheController.js ***!
+  \********************************************************************************************************************/
 /*! exports provided: getOrCreatePrecacheController */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrCreatePrecacheController", function() { return getOrCreatePrecacheController; });
-/* harmony import */ var _PrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../PrecacheController.js */ "./node_modules/workbox-precaching/PrecacheController.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _PrecacheController_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../PrecacheController.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/PrecacheController.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -2726,18 +2569,18 @@ const getOrCreatePrecacheController = () => {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/printCleanupDetails.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/printCleanupDetails.js ***!
-  \**********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printCleanupDetails.js":
+/*!**********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printCleanupDetails.js ***!
+  \**********************************************************************************************************/
 /*! exports provided: printCleanupDetails */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "printCleanupDetails", function() { return printCleanupDetails; });
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -2781,18 +2624,18 @@ function printCleanupDetails(deletedURLs) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/printInstallDetails.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/printInstallDetails.js ***!
-  \**********************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printInstallDetails.js":
+/*!**********************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/printInstallDetails.js ***!
+  \**********************************************************************************************************/
 /*! exports provided: printInstallDetails */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "printInstallDetails", function() { return printInstallDetails; });
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -2845,17 +2688,17 @@ function printInstallDetails(urlsToPrecache, urlsAlreadyPrecached) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js ***!
-  \****************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js":
+/*!****************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/utils/removeIgnoredSearchParams.js ***!
+  \****************************************************************************************************************/
 /*! exports provided: removeIgnoredSearchParams */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "removeIgnoredSearchParams", function() { return removeIgnoredSearchParams; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-precaching/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -2891,20 +2734,20 @@ function removeIgnoredSearchParams(urlObject, ignoreURLParametersMatching = []) 
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/RegExpRoute.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-routing/RegExpRoute.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/RegExpRoute.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/RegExpRoute.js ***!
+  \*****************************************************************************************/
 /*! exports provided: RegExpRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RegExpRoute", function() { return RegExpRoute; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Route.js */ "./node_modules/workbox-routing/Route.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Route.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Route.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_3__);
 /*
   Copyright 2018 Google LLC
@@ -2985,20 +2828,20 @@ class RegExpRoute extends _Route_js__WEBPACK_IMPORTED_MODULE_2__["Route"] {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/Route.js":
-/*!***********************************************!*\
-  !*** ./node_modules/workbox-routing/Route.js ***!
-  \***********************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Route.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Route.js ***!
+  \***********************************************************************************/
 /*! exports provided: Route */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Route", function() { return Route; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var _utils_constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/constants.js */ "./node_modules/workbox-routing/utils/constants.js");
-/* harmony import */ var _utils_normalizeHandler_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/normalizeHandler.js */ "./node_modules/workbox-routing/utils/normalizeHandler.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var _utils_constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/constants.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/constants.js");
+/* harmony import */ var _utils_normalizeHandler_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/normalizeHandler.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/normalizeHandler.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_3__);
 /*
   Copyright 2018 Google LLC
@@ -3064,23 +2907,23 @@ class Route {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/Router.js":
-/*!************************************************!*\
-  !*** ./node_modules/workbox-routing/Router.js ***!
-  \************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Router.js":
+/*!************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Router.js ***!
+  \************************************************************************************/
 /*! exports provided: Router */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Router", function() { return Router; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/workbox-core/_private/getFriendlyURL.js");
-/* harmony import */ var _utils_constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/constants.js */ "./node_modules/workbox-routing/utils/constants.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var _utils_normalizeHandler_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/normalizeHandler.js */ "./node_modules/workbox-routing/utils/normalizeHandler.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js");
+/* harmony import */ var _utils_constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/constants.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/constants.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var _utils_normalizeHandler_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/normalizeHandler.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/normalizeHandler.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_6__);
 /*
   Copyright 2018 Google LLC
@@ -3469,10 +3312,10 @@ class Router {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/_version.js":
-/*!**************************************************!*\
-  !*** ./node_modules/workbox-routing/_version.js ***!
-  \**************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js":
+/*!**************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js ***!
+  \**************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3487,22 +3330,22 @@ catch (e) { }
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/registerRoute.js":
-/*!*******************************************************!*\
-  !*** ./node_modules/workbox-routing/registerRoute.js ***!
-  \*******************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/registerRoute.js":
+/*!*******************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/registerRoute.js ***!
+  \*******************************************************************************************/
 /*! exports provided: registerRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "registerRoute", function() { return registerRoute; });
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Route.js */ "./node_modules/workbox-routing/Route.js");
-/* harmony import */ var _RegExpRoute_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RegExpRoute.js */ "./node_modules/workbox-routing/RegExpRoute.js");
-/* harmony import */ var _utils_getOrCreateDefaultRouter_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/getOrCreateDefaultRouter.js */ "./node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _Route_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Route.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Route.js");
+/* harmony import */ var _RegExpRoute_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RegExpRoute.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/RegExpRoute.js");
+/* harmony import */ var _utils_getOrCreateDefaultRouter_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/getOrCreateDefaultRouter.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_5__);
 /*
   Copyright 2019 Google LLC
@@ -3601,10 +3444,10 @@ function registerRoute(capture, handler, method) {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/utils/constants.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/workbox-routing/utils/constants.js ***!
-  \*********************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/constants.js":
+/*!*********************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/constants.js ***!
+  \*********************************************************************************************/
 /*! exports provided: defaultMethod, validMethods */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -3612,7 +3455,7 @@ function registerRoute(capture, handler, method) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "defaultMethod", function() { return defaultMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "validMethods", function() { return validMethods; });
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_0__);
 /*
   Copyright 2018 Google LLC
@@ -3650,18 +3493,18 @@ const validMethods = [
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js":
-/*!************************************************************************!*\
-  !*** ./node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js ***!
-  \************************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js":
+/*!************************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/getOrCreateDefaultRouter.js ***!
+  \************************************************************************************************************/
 /*! exports provided: getOrCreateDefaultRouter */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrCreateDefaultRouter", function() { return getOrCreateDefaultRouter; });
-/* harmony import */ var _Router_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Router.js */ "./node_modules/workbox-routing/Router.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var _Router_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Router.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/Router.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2019 Google LLC
@@ -3693,18 +3536,18 @@ const getOrCreateDefaultRouter = () => {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-routing/utils/normalizeHandler.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/workbox-routing/utils/normalizeHandler.js ***!
-  \****************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/normalizeHandler.js":
+/*!****************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/utils/normalizeHandler.js ***!
+  \****************************************************************************************************/
 /*! exports provided: normalizeHandler */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalizeHandler", function() { return normalizeHandler; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/workbox-routing/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-routing/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_1__);
 /*
   Copyright 2018 Google LLC
@@ -3750,22 +3593,22 @@ const normalizeHandler = (handler) => {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-strategies/Strategy.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-strategies/Strategy.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/Strategy.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/Strategy.js ***!
+  \*****************************************************************************************/
 /*! exports provided: Strategy */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Strategy", function() { return Strategy; });
-/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/workbox-core/_private/cacheNames.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/workbox-core/_private/getFriendlyURL.js");
-/* harmony import */ var _StrategyHandler_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./StrategyHandler.js */ "./node_modules/workbox-strategies/StrategyHandler.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-strategies/_version.js");
+/* harmony import */ var workbox_core_private_cacheNames_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/cacheNames.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheNames.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js");
+/* harmony import */ var _StrategyHandler_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./StrategyHandler.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/StrategyHandler.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_5__);
 /*
   Copyright 2020 Google LLC
@@ -3995,25 +3838,25 @@ class Strategy {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-strategies/StrategyHandler.js":
-/*!************************************************************!*\
-  !*** ./node_modules/workbox-strategies/StrategyHandler.js ***!
-  \************************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/StrategyHandler.js":
+/*!************************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/StrategyHandler.js ***!
+  \************************************************************************************************/
 /*! exports provided: StrategyHandler */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "StrategyHandler", function() { return StrategyHandler; });
-/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/workbox-core/_private/assert.js");
-/* harmony import */ var workbox_core_private_cacheMatchIgnoreParams_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheMatchIgnoreParams.js */ "./node_modules/workbox-core/_private/cacheMatchIgnoreParams.js");
-/* harmony import */ var workbox_core_private_Deferred_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/Deferred.js */ "./node_modules/workbox-core/_private/Deferred.js");
-/* harmony import */ var workbox_core_private_executeQuotaErrorCallbacks_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/executeQuotaErrorCallbacks.js */ "./node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js");
-/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/workbox-core/_private/getFriendlyURL.js");
-/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/workbox-core/_private/logger.js");
-/* harmony import */ var workbox_core_private_timeout_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! workbox-core/_private/timeout.js */ "./node_modules/workbox-core/_private/timeout.js");
-/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/workbox-core/_private/WorkboxError.js");
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./_version.js */ "./node_modules/workbox-strategies/_version.js");
+/* harmony import */ var workbox_core_private_assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-core/_private/assert.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/assert.js");
+/* harmony import */ var workbox_core_private_cacheMatchIgnoreParams_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! workbox-core/_private/cacheMatchIgnoreParams.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/cacheMatchIgnoreParams.js");
+/* harmony import */ var workbox_core_private_Deferred_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! workbox-core/_private/Deferred.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/Deferred.js");
+/* harmony import */ var workbox_core_private_executeQuotaErrorCallbacks_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! workbox-core/_private/executeQuotaErrorCallbacks.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/executeQuotaErrorCallbacks.js");
+/* harmony import */ var workbox_core_private_getFriendlyURL_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! workbox-core/_private/getFriendlyURL.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/getFriendlyURL.js");
+/* harmony import */ var workbox_core_private_logger_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! workbox-core/_private/logger.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/logger.js");
+/* harmony import */ var workbox_core_private_timeout_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! workbox-core/_private/timeout.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/timeout.js");
+/* harmony import */ var workbox_core_private_WorkboxError_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! workbox-core/_private/WorkboxError.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-core/_private/WorkboxError.js");
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./_version.js */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/_version.js");
 /* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_version_js__WEBPACK_IMPORTED_MODULE_8__);
 /*
   Copyright 2020 Google LLC
@@ -4525,10 +4368,10 @@ class StrategyHandler {
 
 /***/ }),
 
-/***/ "./node_modules/workbox-strategies/_version.js":
-/*!*****************************************************!*\
-  !*** ./node_modules/workbox-strategies/_version.js ***!
-  \*****************************************************/
+/***/ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/_version.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-strategies/_version.js ***!
+  \*****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4539,6 +4382,188 @@ try {
     self['workbox:strategies:6.1.1'] && _();
 }
 catch (e) { }
+
+
+/***/ }),
+
+/***/ "./node_modules/@docusaurus/plugin-pwa/src lazy recursive":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/src lazy namespace object ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function webpackEmptyAsyncContext(req) {
+	// Here Promise.resolve().then() is used instead of new Promise() to prevent
+	// uncaught exception popping up in devtools
+	return Promise.resolve().then(function() {
+		var e = new Error("Cannot find module '" + req + "'");
+		e.code = 'MODULE_NOT_FOUND';
+		throw e;
+	});
+}
+webpackEmptyAsyncContext.keys = function() { return []; };
+webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
+module.exports = webpackEmptyAsyncContext;
+webpackEmptyAsyncContext.id = "./node_modules/@docusaurus/plugin-pwa/src lazy recursive";
+
+/***/ }),
+
+/***/ "./node_modules/@docusaurus/plugin-pwa/src/sw.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/@docusaurus/plugin-pwa/src/sw.js ***!
+  \*******************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var workbox_precaching__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! workbox-precaching */ "./node_modules/@docusaurus/plugin-pwa/node_modules/workbox-precaching/index.mjs");
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+/* eslint-disable no-restricted-globals */
+
+
+
+function parseSwParams() {
+  const params = JSON.parse(
+    new URLSearchParams(self.location.search).get('params'),
+  );
+  if (params.debug) {
+    console.log('[Docusaurus-PWA][SW]: Service Worker params:', params);
+  }
+  return params;
+}
+
+// doc advise against dynamic imports in SW
+// https://developers.google.com/web/tools/workbox/guides/using-bundlers#code_splitting_and_dynamic_imports
+// https://twitter.com/sebastienlorber/status/1280155204575518720
+// but I think it's working fine as it's inlined by webpack, need to double check?
+async function runSWCustomCode(params) {
+  if (undefined) {
+    const customSW = await __webpack_require__("./node_modules/@docusaurus/plugin-pwa/src lazy recursive")(undefined);
+    if (typeof customSW.default === 'function') {
+      customSW.default(params);
+    } else if (params.debug) {
+      console.warn(
+        '[Docusaurus-PWA][SW]: swCustom should have a default export function',
+      );
+    }
+  }
+}
+
+/**
+ * Gets different possible variations for a request URL. Similar to
+ * https://git.io/JvixK
+ *
+ * @param {string} url
+ */
+function getPossibleURLs(url) {
+  const possibleURLs = [];
+  const urlObject = new URL(url, self.location.href);
+
+  if (urlObject.origin !== self.location.origin) {
+    return possibleURLs;
+  }
+
+  // Ignore search params and hash
+  urlObject.search = '';
+  urlObject.hash = '';
+
+  // /blog.html
+  possibleURLs.push(urlObject.href);
+
+  // /blog/ => /blog/index.html
+  if (urlObject.pathname.endsWith('/')) {
+    possibleURLs.push(`${urlObject.href}index.html`);
+  } else {
+    // /blog => /blog/index.html
+    possibleURLs.push(`${urlObject.href}/index.html`);
+  }
+
+  return possibleURLs;
+}
+
+(async () => {
+  const params = parseSwParams();
+
+  const precacheManifest = [{"revision":"adb1aa2ec26569628b086a45b2dcf947","url":"404.html"},{"revision":"b135c836f10ac15321d1b797db46cf52","url":"about/index.html"},{"revision":"74e1b2164129f940e5ab2db020648b47","url":"assets/css/styles.25f66b2f.css"},{"revision":"5de840ad1ec37e7f226e0df04f5e38e2","url":"assets/js/01a85c17.feee009e.js"},{"revision":"7bf3913e6bbdef37d1d528e953d57951","url":"assets/js/01cccc65.5560d266.js"},{"revision":"e68539fd48a38d1c2c7f8703472a6ce4","url":"assets/js/02e12c9d.ac70d7bf.js"},{"revision":"9e0f1be1dae86f701227b9f9dabd9508","url":"assets/js/035c2795.311edf3e.js"},{"revision":"77d2079a137b9fca98bd3114a2d7b98a","url":"assets/js/05a378b2.672cd283.js"},{"revision":"da677dfcd57cb7121c2b41889daa9b94","url":"assets/js/0c5e8260.5ee4a43e.js"},{"revision":"1906851638e31f823a1c357bcfa7f101","url":"assets/js/0ce3d8ed.0da71719.js"},{"revision":"0d84fbe3b5df8e72250d64e1f6e2d96e","url":"assets/js/1.1ac1a147.js"},{"revision":"f889d1819f469f9947866d652cb476d4","url":"assets/js/110403ef.dfeae2c8.js"},{"revision":"387d7e39c1c2e9b3f84e3b475a20e927","url":"assets/js/1be78505.207f66dd.js"},{"revision":"66475226d9fc50f956a51fc4a7ea5063","url":"assets/js/2.7b1d7e3b.js"},{"revision":"d13a054f50ea0c1d70e2f345470cc6fe","url":"assets/js/234e427a.5e2c5fe0.js"},{"revision":"03d07f524960ca9e8ba1ca42ddc77694","url":"assets/js/24d4e59a.8028e0d3.js"},{"revision":"106671da07e77c290ea5a5a343d0d4e8","url":"assets/js/2c133a1e.41263711.js"},{"revision":"07a89211fef4394e73e0ac4c32995a5b","url":"assets/js/2c6365d6.7c198da8.js"},{"revision":"428f30f8fa5e5020431e4d6dd43d89f5","url":"assets/js/2c9c6297.9162fa7f.js"},{"revision":"da1d02f718a43f2a30f107d846fecd49","url":"assets/js/326b0507.f350623c.js"},{"revision":"a85386e649dc64e21022d014f9a489ea","url":"assets/js/3bacd9c2.41a5cb03.js"},{"revision":"7ca28097a33b38acefccaea6e7c0b06d","url":"assets/js/42b79686.a4d004d1.js"},{"revision":"223eab339599a8512cf9b67891bb4f31","url":"assets/js/4d54d076.c00fc4a9.js"},{"revision":"7fe1dabbb176a8f2fbb59f97d7b22356","url":"assets/js/52f9c50d.180cca18.js"},{"revision":"3d3255cea610f108d7130e2439b05139","url":"assets/js/54b87529.71a34b65.js"},{"revision":"18e9b525d3e770e7350cb5822708cdab","url":"assets/js/56815036.16d8d6da.js"},{"revision":"f884d05e1002c8e799936562c29be7e9","url":"assets/js/589bfca7.418aa285.js"},{"revision":"b128410901a7dca8893d8383b689e19a","url":"assets/js/593be2e5.7a73ecca.js"},{"revision":"e4b457f6fb430fafbf2648c546f28c74","url":"assets/js/5a7a2ad8.e7e98031.js"},{"revision":"9ec52c6f85cf944c0219b4a866b5bdff","url":"assets/js/605b7d02.a830082f.js"},{"revision":"c7ff62255221a7af5fd71e95a1e927b7","url":"assets/js/63782524.eb5c3bc1.js"},{"revision":"331d4d03abbbd7f017271826931686ab","url":"assets/js/63b30d4e.4352b804.js"},{"revision":"d03fe6867c0360cdf8324fecd3ca7271","url":"assets/js/6875c492.807449a2.js"},{"revision":"89e2d7f797997782b9fc7f5314b47695","url":"assets/js/6b14769d.8d3220c8.js"},{"revision":"cd861a4e0622d4e72d6daa51e9f5ebdb","url":"assets/js/6b680af1.7893a999.js"},{"revision":"313c33cc8675d3f73642f8c7e1b07868","url":"assets/js/6d30dfea.0f379a45.js"},{"revision":"6c37de7cae859df2c42e97a00ae875f4","url":"assets/js/72cc1e64.6735df76.js"},{"revision":"6dd52d3257f30bb1d74bd2d94f41ffa6","url":"assets/js/788b735a.23da6abb.js"},{"revision":"399f156cac6601ea693c940ca26a535c","url":"assets/js/81.a79221f5.js"},{"revision":"6846838f0468aca6d53f43626817f3ad","url":"assets/js/82.d066f7e2.js"},{"revision":"291824bad1f0002935bd71587139f621","url":"assets/js/83.a2d190e8.js"},{"revision":"8e201780054a072a2d394ce22d9f9e0e","url":"assets/js/84.c08bc2d1.js"},{"revision":"cde581e1f820d23f6bd3fc56bc035663","url":"assets/js/844acde5.e36eacc0.js"},{"revision":"38c567654844ddb7a5d03df03ed6af2d","url":"assets/js/85.2ccbdd8c.js"},{"revision":"bdd211fc437277f1bfea414583612e4f","url":"assets/js/86.4b8863a3.js"},{"revision":"be32188697779778e5b9185ccb0c0ccb","url":"assets/js/87.2bc5d1b7.js"},{"revision":"76f4562959ddb4e82766a4e66272c12c","url":"assets/js/876fde0c.e032c491.js"},{"revision":"da95d58c3f8c3d40259b54c276b2802b","url":"assets/js/88.4e0a25ef.js"},{"revision":"daf2eec2f3e737e98f2726394f78e23f","url":"assets/js/89.40a1102c.js"},{"revision":"d5066ca545a8c2f063dc4b0030fcb382","url":"assets/js/935f2afb.ecec2a78.js"},{"revision":"31cd686aa86325eebd9c6e0e0f72eb12","url":"assets/js/958aeffe.5ed9b4d4.js"},{"revision":"e030f86727db14348d30746c6855fdd3","url":"assets/js/98a1353b.3c9e445b.js"},{"revision":"610b446cfb5a89871b814a3af87ca371","url":"assets/js/9dca3b40.80baf14b.js"},{"revision":"2c166a50f20f3e8c703e839337cb90a0","url":"assets/js/a09c2993.6a8c6bba.js"},{"revision":"9057d64a8d8316b901ca95383667a384","url":"assets/js/a6aa9e1f.76ed4963.js"},{"revision":"8dc47f68f676d85a6bc404204218c7bc","url":"assets/js/a7023ddc.5b9e0fb4.js"},{"revision":"35f5b647a18dd40b5cbd3f7923f1c50f","url":"assets/js/a82b3eda.af1ff41f.js"},{"revision":"1957172a8e6b639c8bd5b782958ca5d4","url":"assets/js/a90e01b8.445d05da.js"},{"revision":"298f91eaf691d61e178f84451a1ff706","url":"assets/js/aada2811.809976ee.js"},{"revision":"7b29fb855f7d33c0004afae1fb0bea9b","url":"assets/js/ac59fbb1.20a948e0.js"},{"revision":"1f7ec583aecfcfd4f3cb14ffe4f9bba9","url":"assets/js/b2b675dd.c15ae7f6.js"},{"revision":"aad5a3d8b6184e5ecad8d4b92552f4a4","url":"assets/js/b74786c6.d7b04ac5.js"},{"revision":"136e98b62aec82b45906924ca41bdd34","url":"assets/js/ba118d21.dfaa87b1.js"},{"revision":"7faacd96d015ede34c6f7d35b9523c90","url":"assets/js/c22f3b86.78c7f790.js"},{"revision":"837119866db06ec5c2dafc925a370ae1","url":"assets/js/c4f5d8e4.39111708.js"},{"revision":"5407eabefb7ab2e4b45fd0bcfd44a460","url":"assets/js/c5e2ed22.b54b6e7a.js"},{"revision":"f4ceb375419b8504f81cc63d6b1b1afb","url":"assets/js/c6c8b6d7.875b29ea.js"},{"revision":"9fc3d03bd865e2d5a0113de84b81520a","url":"assets/js/c9de4fd4.5c0375c2.js"},{"revision":"a5a3922647ee6694aaca311636c1c594","url":"assets/js/ccc49370.fc3d22b3.js"},{"revision":"fd8ffa3812812a14642c864d11656e68","url":"assets/js/d5d108fe.5b6b782e.js"},{"revision":"056c7ed26ccba690386c64bf5d22422e","url":"assets/js/d8f25dd1.99be5224.js"},{"revision":"dcf00d42e5b7aecd3300c0d0013337da","url":"assets/js/dd4aadd1.e122b2d0.js"},{"revision":"2195e7052f554b6b73087ec166109d5c","url":"assets/js/e3f34e86.9054c50b.js"},{"revision":"6fbdc509928419df78a3882b6ab00d06","url":"assets/js/e74b34c0.2d9d6053.js"},{"revision":"939c179028835d5dba1cebecf6b6d9ff","url":"assets/js/e8568434.f474fb21.js"},{"revision":"0c1b529a041e4723f1314484703ecc1c","url":"assets/js/ea4bc704.7dd414f8.js"},{"revision":"dbd30ba58ad314bf19e2580c6cc799ce","url":"assets/js/eb75ae42.9f246d1b.js"},{"revision":"62f21d61e19150fbe0e41f1ce07c394c","url":"assets/js/ebd73a5f.f84d9ef7.js"},{"revision":"87c9e005e9928361e2fe7efc31743f83","url":"assets/js/ec9f61ae.708e8c54.js"},{"revision":"6e2eddb94b49f1f638b5bd283e60efd6","url":"assets/js/f202f0e0.0f5d67ba.js"},{"revision":"704f6d15fe01b5df20d9b918a67c861f","url":"assets/js/f204b3cb.86057839.js"},{"revision":"24c1272628b34a9488ec1683c91e43e0","url":"assets/js/f387baa4.90534dd0.js"},{"revision":"86f6a2e7a80c3f4be3301ea6fc5ed389","url":"assets/js/f3a1ae3e.96beb7d5.js"},{"revision":"dc9de6548ff1758303403099b820e07d","url":"assets/js/f4d5c255.e58428ad.js"},{"revision":"f10e2cdf633bfd956aa439c564ed6119","url":"assets/js/f5648edd.d32aeb7f.js"},{"revision":"bd7ad5850a6f5c30f873c3225dd44591","url":"assets/js/f7bb608f.b0910ab0.js"},{"revision":"11adcfc0dce3ec2921d67face5a9a0ab","url":"assets/js/fcea95a9.aead2f16.js"},{"revision":"c33d2151b5f5faccf48f82888a2c2097","url":"assets/js/fe03b707.dbb1dd4a.js"},{"revision":"232c30a52b32d008e3d0a09aae8408e1","url":"assets/js/feae855a.0b45cf2c.js"},{"revision":"894bcc63b21d4b1ec7f018461e313cf9","url":"assets/js/ffcc59b9.2124f31c.js"},{"revision":"5b4431862217cacfea3da2a993966c5f","url":"assets/js/main.4f3d18aa.js"},{"revision":"54f982668a23c3574b64f6cd58248856","url":"assets/js/runtime~main.7e411af9.js"},{"revision":"b53bf576d25ff599eb1816a17b37cc0c","url":"assets/js/styles.01cf86f2.js"},{"revision":"45f76c33c7ccc128daffc921b18fe728","url":"blog/2021/01/10/xbuilder-released_114Final/index.html"},{"revision":"2ca542c67e859b2445a116c44eedc336","url":"blog/2021/01/30/searchpe-beta-released/index.html"},{"revision":"3bcc5faf5d2b9032aa9b6802917320bc","url":"blog/2021/03/11/xbuilder-forma-pago/index.html"},{"revision":"5b25149f1b3d793fd3dae30ded8e6773","url":"blog/2021/03/28/xbuilder-1.1.7.Final/index.html"},{"revision":"1d13653086fc7b4021a0d98ac316b3b8","url":"blog/2021/04/06/xbuilder-1.1.9.Final/index.html"},{"revision":"f4a9343b382c829d9a4237ae79f46332","url":"blog/2021/04/14/searchpe-2.0.1/index.html"},{"revision":"8418c84fda90638af6bd21a9fd15d146","url":"blog/index.html"},{"revision":"32526794ceb04bf1c96ee97bb1e89611","url":"blog/project-openubl/index.html"},{"revision":"96ef72999f7ae2f04fa22ce98b36e0df","url":"blog/tags/index.html"},{"revision":"fbf10fcd3376e4db7fe1ddf7a6d9ef5a","url":"blog/tags/project/index.html"},{"revision":"a3aee740a2e20bb4a7af5d67eaae6ae1","url":"blog/tags/searchpe/index.html"},{"revision":"779e23bdeb5c0a6a9888b05472e2bf37","url":"blog/tags/xbuilder/index.html"},{"revision":"4768203195a3ead79dcc17c3eec8ff4d","url":"docs/consulta-ruc/index.html"},{"revision":"37495a474e74011352f7d695e7d4eed0","url":"docs/contributing/index.html"},{"revision":"0a2905681ddc897adb3cbefd4bb99edc","url":"docs/design-principles/index.html"},{"revision":"fdbe8f9f6bd53c2e893e19ad46bb39ba","url":"docs/index.html"},{"revision":"b340cc802e65353dea31f2a3a10d3c08","url":"docs/java-library-xbuilder/index.html"},{"revision":"76166a2e8c2bc9ba0ea3fd2f5f4cccd1","url":"docs/java-library-xsender/index.html"},{"revision":"649abddf9fedfeae8486bb11ae886fc1","url":"docs/searchpe/api/index.html"},{"revision":"9b712c8b738348153f987fb3963a45c0","url":"docs/searchpe/index.html"},{"revision":"c979f38c36e2a054e1b8559c7eb44244","url":"docs/searchpe/installation-docker-compose/index.html"},{"revision":"1f553e33781b5a265e27b39ec2fa259e","url":"docs/searchpe/installation-docker/index.html"},{"revision":"d2a8c1399a5d5b774b338e720fb9a2db","url":"docs/searchpe/installation-so/index.html"},{"revision":"49d6c80dc4e2770149cfe207952b4185","url":"docs/searchpe/uso/index.html"},{"revision":"72f36027073f3d581810df661976e6cd","url":"docs/xbuilder/concepts/index.html"},{"revision":"5c424cd4474e84b8e6369b792df2df0f","url":"docs/xbuilder/createXml/index.html"},{"revision":"642709b41f74e47a84e374061195b81a","url":"docs/xbuilder/ejemplos/creditNote/index.html"},{"revision":"1f476bce147607c22c3a6b5898dd8226","url":"docs/xbuilder/ejemplos/debitNote/index.html"},{"revision":"c6e99ded4c8fdbde4cc718b4032bca95","url":"docs/xbuilder/ejemplos/formaPago/index.html"},{"revision":"9098edf9616e5616235ad705ead90310","url":"docs/xbuilder/ejemplos/icb/index.html"},{"revision":"3d48fbb4ea2e1cc2219e351e0614f0d5","url":"docs/xbuilder/ejemplos/igv/index.html"},{"revision":"9e18bdac7895bad654f9ddc0469ee362","url":"docs/xbuilder/ejemplos/invoice/index.html"},{"revision":"477d7e5d09cc94dae8b4b62b68ccb638","url":"docs/xbuilder/ejemplos/sellingPrice/index.html"},{"revision":"74fb22b6adde85ccc1baa9745880c8ec","url":"docs/xbuilder/ejemplos/summaryDocument/index.html"},{"revision":"c7736eb18a1b42643b8307321d723716","url":"docs/xbuilder/ejemplos/voidedDocument/index.html"},{"revision":"889ed43bb2f877b9d78925bb39be372e","url":"docs/xbuilder/index.html"},{"revision":"12fcf535f9a5dda48b72d07f082f0708","url":"docs/xbuilder/installation/index.html"},{"revision":"a07afa851887ff265c6a4372b5c0c356","url":"docs/xbuilder/introduction/index.html"},{"revision":"24c47f81927c61b99095048d45557b86","url":"docs/xbuilder/qa/index.html"},{"revision":"eda20cd4bc5a6f16cd66d2cd8327241e","url":"docs/xbuilder/server/api/index.html"},{"revision":"c6b33d0254be0f7a47f098ec5cc0066f","url":"docs/xbuilder/server/concepts/index.html"},{"revision":"74bde54333ac4346108c2441863d4adf","url":"docs/xbuilder/server/configuration/index.html"},{"revision":"b69c2591aabbe38fb22124eb3b7c117b","url":"docs/xbuilder/server/createXml/index.html"},{"revision":"6837a82494c5069a4ced8e4cd4ed9600","url":"docs/xbuilder/server/gettingStarted/index.html"},{"revision":"86d34a49af4813b48ed3beba4d159ca0","url":"docs/xbuilder/server/installation/index.html"},{"revision":"71c05ce6d4a58ffbee5fa3d1e84587df","url":"docs/xbuilder/server/introduction/index.html"},{"revision":"e887ffc964f69a46ee4a1f8d280e8b01","url":"docs/xbuilder/server/signXml/index.html"},{"revision":"b97f714d3593f0ae426c5bfb9ea0febe","url":"docs/xbuilder/signXml/index.html"},{"revision":"9943afaca7d05b411f0b6e523cae1c81","url":"docs/xsender/codigosErrorSunat/index.html"},{"revision":"d7139ebd3f32b737685e5e43be1d6b31","url":"docs/xsender/index.html"},{"revision":"582c770213aad2d6ba45d3ac089b38ab","url":"docs/xsender/library/billConsultService/getStatus/index.html"},{"revision":"cfa55e2db8044152df5feccd1b549ca4","url":"docs/xsender/library/billConsultService/getStatusCrd/index.html"},{"revision":"d6ad3557c6297f9d5e579ac9020403d3","url":"docs/xsender/library/billService/getStatus/index.html"},{"revision":"1a2f45b5c13231a57891a264ed93cfa7","url":"docs/xsender/library/billService/sendBill/index.html"},{"revision":"e4ac5ce429b8e07fc2a0668f00e4aa08","url":"docs/xsender/library/billService/sendSummary/index.html"},{"revision":"54d01c7b8aeee53c110166576dbe3884","url":"docs/xsender/library/billValidService/getStatus/index.html"},{"revision":"b048704dd5820f9b6ea5e1a95c3b347a","url":"docs/xsender/library/gettingStarted/index.html"},{"revision":"95ee28754dc84b1d53447407889e8ee8","url":"docs/xsender/library/installation/index.html"},{"revision":"fdfe9c2076a2c2ab003336b49f2bdba3","url":"docs/xsender/library/smartSend/index.html"},{"revision":"8d5d76a84ac0fce00d77aaa9bb69aae6","url":"docs/xsender/server/installation/index.html"},{"revision":"11191d06fedaa62b2252fff86984a743","url":"index.html"},{"revision":"6b0893861940426de93007e8d18cb5d0","url":"manifest.json"},{"revision":"927ebb387f6568663d805e22dba0d08b","url":"search/index.html"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"assets/images/concepts-equation-72f76f9c8fa662735cb81335cb29f3aa.svg"},{"revision":"1c4b25ca660cf8b0b24df25445751ad1","url":"assets/images/consulta-ruc-914ea374f41acca519cfa08373724e0f.png"},{"revision":"c4f9733dea799c146a582190006bdb1f","url":"assets/images/distribution-folder-tree-f25be2245edc3e1317ddbc0eed1fa1c8.png"},{"revision":"7f9db3cccf05d56d1ce1ad7671922d4b","url":"assets/images/new-version-2b343c1b37590f494da98fdf527cc88a.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"assets/images/search-51bacfc8dfa9210e092e6bdbf27a2d50.png"},{"revision":"0aae22d5cb7bc8f7124459452787ab7f","url":"assets/images/searchpe-releases-f110ebb82872b10d30def4e3188f4d51.png"},{"revision":"6ada3056f231a7a890a58e89c66bfd93","url":"assets/images/searchpe-ui-releases-2a033ce4a56ad61ba90ec65a97a79926.png"},{"revision":"6e0bf33b9dac368162f5c056a39164f5","url":"img/boxes.png"},{"revision":"337a7f16d5404cb8ef03449cec62382c","url":"img/company.png"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"img/concepts-equation.svg"},{"revision":"1a59e66493d76ce242b31851454ce49d","url":"img/developer.png"},{"revision":"6944cbb9b7e51bb2e5b6d6660309b00a","url":"img/developer1.png"},{"revision":"4f745f39a4fdc0400f90120ef5db52b3","url":"img/favicon.ico"},{"revision":"9bcf9cfd77a6f7b72003e1569869faf4","url":"img/icons/icon-1024x1024.png"},{"revision":"750bf1a17cb605a3356e32a92718a6a1","url":"img/icons/icon-128x128.png"},{"revision":"826c874e9e71bd16c90de6b1fade3178","url":"img/icons/icon-16x16.png"},{"revision":"6ec18ba1dc9f89d91f2441e37504e2de","url":"img/icons/icon-24x24.png"},{"revision":"18fc021fbb337f43f4bda828396d0316","url":"img/icons/icon-256x256.png"},{"revision":"88c2406885269874d92631b120ffafa0","url":"img/icons/icon-32x32.png"},{"revision":"7599a1cf973630609e76089fb922a1a5","url":"img/icons/icon-48x48.png"},{"revision":"5a3ce5a81ca264afd17fecb75593fc47","url":"img/icons/icon-512x512.png"},{"revision":"784f78a42703759fd1bc629fce7e4e4d","url":"img/icons/icon-64x64.png"},{"revision":"5113c5165ef1d032ae57d5c1ab863fd4","url":"img/opensource.png"},{"revision":"9b4f3b1cf150c006c0f86f6ccf78e1fa","url":"img/project-openubl-logo.png"},{"revision":"8aa2cfe2ff5a1c246c1a749166db2824","url":"img/project-openubl.svg"},{"revision":"a7e92c07e6502e17f08c9c637fd62700","url":"img/searchpe-logo.svg"},{"revision":"1c4b25ca660cf8b0b24df25445751ad1","url":"img/searchpe/consulta-ruc.png"},{"revision":"c4f9733dea799c146a582190006bdb1f","url":"img/searchpe/distribution-folder-tree.png"},{"revision":"7f9db3cccf05d56d1ce1ad7671922d4b","url":"img/searchpe/new-version.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"img/searchpe/search.png"},{"revision":"0aae22d5cb7bc8f7124459452787ab7f","url":"img/searchpe/searchpe-releases.png"},{"revision":"6ada3056f231a7a890a58e89c66bfd93","url":"img/searchpe/searchpe-ui-releases.png"},{"revision":"05bb476ab6fd3f8f80c78ab543fb9e50","url":"img/sunat.svg"},{"revision":"99bf1d3554085080c5bff59bed12f91a","url":"img/undraw_Choose_bwbs.svg"},{"revision":"8d04d316f4d1777793ee773fcbf16cea","url":"img/undraw_docusaurus_mountain.svg"},{"revision":"3d3d63efa464a74e2befd1569465ed21","url":"img/undraw_docusaurus_react.svg"},{"revision":"932b535fc71feb29877bc4b9d708b1d0","url":"img/undraw_docusaurus_tree.svg"},{"revision":"0428d007032dbafc6105490eac579fcf","url":"img/undraw_open_source_1qxw.svg"},{"revision":"3a65f17f1f7b03783400b11e3324d4f1","url":"img/undraw_server_q2pb.svg"},{"revision":"99d207903010089b928aabc03cf4e904","url":"img/undraw_software_engineer_lvl5.svg"},{"revision":"b291cd34030cbf47069f980a46cc643e","url":"img/undraw_web_developer_p3e5.svg"},{"revision":"72eba4f056cfaf92af6fda1b0a506f3a","url":"img/xbuilder-logo.svg"},{"revision":"7b8a4a90b42586511ce2f2a37f3dd38e","url":"img/xbuilder-server-black.svg"},{"revision":"86eaf7afbcf43af06f0d467370520b2b","url":"img/xbuilder.svg"},{"revision":"4a0930dc70478b7b5eeaa30e1398e31e","url":"img/xml-example.png"},{"revision":"6a5af821deddcef8b9dc4473907def62","url":"img/xsender-logo.svg"},{"revision":"96d23c0059e31be9a75a903ba6c5372c","url":"img/xsender-server-black.svg"},{"revision":"aa034d54316a0ac080cc2eea78790744","url":"img/xsender.svg"}];
+  const controller = new workbox_precaching__WEBPACK_IMPORTED_MODULE_0__["PrecacheController"]({
+    fallbackToNetwork: true, // safer to turn this true?
+  });
+
+  if (params.offlineMode) {
+    controller.addToCacheList(precacheManifest);
+    if (params.debug) {
+      console.log('[Docusaurus-PWA][SW]: addToCacheList', {
+        precacheManifest,
+      });
+    }
+  }
+
+  await runSWCustomCode(params);
+
+  self.addEventListener('install', (event) => {
+    if (params.debug) {
+      console.log('[Docusaurus-PWA][SW]: install event', {
+        event,
+      });
+    }
+    event.waitUntil(controller.install(event));
+  });
+
+  self.addEventListener('activate', (event) => {
+    if (params.debug) {
+      console.log('[Docusaurus-PWA][SW]: activate event', {
+        event,
+      });
+    }
+    event.waitUntil(controller.activate(event));
+  });
+
+  self.addEventListener('fetch', async (event) => {
+    if (params.offlineMode) {
+      const requestURL = event.request.url;
+      const possibleURLs = getPossibleURLs(requestURL);
+      for (let i = 0; i < possibleURLs.length; i += 1) {
+        const possibleURL = possibleURLs[i];
+        const cacheKey = controller.getCacheKeyForURL(possibleURL);
+        if (cacheKey) {
+          const cachedResponse = caches.match(cacheKey);
+          if (params.debug) {
+            console.log('[Docusaurus-PWA][SW]: serving cached asset', {
+              requestURL,
+              possibleURL,
+              possibleURLs,
+              cacheKey,
+              cachedResponse,
+            });
+          }
+          event.respondWith(cachedResponse);
+          break;
+        }
+      }
+    }
+  });
+
+  self.addEventListener('message', async (event) => {
+    if (params.debug) {
+      console.log('[Docusaurus-PWA][SW]: message event', {
+        event,
+      });
+    }
+
+    const type = event.data && event.data.type;
+
+    if (type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+  });
+})();
 
 
 /***/ })
