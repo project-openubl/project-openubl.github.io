@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Project OpenUBL Blog</title>
-        <link>https://project-openubl.github.io/blog</link>
+        <link>https://project-openubl.github.io/en/blog</link>
         <description>Project OpenUBL Blog</description>
         <lastBuildDate>Wed, 14 Apr 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
