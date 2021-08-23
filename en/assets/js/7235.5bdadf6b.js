@@ -1,1 +1,0 @@
-(self.webpackChunkproject_openubl=self.webpackChunkproject_openubl||[]).push([[7235],{97235:function(e,p,u){"use strict";u.r(p)}}]);
