@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>Project OpenUBL Blog</title>
+        <link>https://project-openubl.github.io/en/blog</link>
+        <description>Project OpenUBL Blog</description>
+        <lastBuildDate>Wed, 14 Apr 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Searchpe 2.0.1]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/04/14/searchpe-2.0.1</link>
+            <guid>Searchpe 2.0.1</guid>
+            <pubDate>Wed, 14 Apr 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Searchpe 2.0.1 was released!]]></description>
+            <content:encoded><![CDATA[<p>Searchpe 2.0.1 was released!</p><ul><li>It includes the resolution to a bug that did not allow to import 100% of the data within the reduced standard of the SUNAT.</li><li>You only need to update the current version with which you account.</li></ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[XBuilder 1.1.9.Final]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/04/06/xbuilder-1.1.9.Final</link>
+            <guid>XBuilder 1.1.9.Final</guid>
+            <pubDate>Tue, 06 Apr 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[XBuilder 1.1.9.Final was released!]]></description>
+            <content:encoded><![CDATA[<p>XBuilder 1.1.9.Final was released!</p><ul><li>This version requires zero changes in your software.</li><li>If you have the error code <code>The XML does not contain the tag or there is no information from the local code of the issuer</code> then this is a recommended update for you.</li></ul><h2>What does this version include?</h2><ul><li>If the user does not define the <strong>Code of the tax domicile or local annex of the issuer</strong> then XBuilder will default the code <code>0000</code> as specified in the new rules of validation of the SUNAT.</li><li>If the user does not want to use the default code <code>0000</code> then it can define its value when creating the XML.</li></ul><h3>Error to resolve</h3><p><code>3030-The XML does not contain the tag or there is no information from the sender&#x27;s local attachment code.</code></p><h3>Defining the affected XML</h3><pre><code class="language-xml">&lt;cac:AccountingSupplierParty&gt;
+    &lt;cac:Party&gt;
+        &lt;cac:PartyLegalEntity&gt;
+            &lt;cac:RegistrationAddress&gt;
+                &lt;cbc:AddressTypeCode&gt;0000&lt;/cbc:AddressTypeCode&gt;
+            &lt;/cac:RegistrationAddress&gt;
+        &lt;/cac:PartyLegalEntity&gt;
+    &lt;/cac:Party&gt;
+&lt;/cac:AccountingSupplierParty&gt;
+</code></pre><h3>SUNAT validation</h3><table><thead><tr><th>If Document String does not start with number, the Tag UBL does not exist or is empty</th><th>ERROR</th><th>3030</th><th>The XML does not contain the tag or there is no information from the sender&#x27;s local attachment code</th></tr></thead><tbody><tr><td>If Document String starts with number, the Tag UBL does not exist or is empty</td><td>OBSV</td><td>4198</td><td>The XML does not contain the tag or there is no information from the sender&#x27;s local attachment code</td></tr><tr><td>If Document String does not start with number and the UBL Tag is different from &#x27;0000&#x27;, the value of the UBL Tag is not in the listing</td><td>ERROR</td><td>3239</td><td>The listed local code is not found in the RUC</td></tr><tr><td>If the UBL Tag exists and is different from empty and is different from &#x27;0000&#x27; and the Document String starts with number, the value of the UBL Tag is not in the listing</td><td>OBSV</td><td>4199</td><td>The listed local code is not found in the RUC</td></tr><tr><td>If the UBL Tag exists and is different from empty, the value of the Tag is different to 4-digit numeric.</td><td>OBSV</td><td>4242</td><td>The data entered as an annex local does not comply with the established format</td></tr></tbody></table><h2>How do I define my local code if I don&#x27;t want to use the default value <code>0000</code>?</h2><p>The code <code>0000</code> will only be used if the user does not define its value; if you want to use a value defined by you then you can use:</p><pre><code class="language-java" metastring="{8}">InvoiceInputModel input = InvoiceInputModel.Builder.anInvoiceInputModel ()
+        .withString (&quot;F001 &quot;)
+        .withNumber (1)
+        .withProvider (ProveedorInputModel.Builder.aProveedorInputModel ()
+                .withRuc (&quot;12345678912&quot;)
+                .withRazonSocial (&quot; Project OpenUBL S.A.C. &quot;)
+                .withAddress (DirectionInputModel.Builder.aDirectionInputModel ()
+                        .withCodeLocal (&quot; 1234 &quot;)
+                        .build ()
+                )
+                .build ()
+        )
+        .withCustomer (ClientInputModel.Builder.aClientInputModel ()
+                .withName (&quot;Carlos Feria&quot;)
+                .withNumberDocumentIdentity (&quot;12121212121&quot;)
+                .withtheDocumentIdentity (Catalog6.RUC.toString ())
+                .build ()
+        )
+        .withDetail (Arrays.asList (
+                DocumentLineInputModel.Builder.aDocumentLineInputModel ()
+                        .withDescription (&quot;Item1 &quot;)
+                        .withQuantity (new BigDecimal (10))
+                        .withPreUnitario (new BigDecimal (100))
+                        .build (),
+                DocumentLineInputModel.Builder.aDocumentLineInputModel ()
+                        .withDescription (&quot;Item2 &quot;)
+                        .withQuantity (new BigDecimal (10))
+                        .withPreUnitarium (new BigDecimal (100))
+                        .build ())
+        )
+        .build ();
+</code></pre>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[XBuilder 1.1.7.Final]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/03/28/xbuilder-1.1.7.Final</link>
+            <guid>XBuilder 1.1.7.Final</guid>
+            <pubDate>Sun, 28 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[XBuilder 1.1.7.Final was released!]]></description>
+            <content:encoded><![CDATA[<p>XBuilder 1.1.7.Final was released!</p><p>A new version of <code>XBuilder</code> was released. As always, the previous versions are completely compatible with the previous versions.</p><p>There are no changes but only bugs resolutions in the formatting of numbers.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[XBuilder 1.1.6.Final]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/03/11/xbuilder-forma-pago</link>
+            <guid>XBuilder 1.1.6.Final</guid>
+            <pubDate>Thu, 11 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[XBuilder 1.1.6.Final was released!]]></description>
+            <content:encoded><![CDATA[<p>XBuilder 1.1.6.Final was released!</p><p>A new version of <code>XBuilder</code> was released. As always, the previous versions are completely compatible with the previous versions.</p><p>The most important change is the introduction of credit and cash payments. With this feature we guarantee support at <a href="https://cpe.sunat.gob.pe/nuevos-requisitos-para-cpe">Resolution of Superintendence N ° 193-2020/SUNAT</a> in which they incorporate the obligation to record the form of payment.</p><h3>What are the changes and when will they come into effect?</h3><p>From April 01, 2021 all invoices/ballots must indicate the type of payment (spot or credit). If your XML does not contain those fields then the SUNAT will reject those vouchers so this is a mandatory change. To learn more about the changes that will take effect next month reads <a href="https://cpe.sunat.gob.pe/nuevos-requisitos-para-cpe">Resolution of Superintendence No. 193-2020/SUNAT</a>.</p><h3>What do you need to meet the new requirement?</h3><ul><li>If you already use <code>XBuilder</code> only updates the library to the latest version. If only spot vouchers then you will have <code>Zero</code> changes in your existing software. On the other hand, if you check out the credit then use our <a href="https://project-openubl.github.io/docs/xbuilder/ejemplos/formaPago">manual</a> to start issuing vouchers to the credit.</li></ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Searchpe Beta1 released]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/01/30/searchpe-beta-released</link>
+            <guid>Searchpe Beta1 released</guid>
+            <pubDate>Sat, 30 Jan 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Searchpe Beta1 was released!]]></description>
+            <content:encoded><![CDATA[<p>Searchpe Beta1 was released!</p><p>Searchpe is a microservice that downloads, processes, and stores the data of the reduced standard of the SUNAT.</p><p>Searchpe join the range of tools maintained by Project OpenUBL, the microservice is done so that your software can consume the data exposed by Searchpe through the use of HTTP calls (GET, POST, PUT, DELETE)</p><p>For more information, review the documentation.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[XBuilder 1.1.4.Final released]]></title>
+            <link>https://project-openubl.github.io/en/blog/2021/01/10/xbuilder-released_114Final</link>
+            <guid>XBuilder 1.1.4.Final released</guid>
+            <pubDate>Sun, 10 Jan 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[XBuilder 1.1.4.Final was released. You can see the library published in the central repository of Maven.]]></description>
+            <content:encoded><![CDATA[<p>XBuilder 1.1.4.Final was released. You can see the library published in the central repository of <a href="https://search.maven.org/artifact/io.github.project-openubl/xbuilder/1.1.4.Final/jar">Maven</a>.</p><h2>Upgrade</h2><p>The new version does not involve any changes that cause conflicts with previous versions.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Project OpenUBL]]></title>
+            <link>https://project-openubl.github.io/en/blog/project-openubl</link>
+            <guid>project-openubl</guid>
+            <pubDate>Mon, 09 Dec 2019 00:00:00 GMT</pubDate>
+            <description><![CDATA[What is Project OpenUBL?]]></description>
+            <content:encoded><![CDATA[<h2>What is Project OpenUBL?</h2><p>Project OpenUBL is an Open Source project that includes a set of tools, libraries, microservices associated with Electronic Billing in Peru.</p><p>Project OpenUBL is born because I saw everyone create their own software and there is no initiative to create business-level solutions using Open Source tools. Knowledge must be shared and embodied in something concrete.</p><h2>What isn&#x27;t Project OpenUBL?</h2><p>Project OpenUBL is not an Electronic Billing software. The goal of Project OpenUBL is to create tools that other software, companies, or developers can use in their own projects.</p><h2>What does Project OpenUBL contain?</h2><p>At the moment Project OpenUBL contains 2 tools:</p><ul><li><strong>XML Builder</strong>: microservice to create electronic payment vouchers using UBL 2.1.</li><li><strong>SUNAT Web Services</strong>: Java library used to send XMLs to SUNAT.</li></ul><h2>What other projects will be included in Project OpenUBL?</h2><p>Soon Project OpenUBL will include:</p><ul><li>XML Signer: microservice to electronically sign arachivos XML</li><li>XML Reporter: microservice to generate PDFs (paper version of the voucher)</li><li>XML Sender: microservice to send vouchers to the SUNAT.</li></ul><h2>Let&#x27;s talk about XML Builder</h2><p>XML Builder is a microservice that exposes rest web services that can be used to create electronic payment vouchers such as invoice, ballot, credit note, debit note, etc. It is called XML Builder because each of its endpoints generate XMLs files based on the standard UBL 2.1.</p><p>The idea of XML Builder is to create vouchers with the required minimum data; XML Builder must generate the majority of data automatically. In addition, the endpoints are User Friendly, that is, the endpoints do not require cumbersome codes of Catalogs as the majority of software in the current national market.</p><p>If you want to contribute to the project you can do it in many ways:</p><ul><li>Create or improve project documentation</li><li>Create Github issues reporting errors or improvements</li><li>Expand the news of the project</li></ul>]]></content:encoded>
+        </item>
+    </channel>
+</rss>

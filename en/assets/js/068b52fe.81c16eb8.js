@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkproject_openubl=self.webpackChunkproject_openubl||[]).push([[7335],{77680:function(e){e.exports=JSON.parse('{"allTagsPath":"/en/blog/tags","slug":"/en/blog/tags/xbuilder","name":"xbuilder","count":4,"permalink":"/en/blog/tags/xbuilder"}')}}]);
