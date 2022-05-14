@@ -22,6 +22,20 @@
         <category label="release" term="release"/>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Searchpe 4.0.0.Beta8 released!]]></title>
+        <id>/2022/05/14/searchpe-4-0-0-Beta8-released</id>
+        <link href="https://project-openubl.github.io/blog/2022/05/14/searchpe-4-0-0-Beta8-released"/>
+        <updated>2022-05-14T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[4.0.0.Beta8 es el último release.]]></summary>
+        <content type="html"><![CDATA[<p>Acabamos de lanzar Searchpe 4.0.0.Beta8 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_mojV" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/searchpe/releases/tag/v4.0.0.Beta8" target="_blank" rel="noopener noreferrer">the full changelog of 4.0.0.Beta8 on GitHub</a>.</p>]]></content>
+        <author>
+            <name>Carlos Feria</name>
+            <uri>https://github.com/carlosthe19916</uri>
+        </author>
+        <category label="searchpe" term="searchpe"/>
+        <category label="release" term="release"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Searchpe 2.0.1]]></title>
         <id>/2021/04/14/searchpe-2.0.1</id>
         <link href="https://project-openubl.github.io/blog/2021/04/14/searchpe-2.0.1"/>
