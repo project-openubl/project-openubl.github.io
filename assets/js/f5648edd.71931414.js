@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkproject_openubl=self.webpackChunkproject_openubl||[]).push([[1375],{6174:function(e){e.exports=JSON.parse('{"allTagsPath":"/blog/tags","name":"searchpe","count":7,"permalink":"/blog/tags/searchpe"}')}}]);

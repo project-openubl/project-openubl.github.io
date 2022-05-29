@@ -608,7 +608,7 @@ function waitUntil(event, asyncFn) {
 
 // @ts-ignore
 try {
-    self['workbox:core:6.5.1'] && _();
+    self['workbox:core:6.5.2'] && _();
 }
 catch (e) { }
 
@@ -1774,7 +1774,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // @ts-ignore
 try {
-    self['workbox:precaching:6.5.1'] && _();
+    self['workbox:precaching:6.5.2'] && _();
 }
 catch (e) { }
 
@@ -3325,7 +3325,7 @@ class Router {
 
 // @ts-ignore
 try {
-    self['workbox:routing:6.5.1'] && _();
+    self['workbox:routing:6.5.2'] && _();
 }
 catch (e) { }
 
@@ -4394,7 +4394,7 @@ class StrategyHandler {
 
 // @ts-ignore
 try {
-    self['workbox:strategies:6.5.1'] && _();
+    self['workbox:strategies:6.5.2'] && _();
 }
 catch (e) { }
 
@@ -4511,134 +4511,100 @@ __webpack_require__.r(__webpack_exports__);
  */
 /* eslint-disable no-restricted-globals */
 
-
-
 function parseSwParams() {
-  const params = JSON.parse(
-    new URLSearchParams(self.location.search).get('params'),
-  );
-  if (params.debug) {
-    console.log('[Docusaurus-PWA][SW]: Service Worker params:', params);
-  }
-  return params;
+    const params = JSON.parse(new URLSearchParams(self.location.search).get('params'));
+    if (params.debug) {
+        console.log('[Docusaurus-PWA][SW]: Service Worker params:', params);
+    }
+    return params;
 }
-
-// doc advises against dynamic imports in SW
+// Doc advises against dynamic imports in SW
 // https://developers.google.com/web/tools/workbox/guides/using-bundlers#code_splitting_and_dynamic_imports
 // https://twitter.com/sebastienlorber/status/1280155204575518720
 // but looks it's working fine as it's inlined by webpack, need to double check
 async function runSWCustomCode(params) {
-  if (false) {}
+    if (false) {}
 }
-
 /**
  * Gets different possible variations for a request URL. Similar to
  * https://git.io/JvixK
- *
- * @param {string} url
  */
 function getPossibleURLs(url) {
-  const possibleURLs = [];
-  const urlObject = new URL(url, self.location.href);
-
-  if (urlObject.origin !== self.location.origin) {
-    return possibleURLs;
-  }
-
-  // Ignore search params and hash
-  urlObject.search = '';
-  urlObject.hash = '';
-
-  // /blog.html
-  possibleURLs.push(urlObject.href);
-
-  // /blog/ => /blog/index.html
-  if (urlObject.pathname.endsWith('/')) {
-    possibleURLs.push(`${urlObject.href}index.html`);
-  } else {
-    // /blog => /blog/index.html
-    possibleURLs.push(`${urlObject.href}/index.html`);
-  }
-
-  return possibleURLs;
+    const urlObject = new URL(url, self.location.href);
+    if (urlObject.origin !== self.location.origin) {
+        return [];
+    }
+    // Ignore search params and hash
+    urlObject.search = '';
+    urlObject.hash = '';
+    return [
+        // /blog.html
+        urlObject.href,
+        // /blog/ => /blog/index.html
+        // /blog => /blog/index.html
+        `${urlObject.href}${urlObject.pathname.endsWith('/') ? '' : '/'}index.html`,
+    ];
 }
-
 (async () => {
-  const params = parseSwParams();
-
-  // eslint-disable-next-line no-underscore-dangle
-  const precacheManifest = [{"revision":"18eb8ab6f4f953e66d9d15b3ebff6acf","url":"404.html"},{"revision":"856133764557a733d81dc168bf37f113","url":"about/index.html"},{"revision":"2e9c2fd437ee500d6004237fb792020a","url":"api/searchpe/index.html"},{"revision":"4d4a7edc50420a4c155af502ec4ee8b8","url":"apis/index.html"},{"revision":"15a150493dbf2e04abbd943ce2c4afa2","url":"apis/searchpe/index.html"},{"revision":"1cb5272bf2f555e5a99c7fcf82e16dcd","url":"assets/css/styles.1dd9fada.css"},{"revision":"a89552ee61ab16082748e972532e6ba6","url":"assets/js/01917f1d.723b66d4.js"},{"revision":"a44b46a236aa486d3c474b6174cf2e29","url":"assets/js/01a85c17.a83a0698.js"},{"revision":"24e08d815ab740ec351e580dbde01372","url":"assets/js/0511555c.1e0cc343.js"},{"revision":"b20108bfdd7fd469816b9872ca0fa4c6","url":"assets/js/056d1dff.6ca4f104.js"},{"revision":"ecf52ca4fcb36f2c8da23fa08b04aec4","url":"assets/js/05e6c12a.b43c073c.js"},{"revision":"ca5e08b87517d2462ecabe188b030c6a","url":"assets/js/110403ef.7a59b9f2.js"},{"revision":"9700108a0219e1654cbf792d8b149b62","url":"assets/js/17896441.378c5a4e.js"},{"revision":"9568128b66f39562ab0c9c3920a77f70","url":"assets/js/1a4e3797.4cd5895a.js"},{"revision":"148063dc079cfe9b9f36d7f32ba7e4f2","url":"assets/js/1be78505.0acc0b96.js"},{"revision":"ab349c90a626a6e17c6c2744e8f00000","url":"assets/js/1df93b7f.35c4ccce.js"},{"revision":"3a071cf4d513478261a9dc8003e720a3","url":"assets/js/1e656cdc.69c5f3ef.js"},{"revision":"4a46eb4e0b35590423f865c015a9b8f6","url":"assets/js/1ec2af36.52dc883a.js"},{"revision":"f24be9aa3f2eb9029645e77d6aacce46","url":"assets/js/2230ad1b.0485b8bf.js"},{"revision":"16a9fa99826febdcc28d1bde098aacf4","url":"assets/js/230.f81385db.js"},{"revision":"4ac811b1fd399fbcbd4b14aee78e636a","url":"assets/js/25892a13.8204cd8f.js"},{"revision":"305caca7d874043783ba7a3d146fa8f2","url":"assets/js/2716189e.3b58b0d8.js"},{"revision":"0949de46b337d4ea143be11ea096682b","url":"assets/js/28803fd8.115e3a6d.js"},{"revision":"3cce3a355532cfa500270a266f1f8987","url":"assets/js/29147f2d.72cbf89b.js"},{"revision":"f7983ba76f5314239a02cf84eca44873","url":"assets/js/2933.3d51798f.js"},{"revision":"fcdeea21c9db5a62487839cec1410a1f","url":"assets/js/2b0c6e63.cac5ec0d.js"},{"revision":"087e326d6868a644b992754454b3792e","url":"assets/js/2c6365d6.31b1ff11.js"},{"revision":"f36b6eaa2e5f159d8e7f3f2ff7a740b3","url":"assets/js/306a8c6c.e36eb954.js"},{"revision":"d21cb230d24ce9f3e78d35b4a8c2e4a6","url":"assets/js/36ef7182.3eab9a8f.js"},{"revision":"fb115337dcd904762f65eb18f7ecc04b","url":"assets/js/3eee94b0.c88f4d86.js"},{"revision":"06de7f6e29017c5f0e90d90e398ab480","url":"assets/js/3efaa5da.cfdf55d9.js"},{"revision":"978e73717d71a6df98c85e279ae17741","url":"assets/js/3f2e63cb.de3de3c9.js"},{"revision":"120e5d8f8997ff66ae11fc32ad0c10a6","url":"assets/js/40bc243a.eb4ea07b.js"},{"revision":"34ba5a736d823bde05b67ce050298bdf","url":"assets/js/4608.1d1ffec7.js"},{"revision":"5df78de3ef18f5e8496a01db38263426","url":"assets/js/469788f5.90f9a5a3.js"},{"revision":"7b9ca8085dc7a2feacdaca946899e991","url":"assets/js/4812.5d3e1391.js"},{"revision":"88b99b0654d219ba078ec5d427ef0e6b","url":"assets/js/4c9d8eaa.927610e5.js"},{"revision":"74d8604496b2d1d255d4c8eb7ede1f0d","url":"assets/js/5131.934a925a.js"},{"revision":"0250dec8a5e736dd01ce25a009889505","url":"assets/js/51ffe3d5.ff6170a3.js"},{"revision":"3474ce85c4186c913ec59e3f46667f76","url":"assets/js/5283.e52e9221.js"},{"revision":"38f483cf71da0b814b3cd6681e9ea57c","url":"assets/js/54eec65a.86a0496f.js"},{"revision":"6b690ada54d95fdda011c0d152f17451","url":"assets/js/5552c1f5.dedbbdc0.js"},{"revision":"685a1603a817751190066ae07b8cd521","url":"assets/js/5c910ec3.138f11f2.js"},{"revision":"5af749abf7d3bb2143a6fcebf705b03d","url":"assets/js/5e1d3f56.64727a9e.js"},{"revision":"0f2b0065dbe3e398d90eb440f058daa9","url":"assets/js/605b7d02.ffc3080a.js"},{"revision":"31e8b45ca260079d974d04680f5bd4f6","url":"assets/js/61047f2b.3e783417.js"},{"revision":"d7ba658bd2890740a5a4b8915e47d6f9","url":"assets/js/6301b652.18854ebf.js"},{"revision":"35d80790823c413273acdb62b7381682","url":"assets/js/63b30d4e.14f6836a.js"},{"revision":"34c7d41da65030b731214434893a2d71","url":"assets/js/6815.0d1d38d4.js"},{"revision":"56efc428fddb53f93ec5b23d3eb791dc","url":"assets/js/6875c492.fbbad126.js"},{"revision":"fad9c0c3a6d1b8b101c15fd0e3dcd8b2","url":"assets/js/69369ae2.009fd2d4.js"},{"revision":"076e6d0fff0b0d538e7ee4cc7faf1c33","url":"assets/js/6945.f7017a03.js"},{"revision":"3ab25340143e72436d0d0ba4d9ac95c5","url":"assets/js/6a41fcb7.1d7bacd2.js"},{"revision":"320f09b6f286e37be5809fcebca1cfcf","url":"assets/js/6b841b38.841722d2.js"},{"revision":"da15804a79f415f0c8b81ff64436a612","url":"assets/js/6d30dfea.ab7abed6.js"},{"revision":"82107cc320c52f2cc06f7f2ce4ea4039","url":"assets/js/72cc1e64.05f67e8f.js"},{"revision":"65e98229b72d073c28bdbfb8173df248","url":"assets/js/73725805.dafa1241.js"},{"revision":"d016fd99c447f720ece590ab8042997b","url":"assets/js/771667bd.a2aec28e.js"},{"revision":"3cc157d5734dec078df9d0a08b2dd089","url":"assets/js/7783ccd7.6492db49.js"},{"revision":"deae8d8ba9bbf6ee54b30668476e662d","url":"assets/js/7c2ff145.945bf4d3.js"},{"revision":"3d2ca7f233ada768f58d75fd292130a9","url":"assets/js/7f621b67.4972f9f3.js"},{"revision":"2d1e944b3de96e1c385840da1704557b","url":"assets/js/814f3328.09e469c1.js"},{"revision":"6551fac15d161ffff85e04391f1c3366","url":"assets/js/82702239.436bf126.js"},{"revision":"5ca0e8b9bdb9ace872e134d211359f12","url":"assets/js/83d480e9.d7cb58c9.js"},{"revision":"fb2b78d4c821115e5af12e784e790c63","url":"assets/js/860f47a8.7adfc1bf.js"},{"revision":"b16e02ebbd73eb7fdcbbef30a39579b3","url":"assets/js/8894.cc8baa91.js"},{"revision":"cf8b228a02eb9c1a294ca97101d082ef","url":"assets/js/8974a066.41de1635.js"},{"revision":"3b9ac15aa4c7c7aa48c63588b2b86284","url":"assets/js/8eb4e46b.b7836520.js"},{"revision":"029709369cc816fbcabdc5ea0bcd79e1","url":"assets/js/91359157.c7ef5705.js"},{"revision":"590636855eec1328db8333ad8b4b73ac","url":"assets/js/935f2afb.4abf27ee.js"},{"revision":"e72d60b07ea6094734caf40bed78899f","url":"assets/js/958aeffe.0876b2a5.js"},{"revision":"cc6d666a625ea50cc2e21ef63acd769f","url":"assets/js/98a2215f.1da58a09.js"},{"revision":"1ace610035d92bc3baec7d05fd60883e","url":"assets/js/9c021584.4b573517.js"},{"revision":"3aa7652e4095422e029fe6c816d56378","url":"assets/js/9da1d6ed.e45f2507.js"},{"revision":"40046425de653b100f26da629bcd00ef","url":"assets/js/9e4087bc.a7208d61.js"},{"revision":"c7855e24bb03a6b51a7b31738f5cd9d8","url":"assets/js/a2aa8a20.28fe6bc4.js"},{"revision":"a234610298e5e26ac8ee935dd5399c4f","url":"assets/js/a5187dc2.a0b6ba20.js"},{"revision":"80f0aca232bc19ac2bc4de380a96ccd8","url":"assets/js/a6aa9e1f.c4c45344.js"},{"revision":"8c630ddc34369586b626158f3501410c","url":"assets/js/a7023ddc.3500fdac.js"},{"revision":"8d1851afa88fe83e1d3544dc5dc5bb35","url":"assets/js/a7aa5ecd.f143ce3f.js"},{"revision":"9e09734ef11020dd22773a6b4c8aa8f9","url":"assets/js/a82b3eda.be2a4d63.js"},{"revision":"c83168b61062eba4ea76b42ca86b9933","url":"assets/js/ac59fbb1.e94251c4.js"},{"revision":"40cd73a3b0734cfe29c54d7d2e568dcf","url":"assets/js/ac7a8eaf.9e3ff6a7.js"},{"revision":"d1a77b6d805f842800c2ea75302a8dd1","url":"assets/js/b2b675dd.7ccf40f9.js"},{"revision":"f3418aa4848870b4dfaabb556afe5ca3","url":"assets/js/b2f554cd.338bb84a.js"},{"revision":"0257ceefb0a21e9774d1836b8e1e0fd5","url":"assets/js/b4bb15c4.f80189a2.js"},{"revision":"85f9d75c3786c49cee35a71d6347148a","url":"assets/js/b9d059d3.48c86a2b.js"},{"revision":"1e518803334cfb6699b5c332aa6bf423","url":"assets/js/bdd0a550.49562ea4.js"},{"revision":"3ff06979ecadd68d9455813133ef6470","url":"assets/js/c4348237.1adb24dd.js"},{"revision":"c8d9f07b45bbfc9882af4be03a30ba8d","url":"assets/js/c5c95739.1496ecc3.js"},{"revision":"95a21fbea8e3170b5bf1410fa5799b48","url":"assets/js/c5e2ed22.83a4c350.js"},{"revision":"d4f93aee9b109fc7798d29b344f4936e","url":"assets/js/c7c19635.80abce60.js"},{"revision":"0edbfbefd56a50641853cae97e635201","url":"assets/js/c9de4fd4.bec8f3ea.js"},{"revision":"8c98aeb932be1a4b4c796cbce4330971","url":"assets/js/cab8b3b8.2cbc6ce4.js"},{"revision":"1a8050907d2b3379017df4e2b78c9d48","url":"assets/js/cb3eb946.7777ed87.js"},{"revision":"6a61ab1cf39af31ec613a24f83626e97","url":"assets/js/cc0ad427.2cae2d23.js"},{"revision":"d35b7d6c0ae59191eaf78cd2a5188e47","url":"assets/js/ccc49370.680e74c6.js"},{"revision":"60703d9db861d05409a08b3b6e16799d","url":"assets/js/ccd76696.fc09bec8.js"},{"revision":"51acd2d964d28a4bbc0146807d9b0205","url":"assets/js/d0f5d4ed.18dedd35.js"},{"revision":"e0ad904952693707a7e93981e2700aa5","url":"assets/js/d3517eca.c59cc0ca.js"},{"revision":"ceb8427d0671174e09a6d56aed155cd3","url":"assets/js/d564a353.62922c53.js"},{"revision":"90137d9dd966a4fe37f38f8dba8f64f4","url":"assets/js/db5a54a5.5a926e22.js"},{"revision":"409428a55b9ad33de0025d92f0e28001","url":"assets/js/dd914074.0e297018.js"},{"revision":"2e8a5f4aab6edcb370772415ca9a65fd","url":"assets/js/defc70e4.9094e826.js"},{"revision":"e51fda5995de6d32fab097b7499731a1","url":"assets/js/e8568434.ef6f99a9.js"},{"revision":"7d54fe1ca227ee07a69ea1cec590bd59","url":"assets/js/e8b803a6.e4487688.js"},{"revision":"d01ec26b72ce99c7d1c3cb4357c9d2ac","url":"assets/js/ea4bc704.34e4519a.js"},{"revision":"73741a9880f7a8cbb7c87c7c6fcc360c","url":"assets/js/eac85c21.848eee76.js"},{"revision":"adf0643f64a1697738692f388de420fc","url":"assets/js/eb75ae42.c9c7a609.js"},{"revision":"2fab893a83cfccb5a0a5f1a46e51e2b7","url":"assets/js/ec9f61ae.21794bd4.js"},{"revision":"622d2f132b370bdfb282c50f8608280e","url":"assets/js/f0ad3fbb.b66239c2.js"},{"revision":"13be8ed9b37b3559d19daf3e3bb7c6c6","url":"assets/js/f5648edd.71931414.js"},{"revision":"34d55762e78876b14d66a8dcbe0a0319","url":"assets/js/f5f21f83.d4bd29aa.js"},{"revision":"f795683228abf2a126ded50231cef2d3","url":"assets/js/f7ba7363.7a0963b0.js"},{"revision":"12ae59f7229c43586e569dd22cc33e57","url":"assets/js/f7bb608f.36635dae.js"},{"revision":"320e3faef99b88dcd06b86bcd45b940a","url":"assets/js/fe191e16.9ce51b93.js"},{"revision":"cad087f9e704a257257a22600d0f0ac2","url":"assets/js/ffcc59b9.77c41ea6.js"},{"revision":"03c0782eb642c9bd13249208b7ccb5d6","url":"assets/js/main.8977b5c1.js"},{"revision":"ffc002bc11c4e312c395a6208fd20f78","url":"assets/js/runtime~main.5616f3b7.js"},{"revision":"d134923fa50b8640c75707ed4d26fa9a","url":"blog/2021/01/10/xbuilder-released_114Final/index.html"},{"revision":"5f55dd3be777153bb20243c468005960","url":"blog/2021/01/30/searchpe-beta-released/index.html"},{"revision":"b9ad15fdebbb58bb0f9f917acac87707","url":"blog/2021/03/11/xbuilder-forma-pago/index.html"},{"revision":"8b546cc1e13e694e59ca89dde8ed6d59","url":"blog/2021/03/28/xbuilder-1.1.7.Final/index.html"},{"revision":"018827091e395d504254da672ec3933c","url":"blog/2021/04/06/xbuilder-1.1.9.Final/index.html"},{"revision":"24365e63ba47eaf4a6f89537f5c3df23","url":"blog/2021/04/14/searchpe-2.0.1/index.html"},{"revision":"38633f38d01905269b73676ec13f5661","url":"blog/2022/05/14/searchpe-4-0-0-Beta8-released/index.html"},{"revision":"4743433b1b3ecd8b39e9b43603f2e601","url":"blog/2022/05/29/searchpe-4-0-0-Beta10-released/index.html"},{"revision":"c30400c459976d1c3c8d5140732b3b07","url":"blog/2022/05/29/searchpe-4-0-0-Beta11-released/index.html"},{"revision":"c8353b216d84be56dbefdf6b56775f60","url":"blog/2022/05/29/searchpe-4-0-0-Beta12-released/index.html"},{"revision":"785390e2534fbad838350be151bbc7a3","url":"blog/2022/05/29/searchpe-4-0-0-Beta9-released/index.html"},{"revision":"f5feaa4353c2cbf156b8609a303cbd41","url":"blog/archive/index.html"},{"revision":"55d27cf3eccffb8f803aa642ccbd77e9","url":"blog/index.html"},{"revision":"5139e39f2a9d5727513203a02a1f04da","url":"blog/page/2/index.html"},{"revision":"af47308e818184667881b1239b464e47","url":"blog/project-openubl/index.html"},{"revision":"107308f06361e93c7268b37ff8e6ac38","url":"blog/tags/index.html"},{"revision":"d65e74bc137d9f8bd7deb0fe62c62265","url":"blog/tags/project/index.html"},{"revision":"9a5e0b2a94b106e1d484ef4393c1fbf5","url":"blog/tags/release/index.html"},{"revision":"49c53020a4b49219d7d8aeb10c370c9a","url":"blog/tags/searchpe/index.html"},{"revision":"b802b22b60d9dc73ed875ec8d9a55bf9","url":"blog/tags/xbuilder/index.html"},{"revision":"ef9d315380fc5d4e34df991b1022a70b","url":"community/support/index.html"},{"revision":"714cac5552064ad8c9c578cec8f626e5","url":"community/team/index.html"},{"revision":"618fd72095c82883379d5cf4cc038173","url":"docs/contributing/index.html"},{"revision":"93d3e31416397ab4c693049c35b84d51","url":"docs/design-principles/index.html"},{"revision":"bc7a049bca4a21b32f2948eaee167751","url":"docs/index.html"},{"revision":"82b6423b6f3d5ca7c846164ee736f18f","url":"docs/searchpe/api-integration/index.html"},{"revision":"e700c6f1b9c90cf539c4787cbc7fa504","url":"docs/searchpe/enterprise/installation/java/index.html"},{"revision":"539bbb6eaefcef62fa4aa49ad9c3ce3c","url":"docs/searchpe/enterprise/introduction/index.html"},{"revision":"92dbfde171b1a44fb37c7bada3d1b3ba","url":"docs/searchpe/getting-started/index.html"},{"revision":"da4897073744c212f5d7deef29cdfbe5","url":"docs/searchpe/index.html"},{"revision":"ad39d73a622a8e0f24693b377f749635","url":"docs/searchpe/installation/java/index.html"},{"revision":"91a26850b3793b82544d125e728ed7dc","url":"docs/searchpe/installation/kubernetes/index.html"},{"revision":"edca2d7a22d41af9f71da60a00425338","url":"docs/searchpe/migration/index.html"},{"revision":"0a3184b2f30921f12a008ed88740feb9","url":"docs/searchpe/web-console/index.html"},{"revision":"140e2e9ca27ca96da5cc0868086e5211","url":"docs/xbuilder/concepts/index.html"},{"revision":"2cbf0cd4f9af721084a16d6459bd4028","url":"docs/xbuilder/create-xml/index.html"},{"revision":"03f0f654da1de7fe6361f9358b7c4ba6","url":"docs/xbuilder/examples/anticipos/index.html"},{"revision":"fcdf30b294f7ad0f11731be84b528746","url":"docs/xbuilder/examples/credit-note/index.html"},{"revision":"743c3d2e35587613c529eeb5cbee0d13","url":"docs/xbuilder/examples/debit-note/index.html"},{"revision":"447242fc95ddafa57ad5f0049216d8f6","url":"docs/xbuilder/examples/forma-pago/index.html"},{"revision":"e7bb645804a1180d7234a530beccc98c","url":"docs/xbuilder/examples/guia-remision-relacionada/index.html"},{"revision":"6a3b75dd45b552a42771a9e316c8ec7b","url":"docs/xbuilder/examples/icb/index.html"},{"revision":"7fbe68e1c781a518d8631c901150dba8","url":"docs/xbuilder/examples/igv/index.html"},{"revision":"d41d014354a691791ebbbec12103ea95","url":"docs/xbuilder/examples/invoice/index.html"},{"revision":"1de77fbb27f96587ea6222850861d36c","url":"docs/xbuilder/examples/otros-documentos-tributarios-relacionados/index.html"},{"revision":"ed5d61e4e0917f43444601b38a2b26a9","url":"docs/xbuilder/examples/selling-price/index.html"},{"revision":"1f7631d966bee769d6a4a777edf45921","url":"docs/xbuilder/examples/summary-document/index.html"},{"revision":"36fa98619f3eed16f4aa39521a415670","url":"docs/xbuilder/examples/voided-document/index.html"},{"revision":"70e0306f4e82064dd6e06fa25ae2293f","url":"docs/xbuilder/index.html"},{"revision":"45d1f4f2363eff8644fa9894998faad4","url":"docs/xbuilder/installation/index.html"},{"revision":"5740827acf6575a4c5da4b4373afbf4b","url":"docs/xbuilder/qa/index.html"},{"revision":"e231768a25d2ab63843a5682941cb0e6","url":"docs/xbuilder/sign-xml/index.html"},{"revision":"f2348b4c68c7688c928895d9cd0fdd33","url":"docs/xsender/billConsultService/getStatus/index.html"},{"revision":"6bc83c389968dc8750be2aafcd62ce9a","url":"docs/xsender/billConsultService/getStatusCrd/index.html"},{"revision":"76763dfdc50aa1314955be5ee00e18f6","url":"docs/xsender/billService/getStatus/index.html"},{"revision":"5b4b00b33f1cb34a415289beb6e82e20","url":"docs/xsender/billService/sendBill/index.html"},{"revision":"29041956f24b782285555861512f58c9","url":"docs/xsender/billService/sendSummary/index.html"},{"revision":"71540ae47464c1018369ec9beb48c6c0","url":"docs/xsender/billValidService/getStatus/index.html"},{"revision":"947d3f8b17d76f9c2c11f30d59f5049f","url":"docs/xsender/codigosErrorSunat/index.html"},{"revision":"42ed6e44267c9c903355d0861ba98aed","url":"docs/xsender/index.html"},{"revision":"7d55f446b286d41505542a9c86d8e25a","url":"docs/xsender/installation/index.html"},{"revision":"2fa68ae6482abab87dcfb34902eb6d64","url":"docs/xsender/tutorial/index.html"},{"revision":"1d7c01ce39aef5dd2f90dbc0033528a3","url":"index.html"},{"revision":"6b0893861940426de93007e8d18cb5d0","url":"manifest.json"},{"revision":"78267788cf68276f4c3a1a132b8ba494","url":"search/index.html"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"assets/images/concepts-equation-72f76f9c8fa662735cb81335cb29f3aa.svg"},{"revision":"415ae4c04ac5669143e0d489e752b930","url":"assets/images/consulta-numero-documento-2c06215c0940102a0f38ed47696f5be4.png"},{"revision":"ff53a82fcbada2540745030d327f41b7","url":"assets/images/distribution-folder-tree-33d7bd0bed5dc9ae3b82d386ee9de4ed.png"},{"revision":"7f7f85ae66eee739ba2742fda2cda323","url":"assets/images/new-version-eeb60eac3fca56094509f211a4d208fc.png"},{"revision":"c85ffa08545de68f5ef550066533570a","url":"assets/images/searchpe-basic-auth-c6272e2ae5dee24415802502882c5dc1.png"},{"revision":"161d85f6e00b2a647d4a434bd1a92f70","url":"assets/images/searchpe-enterprise-overview-edf279b12e5357dbfdac61028cc4b1bf.png"},{"revision":"f45dded805257fea84ca29bab0623d38","url":"assets/images/searchpe-overview-fa24020c14632793a6c5d5eb1a7b6a97.png"},{"revision":"6e0bf33b9dac368162f5c056a39164f5","url":"img/boxes.png"},{"revision":"337a7f16d5404cb8ef03449cec62382c","url":"img/company.png"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"img/concepts-equation.svg"},{"revision":"1a59e66493d76ce242b31851454ce49d","url":"img/developer.png"},{"revision":"6944cbb9b7e51bb2e5b6d6660309b00a","url":"img/developer1.png"},{"revision":"4f745f39a4fdc0400f90120ef5db52b3","url":"img/favicon.ico"},{"revision":"9bcf9cfd77a6f7b72003e1569869faf4","url":"img/icons/icon-1024x1024.png"},{"revision":"750bf1a17cb605a3356e32a92718a6a1","url":"img/icons/icon-128x128.png"},{"revision":"826c874e9e71bd16c90de6b1fade3178","url":"img/icons/icon-16x16.png"},{"revision":"6ec18ba1dc9f89d91f2441e37504e2de","url":"img/icons/icon-24x24.png"},{"revision":"18fc021fbb337f43f4bda828396d0316","url":"img/icons/icon-256x256.png"},{"revision":"88c2406885269874d92631b120ffafa0","url":"img/icons/icon-32x32.png"},{"revision":"7599a1cf973630609e76089fb922a1a5","url":"img/icons/icon-48x48.png"},{"revision":"5a3ce5a81ca264afd17fecb75593fc47","url":"img/icons/icon-512x512.png"},{"revision":"784f78a42703759fd1bc629fce7e4e4d","url":"img/icons/icon-64x64.png"},{"revision":"5113c5165ef1d032ae57d5c1ab863fd4","url":"img/opensource.png"},{"revision":"9b4f3b1cf150c006c0f86f6ccf78e1fa","url":"img/project-openubl-logo.png"},{"revision":"8aa2cfe2ff5a1c246c1a749166db2824","url":"img/project-openubl.svg"},{"revision":"a7e92c07e6502e17f08c9c637fd62700","url":"img/searchpe-logo.svg"},{"revision":"415ae4c04ac5669143e0d489e752b930","url":"img/searchpe/consulta-numero-documento.png"},{"revision":"ff53a82fcbada2540745030d327f41b7","url":"img/searchpe/distribution-folder-tree.png"},{"revision":"7f7f85ae66eee739ba2742fda2cda323","url":"img/searchpe/new-version.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"img/searchpe/search.png"},{"revision":"c85ffa08545de68f5ef550066533570a","url":"img/searchpe/searchpe-basic-auth.png"},{"revision":"161d85f6e00b2a647d4a434bd1a92f70","url":"img/searchpe/searchpe-enterprise-overview.png"},{"revision":"f45dded805257fea84ca29bab0623d38","url":"img/searchpe/searchpe-overview.png"},{"revision":"05bb476ab6fd3f8f80c78ab543fb9e50","url":"img/sunat.svg"},{"revision":"99bf1d3554085080c5bff59bed12f91a","url":"img/undraw_Choose_bwbs.svg"},{"revision":"a6b83d7b4c3cf36cb21eb7a9721716dd","url":"img/undraw_docusaurus_mountain.svg"},{"revision":"b64ae8e3c10e5ff2ec85a653cfe6edf8","url":"img/undraw_docusaurus_react.svg"},{"revision":"8fa6e79a15c385d7b2dc4bb761a2e9e3","url":"img/undraw_docusaurus_tree.svg"},{"revision":"0428d007032dbafc6105490eac579fcf","url":"img/undraw_open_source_1qxw.svg"},{"revision":"3a65f17f1f7b03783400b11e3324d4f1","url":"img/undraw_server_q2pb.svg"},{"revision":"99d207903010089b928aabc03cf4e904","url":"img/undraw_software_engineer_lvl5.svg"},{"revision":"b291cd34030cbf47069f980a46cc643e","url":"img/undraw_web_developer_p3e5.svg"},{"revision":"72eba4f056cfaf92af6fda1b0a506f3a","url":"img/xbuilder-logo.svg"},{"revision":"7b8a4a90b42586511ce2f2a37f3dd38e","url":"img/xbuilder-server-black.svg"},{"revision":"86eaf7afbcf43af06f0d467370520b2b","url":"img/xbuilder.svg"},{"revision":"4a0930dc70478b7b5eeaa30e1398e31e","url":"img/xml-example.png"},{"revision":"6a5af821deddcef8b9dc4473907def62","url":"img/xsender-logo.svg"},{"revision":"96d23c0059e31be9a75a903ba6c5372c","url":"img/xsender-server-black.svg"},{"revision":"aa034d54316a0ac080cc2eea78790744","url":"img/xsender.svg"}];
-  const controller = new workbox_precaching__WEBPACK_IMPORTED_MODULE_0__.PrecacheController({
-    fallbackToNetwork: true, // safer to turn this true?
-  });
-
-  if (params.offlineMode) {
-    controller.addToCacheList(precacheManifest);
-    if (params.debug) {
-      console.log('[Docusaurus-PWA][SW]: addToCacheList', {
-        precacheManifest,
-      });
-    }
-  }
-
-  await runSWCustomCode(params);
-
-  self.addEventListener('install', (event) => {
-    if (params.debug) {
-      console.log('[Docusaurus-PWA][SW]: install event', {
-        event,
-      });
-    }
-    event.waitUntil(controller.install(event));
-  });
-
-  self.addEventListener('activate', (event) => {
-    if (params.debug) {
-      console.log('[Docusaurus-PWA][SW]: activate event', {
-        event,
-      });
-    }
-    event.waitUntil(controller.activate(event));
-  });
-
-  self.addEventListener('fetch', async (event) => {
+    const params = parseSwParams();
+    // eslint-disable-next-line no-underscore-dangle
+    const precacheManifest = [{"revision":"e46e5a9a3dff127ee0bd04ead0078352","url":"404.html"},{"revision":"bd166f96fc18796a784eccb1f4e87bce","url":"about/index.html"},{"revision":"b100ca6c012a78cb1eed8cd52ffd1481","url":"api/searchpe/index.html"},{"revision":"1791126d2f0207cb52f358eb744c8e88","url":"apis/index.html"},{"revision":"827c8cfcfd73a909d2741b0bd7b7c9c5","url":"apis/searchpe/index.html"},{"revision":"68be8fa27f34b2dc9440eac017279466","url":"assets/css/styles.81d1f8ca.css"},{"revision":"5c020e1a538847ec713678c8d2d7fd45","url":"assets/js/01917f1d.819db9f7.js"},{"revision":"155fc6db08a570034655c8ef73d597c8","url":"assets/js/01a85c17.df4846f3.js"},{"revision":"175cbc3aa8e692e17e32984c98b0117d","url":"assets/js/0511555c.78d85ab5.js"},{"revision":"d36b90b443b051bd618a7fca47bffce5","url":"assets/js/056d1dff.d80e35bc.js"},{"revision":"48b81b38c77c282b2e5bc7a273a6b58c","url":"assets/js/05e6c12a.b1228c24.js"},{"revision":"8270091219787cc8bab93d4b6939f477","url":"assets/js/110403ef.a442d39d.js"},{"revision":"aef73680c00196c9356bcf8024a7ad0e","url":"assets/js/17896441.de89a507.js"},{"revision":"a21bb5fad6ae61393ab761c75d447a1c","url":"assets/js/1a4e3797.1ef55435.js"},{"revision":"566cd9694485414e01c349ef1b88d4d6","url":"assets/js/1be78505.7effcddb.js"},{"revision":"75c2de89923f47fb222e5a592fbcc747","url":"assets/js/1df93b7f.04b018bc.js"},{"revision":"be65faee86e4d9a1c638072db5bc3a96","url":"assets/js/1e656cdc.dcc0eb6f.js"},{"revision":"50a8cbdf6325f5095cc2a4cb460b7481","url":"assets/js/1ec2af36.8c1f565c.js"},{"revision":"147f36d2469f3bf39608dce262dbdd61","url":"assets/js/2230ad1b.4b34982b.js"},{"revision":"dc35ca762381ed5270538d310f4a2fce","url":"assets/js/230.8b1753fb.js"},{"revision":"ba352795bb1a9cd2a9b6c695d9d6bbca","url":"assets/js/25892a13.890611d6.js"},{"revision":"15c04e7ba364d05c1cc5ca9b7a348d42","url":"assets/js/2716189e.4d7e6ec7.js"},{"revision":"c1a52983fc033f50b34a83e8e00458f7","url":"assets/js/28803fd8.67d91d29.js"},{"revision":"6bb8d0b2518a30844b7d7a0f6420375d","url":"assets/js/29147f2d.672ad517.js"},{"revision":"fc6b4fdbf2a9d0492dbff9e048b983c5","url":"assets/js/2933.da258396.js"},{"revision":"3f77b5f2fbfe61746dad1e9bcbcd41e9","url":"assets/js/2b0c6e63.5f45535c.js"},{"revision":"159424e88c7e542ad9fc7a5e7fde025e","url":"assets/js/2c6365d6.c7363b87.js"},{"revision":"c42d8b72ae3fb87f57178ade1481e71d","url":"assets/js/306a8c6c.b0757054.js"},{"revision":"21c4c67a8958895ffb6aa1d5d4c4edfc","url":"assets/js/3562.54521853.js"},{"revision":"996fc7f1bf26e699313b12272850cf85","url":"assets/js/36ef7182.1c8a02b7.js"},{"revision":"5982a740e06bedb73364d9e07ed5c675","url":"assets/js/3eee94b0.9e4f9b4d.js"},{"revision":"53777c14783cb034ea77bc48eb93ec94","url":"assets/js/3efaa5da.0308a3ca.js"},{"revision":"faf90cc51e6d855f565087caf1668fd7","url":"assets/js/3f2e63cb.1bd35988.js"},{"revision":"15787dce69605f51d36ed8990323ed00","url":"assets/js/40bc243a.aac12ae8.js"},{"revision":"4dda4f5525d8ec44d1209bf3436355a5","url":"assets/js/4140.0e862ab0.js"},{"revision":"cd92e226e469c2b2d42397c68371a0e2","url":"assets/js/469788f5.0b1a0ec5.js"},{"revision":"5d4ad09fb96ab9310bdc53404af6ace3","url":"assets/js/4972.aed6a4f8.js"},{"revision":"a1189712664691e5b6db24f750dfb6cb","url":"assets/js/4c9d8eaa.f3abf68c.js"},{"revision":"8df4d64fd1ecec9d37abdb5aff051a73","url":"assets/js/5131.95fa00ca.js"},{"revision":"aa12f3b6e49e952cba26cd2bcb8865ee","url":"assets/js/51ffe3d5.65dd4858.js"},{"revision":"67ecf32779a643d410da90d51e31c00c","url":"assets/js/5283.4cb4b30d.js"},{"revision":"8eb186c8505c097425b5875b0c1b28b9","url":"assets/js/54eec65a.971767a8.js"},{"revision":"f8432835a2389e1ff2331cd488744f16","url":"assets/js/5552c1f5.c0c1f8de.js"},{"revision":"53cf0b4ee9cff4a2776b051f392ddf27","url":"assets/js/5c910ec3.bfbd42f0.js"},{"revision":"7625ad63f8c8c54a8af3cea95cfb8ff3","url":"assets/js/5e1d3f56.1f8d1e7c.js"},{"revision":"b5548f1f7cd2ed4b18cf34e99fe37a57","url":"assets/js/605b7d02.5cf94ece.js"},{"revision":"f4e221831afddeba8efee3246bdb4c3b","url":"assets/js/61047f2b.b31f4a53.js"},{"revision":"a6b8d5585315039185dd462468e71e17","url":"assets/js/6301b652.435453ce.js"},{"revision":"deb75a0c58b638c38f4704ae0f228366","url":"assets/js/63b30d4e.e2d35c67.js"},{"revision":"386f87d2123144c7c1c7e02e641d03fc","url":"assets/js/6875c492.c5dbf27c.js"},{"revision":"d21eff061431f43137e03b5e5588f2fc","url":"assets/js/69369ae2.5a3bf191.js"},{"revision":"bfc9ccefdef538891f818324061d2f67","url":"assets/js/6945.1c60b6c1.js"},{"revision":"cbac483784df5f2ff12b0214f39179ef","url":"assets/js/6a41fcb7.a9e45308.js"},{"revision":"0cdf2537fbdca4e1b2ed171fab26a065","url":"assets/js/6b841b38.a709076f.js"},{"revision":"13b2c153d6bf5e873fc17a8a7fcc105f","url":"assets/js/6d30dfea.0b970ec0.js"},{"revision":"81ebccc75ad00b4569f147caf510c990","url":"assets/js/72cc1e64.fff0d847.js"},{"revision":"3232556e61fc6522e94ddf6abe52bc5f","url":"assets/js/73725805.d39e89e2.js"},{"revision":"733e156b6e45373c8d15faf91d257303","url":"assets/js/771667bd.3868a787.js"},{"revision":"d8b7bfa2c5922843be93aa46cdc10f73","url":"assets/js/7783ccd7.7ec85155.js"},{"revision":"605501df9da511fe709ad21bf87dd93a","url":"assets/js/7c2ff145.b45b78ec.js"},{"revision":"85dcb3d308417d8a75e815cb1d94df73","url":"assets/js/7f621b67.f00a142d.js"},{"revision":"0eac9438c938160e479aa4d08b0c4189","url":"assets/js/814f3328.2b366b0a.js"},{"revision":"3a3058460d94d05a791108e772748969","url":"assets/js/82702239.7d05e1bc.js"},{"revision":"664de1b648268e916c5d493c579fce9e","url":"assets/js/83d480e9.5842625f.js"},{"revision":"fe98f11701d006d175e05011d61fa094","url":"assets/js/860f47a8.e7fb6ea6.js"},{"revision":"bf0858ceb79beef609f9cd37f05fcc5d","url":"assets/js/8894.36658d86.js"},{"revision":"d2f0f51a2e6dc0aef9f22caa84530b78","url":"assets/js/8974a066.b9b2efcd.js"},{"revision":"28a67a07628cfc00685896cfdde32696","url":"assets/js/8eb4e46b.9e6d2b96.js"},{"revision":"206a94d7c39664822bae856254aed9e7","url":"assets/js/9009.92551d26.js"},{"revision":"4ca866e63f34f734ea1fb03ada4123de","url":"assets/js/91359157.b8f8ee76.js"},{"revision":"590636855eec1328db8333ad8b4b73ac","url":"assets/js/935f2afb.4abf27ee.js"},{"revision":"3cd578e2e454a43856bc18adfc98980a","url":"assets/js/958aeffe.9bbc098e.js"},{"revision":"59872e06d140574c43b8ccf5718053c1","url":"assets/js/98a2215f.7e7c49d9.js"},{"revision":"bcbbec1358b7b8283ea9e46155c2c1f4","url":"assets/js/9c021584.9cdc579e.js"},{"revision":"befbc42e7a05d3ec8200db51084c8574","url":"assets/js/9da1d6ed.20c4fc03.js"},{"revision":"fd88d0df94bd4bf0a0ea9f48eb49097c","url":"assets/js/9e4087bc.c2de88f2.js"},{"revision":"69ee74c15a3e8e218f6287e068562288","url":"assets/js/a2aa8a20.95768460.js"},{"revision":"5c309532d542acf0e1775015b88bc8a7","url":"assets/js/a5187dc2.ef1d2c36.js"},{"revision":"656bdf279ebf91250ccba5df6c4eeece","url":"assets/js/a6aa9e1f.79a98b6c.js"},{"revision":"b88dc4f85a128122588196037e9eb842","url":"assets/js/a7023ddc.c01579d4.js"},{"revision":"d7e4ad622d6fc7cc0b62cdb67d3d7b26","url":"assets/js/a7aa5ecd.dd262c3b.js"},{"revision":"927d7b8767aa9c432b0815571ad66947","url":"assets/js/a82b3eda.fbbc630d.js"},{"revision":"76015ad7ade591ed7a5f4e0ba132990c","url":"assets/js/ac59fbb1.979be73f.js"},{"revision":"d240dc4b24c463eab23b2b8403b564bb","url":"assets/js/ac7a8eaf.1b267ec6.js"},{"revision":"91d6dc4db35cfb47ed665f8c494853b4","url":"assets/js/b2b675dd.1ce0249d.js"},{"revision":"02af592d5dadefdc34854247f26dc1af","url":"assets/js/b2f554cd.e3b3bf25.js"},{"revision":"8acedcb605c887655827c70025dafff7","url":"assets/js/b4bb15c4.d63f8935.js"},{"revision":"1cde45e12328e704a13a5b8b63d157a8","url":"assets/js/b9d059d3.b435e694.js"},{"revision":"4c3ce1b38fb975fb1e2019d442a36a75","url":"assets/js/bdd0a550.a0e8f374.js"},{"revision":"51fb39ff65020d2a8514ee5775e7bb27","url":"assets/js/c4348237.d55c8ecb.js"},{"revision":"450317daa00ae556e09b20216ad4d691","url":"assets/js/c5c95739.e1098f88.js"},{"revision":"fb626c17ddbe57b423b6e20445ddddea","url":"assets/js/c5e2ed22.cdce1df5.js"},{"revision":"ac50202a4a91b2cf2dc32ebad3cdacac","url":"assets/js/c7c19635.cc4de786.js"},{"revision":"58267e0ee260a699989e660daef2d096","url":"assets/js/c9de4fd4.2571f325.js"},{"revision":"a2d32aa8f55e82ded3059a054733290c","url":"assets/js/cab8b3b8.5d30d340.js"},{"revision":"385cd236e9cd6e5fdf9d364d991a2fe7","url":"assets/js/cb3eb946.b414cd9b.js"},{"revision":"b566a612b4f5470aa91cac1598a8d30d","url":"assets/js/cc0ad427.4ebaeade.js"},{"revision":"b7b91a681ec1331fbfe1b7a501007a92","url":"assets/js/ccc49370.7515fd08.js"},{"revision":"6a3599b96960aadd81ea569ea43971ce","url":"assets/js/ccd76696.01f6c99a.js"},{"revision":"2d0ea59402b3758320a35128417bff07","url":"assets/js/d0f5d4ed.2597be43.js"},{"revision":"b7cdd4ce7d27f5ff7b3453b428fc0bd6","url":"assets/js/d3517eca.f88f6c20.js"},{"revision":"57a29398d15190a4f2e47f6f1dd85d70","url":"assets/js/d564a353.e31c6638.js"},{"revision":"e944e94d89e2194f8c886fe4a2afeec1","url":"assets/js/db5a54a5.23bf79cc.js"},{"revision":"ac99a32d1f27afc5283e17fc9dcbb656","url":"assets/js/dd914074.2a6d8141.js"},{"revision":"5119bec6f6c9789baccc19f46f72243e","url":"assets/js/defc70e4.6d34cfdb.js"},{"revision":"f94b099a11cccd2251f0b4b4be5892ad","url":"assets/js/e8568434.cf16352f.js"},{"revision":"09a99d110a2eaf6695d6d24dbeec06eb","url":"assets/js/e8b803a6.ddebc659.js"},{"revision":"df3fcf41a84d78deb331f072cfa5607f","url":"assets/js/ea4bc704.a055fd47.js"},{"revision":"e608d05d43e2754253fbd80aa8a6fa9b","url":"assets/js/eac85c21.b5091356.js"},{"revision":"316ee889a93d7a9243f0def10e48b9b3","url":"assets/js/eb75ae42.8371b63f.js"},{"revision":"4ec851bcc9ed10028418318b388bb492","url":"assets/js/ec9f61ae.b2b4f1b8.js"},{"revision":"7c213e722899a27f90a569f59e1f90c1","url":"assets/js/f0ad3fbb.d6962e22.js"},{"revision":"5d35f0c28df6941ec187cc3648fda48e","url":"assets/js/f5648edd.339f796a.js"},{"revision":"ae3d05bd5cf73e86c234bcfdfc66cf41","url":"assets/js/f5f21f83.746f6290.js"},{"revision":"168bb438037965db1f019030f8060140","url":"assets/js/f7ba7363.75a86950.js"},{"revision":"130919440091e9709638b3e8e40c2c11","url":"assets/js/f7bb608f.ebbe01f4.js"},{"revision":"5e289041ca55a37714aba21710363abd","url":"assets/js/fe191e16.2eccfd42.js"},{"revision":"f3a3e378773cffaa5bd199ad1bdf902d","url":"assets/js/ffcc59b9.f5f8be9a.js"},{"revision":"6dad2b4c60f0b92350e74b937de4e42f","url":"assets/js/main.762415f0.js"},{"revision":"404eeb6dfbd1ab23f9ab65f64eeb46eb","url":"assets/js/runtime~main.78792dd5.js"},{"revision":"82c7ffa71ca2bfb826d63adc94517651","url":"blog/2021/01/10/xbuilder-released_114Final/index.html"},{"revision":"c2681a7c2af6e3c28e15e0a3fac1c9fb","url":"blog/2021/01/30/searchpe-beta-released/index.html"},{"revision":"745ca096a0abff53a8fe4d43edac25f0","url":"blog/2021/03/11/xbuilder-forma-pago/index.html"},{"revision":"afab6ddc3d35071a5957f22f30a63b9e","url":"blog/2021/03/28/xbuilder-1.1.7.Final/index.html"},{"revision":"3df49647022450f1b8ae3b734d503717","url":"blog/2021/04/06/xbuilder-1.1.9.Final/index.html"},{"revision":"a27b0859f151d1edb451f2134d0a63df","url":"blog/2021/04/14/searchpe-2.0.1/index.html"},{"revision":"e6b7e91a17c093b031e7825dfc1c2205","url":"blog/2022/05/14/searchpe-4-0-0-Beta8-released/index.html"},{"revision":"3c0f165bc32943f00d33187155dcdb13","url":"blog/2022/05/29/searchpe-4-0-0-Beta10-released/index.html"},{"revision":"57d083d5a4641490f6f12602987fb2cb","url":"blog/2022/05/29/searchpe-4-0-0-Beta11-released/index.html"},{"revision":"de13e1ceeba696d329866af6b983ec6b","url":"blog/2022/05/29/searchpe-4-0-0-Beta12-released/index.html"},{"revision":"7ae808710d7d86fe2feb7b893413f28d","url":"blog/2022/05/29/searchpe-4-0-0-Beta9-released/index.html"},{"revision":"504b120bf3f577070a25c8aac80ebceb","url":"blog/archive/index.html"},{"revision":"62664986eb39669af66b23742d5a3c08","url":"blog/index.html"},{"revision":"04e9f1e9c50ba15b9a800b58b1206bcb","url":"blog/page/2/index.html"},{"revision":"9d1cee8bdf3810d75bdb357cdebbddca","url":"blog/project-openubl/index.html"},{"revision":"33fc4958ba0df90a2feac64ebae08139","url":"blog/tags/index.html"},{"revision":"e1cd9e161e7d2c60c74696f7ec3b91a8","url":"blog/tags/project/index.html"},{"revision":"b4ed9ec36ddf2791d46905215089fdbf","url":"blog/tags/release/index.html"},{"revision":"423b6cb7b95719e0016b727d62c5aca4","url":"blog/tags/searchpe/index.html"},{"revision":"86537a8ddf46f55ec11cbafd0902355d","url":"blog/tags/xbuilder/index.html"},{"revision":"56e103072867f06be6aee3e8a34a37ab","url":"community/support/index.html"},{"revision":"2de6aae500e780e822c341ac87c83d75","url":"community/team/index.html"},{"revision":"2bf0b7343ad713d98f8405b3aacd2efc","url":"docs/contributing/index.html"},{"revision":"1717ba459b3c4b22d932e554f8bd7eeb","url":"docs/design-principles/index.html"},{"revision":"35cf949a581ef8c0cd3d4ddec9096d1a","url":"docs/index.html"},{"revision":"c3ca62b1d04fcebcde9e0d89a6e064e3","url":"docs/searchpe/api-integration/index.html"},{"revision":"fbf662ff0c817d6a680180f51cc6d601","url":"docs/searchpe/enterprise/installation/java/index.html"},{"revision":"66b6bbe3887988a2c005b578cb1b7045","url":"docs/searchpe/enterprise/introduction/index.html"},{"revision":"c3b08dfe4ca6b3139ee96c22ae1dacb9","url":"docs/searchpe/getting-started/index.html"},{"revision":"1c7edb0a1c4fe92ab9130d70c42d1dd5","url":"docs/searchpe/index.html"},{"revision":"3a34405208c6dd73040afd80c9d58f01","url":"docs/searchpe/installation/java/index.html"},{"revision":"a7e9259fc73e7ccea66dbe70d5854fd6","url":"docs/searchpe/installation/kubernetes/index.html"},{"revision":"58426dba6f9fed82fc871d8869f90418","url":"docs/searchpe/migration/index.html"},{"revision":"8f8a10c5051695a418ed0bdb9b68547d","url":"docs/searchpe/web-console/index.html"},{"revision":"dd212ee8c6bb8eb1b956961702cda1ff","url":"docs/xbuilder/concepts/index.html"},{"revision":"825c145ac745a0015c65cc15db620cec","url":"docs/xbuilder/create-xml/index.html"},{"revision":"1621d0a0f5902ad5ddff88ab43868b28","url":"docs/xbuilder/examples/anticipos/index.html"},{"revision":"9de5530f38195714441d7d976242383b","url":"docs/xbuilder/examples/credit-note/index.html"},{"revision":"aeb1fe472ce9bd66dafd6f583262e511","url":"docs/xbuilder/examples/debit-note/index.html"},{"revision":"eaf7ca42ce5744818b70643d4f138380","url":"docs/xbuilder/examples/forma-pago/index.html"},{"revision":"9d65016e6989eb6ba010662a845ecd98","url":"docs/xbuilder/examples/guia-remision-relacionada/index.html"},{"revision":"070898975f00657a1607ba7d024fa860","url":"docs/xbuilder/examples/icb/index.html"},{"revision":"8db3a9988c30759a5df647911442064b","url":"docs/xbuilder/examples/igv/index.html"},{"revision":"9b055d8fad11acb9d00d0c09ea1cff9f","url":"docs/xbuilder/examples/invoice/index.html"},{"revision":"f982be16865b5060820e031f4cf264bf","url":"docs/xbuilder/examples/otros-documentos-tributarios-relacionados/index.html"},{"revision":"c26b6fa0587519f04acb9ff59ce2b2bb","url":"docs/xbuilder/examples/selling-price/index.html"},{"revision":"8bf6d642d8011b897349382fbd798805","url":"docs/xbuilder/examples/summary-document/index.html"},{"revision":"2b6b7fa71281930d6fd9c5b0da5178f9","url":"docs/xbuilder/examples/voided-document/index.html"},{"revision":"9edbb88ef064ce56ac71d73832cf7636","url":"docs/xbuilder/index.html"},{"revision":"13c5fef729200fcb9c8ba736cc9dfb03","url":"docs/xbuilder/installation/index.html"},{"revision":"edadbc2ea7e408293e0c4e27bf68fd4f","url":"docs/xbuilder/qa/index.html"},{"revision":"715241f817db5eb32fe1859227811fea","url":"docs/xbuilder/sign-xml/index.html"},{"revision":"316643e87f6fb6f8425cb1319733cde7","url":"docs/xsender/billConsultService/getStatus/index.html"},{"revision":"4b1764f538c523ad64913731008a62d5","url":"docs/xsender/billConsultService/getStatusCrd/index.html"},{"revision":"c2b7b96e9db20e480dbc00b946c2d2d7","url":"docs/xsender/billService/getStatus/index.html"},{"revision":"065beda0cbcbe08bbfe452fd992786e4","url":"docs/xsender/billService/sendBill/index.html"},{"revision":"d293298ecd59e78ade1602044de9d253","url":"docs/xsender/billService/sendSummary/index.html"},{"revision":"218969c23425c0073b747f087ad3b427","url":"docs/xsender/billValidService/getStatus/index.html"},{"revision":"ede454d4762feb4e74da314837506e16","url":"docs/xsender/codigosErrorSunat/index.html"},{"revision":"78e4c2e975554a94a0ec465bf7f62527","url":"docs/xsender/index.html"},{"revision":"68ba58d324f9bdd9cff7376f37c76f0c","url":"docs/xsender/installation/index.html"},{"revision":"a3dc7fec9ccea29f76ea5eb5718247b5","url":"docs/xsender/tutorial/index.html"},{"revision":"120ee787fa9dd77e9ec43ddfb84e0000","url":"index.html"},{"revision":"6b0893861940426de93007e8d18cb5d0","url":"manifest.json"},{"revision":"138f8f032fc156a5f150835aeadcabeb","url":"search/index.html"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"assets/images/concepts-equation-72f76f9c8fa662735cb81335cb29f3aa.svg"},{"revision":"415ae4c04ac5669143e0d489e752b930","url":"assets/images/consulta-numero-documento-2c06215c0940102a0f38ed47696f5be4.png"},{"revision":"ff53a82fcbada2540745030d327f41b7","url":"assets/images/distribution-folder-tree-33d7bd0bed5dc9ae3b82d386ee9de4ed.png"},{"revision":"7f7f85ae66eee739ba2742fda2cda323","url":"assets/images/new-version-eeb60eac3fca56094509f211a4d208fc.png"},{"revision":"c85ffa08545de68f5ef550066533570a","url":"assets/images/searchpe-basic-auth-c6272e2ae5dee24415802502882c5dc1.png"},{"revision":"161d85f6e00b2a647d4a434bd1a92f70","url":"assets/images/searchpe-enterprise-overview-edf279b12e5357dbfdac61028cc4b1bf.png"},{"revision":"f45dded805257fea84ca29bab0623d38","url":"assets/images/searchpe-overview-fa24020c14632793a6c5d5eb1a7b6a97.png"},{"revision":"6e0bf33b9dac368162f5c056a39164f5","url":"img/boxes.png"},{"revision":"337a7f16d5404cb8ef03449cec62382c","url":"img/company.png"},{"revision":"b9b0980a6cf52018ee84d54ab745e7e9","url":"img/concepts-equation.svg"},{"revision":"1a59e66493d76ce242b31851454ce49d","url":"img/developer.png"},{"revision":"6944cbb9b7e51bb2e5b6d6660309b00a","url":"img/developer1.png"},{"revision":"4f745f39a4fdc0400f90120ef5db52b3","url":"img/favicon.ico"},{"revision":"9bcf9cfd77a6f7b72003e1569869faf4","url":"img/icons/icon-1024x1024.png"},{"revision":"750bf1a17cb605a3356e32a92718a6a1","url":"img/icons/icon-128x128.png"},{"revision":"826c874e9e71bd16c90de6b1fade3178","url":"img/icons/icon-16x16.png"},{"revision":"6ec18ba1dc9f89d91f2441e37504e2de","url":"img/icons/icon-24x24.png"},{"revision":"18fc021fbb337f43f4bda828396d0316","url":"img/icons/icon-256x256.png"},{"revision":"88c2406885269874d92631b120ffafa0","url":"img/icons/icon-32x32.png"},{"revision":"7599a1cf973630609e76089fb922a1a5","url":"img/icons/icon-48x48.png"},{"revision":"5a3ce5a81ca264afd17fecb75593fc47","url":"img/icons/icon-512x512.png"},{"revision":"784f78a42703759fd1bc629fce7e4e4d","url":"img/icons/icon-64x64.png"},{"revision":"5113c5165ef1d032ae57d5c1ab863fd4","url":"img/opensource.png"},{"revision":"9b4f3b1cf150c006c0f86f6ccf78e1fa","url":"img/project-openubl-logo.png"},{"revision":"8aa2cfe2ff5a1c246c1a749166db2824","url":"img/project-openubl.svg"},{"revision":"a7e92c07e6502e17f08c9c637fd62700","url":"img/searchpe-logo.svg"},{"revision":"415ae4c04ac5669143e0d489e752b930","url":"img/searchpe/consulta-numero-documento.png"},{"revision":"ff53a82fcbada2540745030d327f41b7","url":"img/searchpe/distribution-folder-tree.png"},{"revision":"7f7f85ae66eee739ba2742fda2cda323","url":"img/searchpe/new-version.png"},{"revision":"943a2abcb1ec12eb6845e423288a631f","url":"img/searchpe/search.png"},{"revision":"c85ffa08545de68f5ef550066533570a","url":"img/searchpe/searchpe-basic-auth.png"},{"revision":"161d85f6e00b2a647d4a434bd1a92f70","url":"img/searchpe/searchpe-enterprise-overview.png"},{"revision":"f45dded805257fea84ca29bab0623d38","url":"img/searchpe/searchpe-overview.png"},{"revision":"05bb476ab6fd3f8f80c78ab543fb9e50","url":"img/sunat.svg"},{"revision":"99bf1d3554085080c5bff59bed12f91a","url":"img/undraw_Choose_bwbs.svg"},{"revision":"a6b83d7b4c3cf36cb21eb7a9721716dd","url":"img/undraw_docusaurus_mountain.svg"},{"revision":"b64ae8e3c10e5ff2ec85a653cfe6edf8","url":"img/undraw_docusaurus_react.svg"},{"revision":"8fa6e79a15c385d7b2dc4bb761a2e9e3","url":"img/undraw_docusaurus_tree.svg"},{"revision":"0428d007032dbafc6105490eac579fcf","url":"img/undraw_open_source_1qxw.svg"},{"revision":"3a65f17f1f7b03783400b11e3324d4f1","url":"img/undraw_server_q2pb.svg"},{"revision":"99d207903010089b928aabc03cf4e904","url":"img/undraw_software_engineer_lvl5.svg"},{"revision":"b291cd34030cbf47069f980a46cc643e","url":"img/undraw_web_developer_p3e5.svg"},{"revision":"72eba4f056cfaf92af6fda1b0a506f3a","url":"img/xbuilder-logo.svg"},{"revision":"7b8a4a90b42586511ce2f2a37f3dd38e","url":"img/xbuilder-server-black.svg"},{"revision":"86eaf7afbcf43af06f0d467370520b2b","url":"img/xbuilder.svg"},{"revision":"4a0930dc70478b7b5eeaa30e1398e31e","url":"img/xml-example.png"},{"revision":"6a5af821deddcef8b9dc4473907def62","url":"img/xsender-logo.svg"},{"revision":"96d23c0059e31be9a75a903ba6c5372c","url":"img/xsender-server-black.svg"},{"revision":"aa034d54316a0ac080cc2eea78790744","url":"img/xsender.svg"}];
+    const controller = new workbox_precaching__WEBPACK_IMPORTED_MODULE_0__.PrecacheController({
+        // Safer to turn this true?
+        fallbackToNetwork: true,
+    });
     if (params.offlineMode) {
-      const requestURL = event.request.url;
-      const possibleURLs = getPossibleURLs(requestURL);
-      for (let i = 0; i < possibleURLs.length; i += 1) {
-        const possibleURL = possibleURLs[i];
-        const cacheKey = controller.getCacheKeyForURL(possibleURL);
-        if (cacheKey) {
-          const cachedResponse = caches.match(cacheKey);
-          if (params.debug) {
-            console.log('[Docusaurus-PWA][SW]: serving cached asset', {
-              requestURL,
-              possibleURL,
-              possibleURLs,
-              cacheKey,
-              cachedResponse,
-            });
-          }
-          event.respondWith(cachedResponse);
-          break;
+        controller.addToCacheList(precacheManifest);
+        if (params.debug) {
+            console.log('[Docusaurus-PWA][SW]: addToCacheList', { precacheManifest });
         }
-      }
     }
-  });
-
-  self.addEventListener('message', async (event) => {
-    if (params.debug) {
-      console.log('[Docusaurus-PWA][SW]: message event', {
-        event,
-      });
-    }
-
-    const type = event.data?.type;
-
-    if (type === 'SKIP_WAITING') {
-      self.skipWaiting();
-    }
-  });
+    await runSWCustomCode(params);
+    self.addEventListener('install', (event) => {
+        if (params.debug) {
+            console.log('[Docusaurus-PWA][SW]: install event', { event });
+        }
+        event.waitUntil(controller.install(event));
+    });
+    self.addEventListener('activate', (event) => {
+        if (params.debug) {
+            console.log('[Docusaurus-PWA][SW]: activate event', { event });
+        }
+        event.waitUntil(controller.activate(event));
+    });
+    self.addEventListener('fetch', async (event) => {
+        if (params.offlineMode) {
+            const requestURL = event.request.url;
+            const possibleURLs = getPossibleURLs(requestURL);
+            for (const possibleURL of possibleURLs) {
+                const cacheKey = controller.getCacheKeyForURL(possibleURL);
+                if (cacheKey) {
+                    const cachedResponse = caches.match(cacheKey);
+                    if (params.debug) {
+                        console.log('[Docusaurus-PWA][SW]: serving cached asset', {
+                            requestURL,
+                            possibleURL,
+                            possibleURLs,
+                            cacheKey,
+                            cachedResponse,
+                        });
+                    }
+                    event.respondWith(cachedResponse);
+                    break;
+                }
+            }
+        }
+    });
+    self.addEventListener('message', async (event) => {
+        if (params.debug) {
+            console.log('[Docusaurus-PWA][SW]: message event', { event });
+        }
+        const type = event.data?.type;
+        if (type === 'SKIP_WAITING') {
+            // lib def bug, see https://github.com/microsoft/TypeScript/issues/14877
+            self.skipWaiting();
+        }
+    });
 })();
 
 })();
