@@ -10,7 +10,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 4.0.0.Beta8
+  version: 4.0.0-Beta11
 paths:
   /api/admin/users:
     get:
@@ -193,7 +193,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResultDtoContribuyenteEntity'
+                $ref: '#/components/schemas/SearchResultDtoContribuyenteDto'
         '401':
           description: Not Authorized
         '403':
@@ -223,7 +223,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ContribuyenteEntity'
+                $ref: '#/components/schemas/ContribuyenteDto'
         '401':
           description: Not Authorized
         '403':
@@ -247,6 +247,13 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Not Authorized
+        '403':
+          description: Not Allowed
+      security:
+        - SecurityScheme: []
+        - SecurityScheme: []
   /api/current-user/profile:
     put:
       tags:
@@ -259,6 +266,13 @@ paths:
       responses:
         '200':
           description: OK
+        '401':
+          description: Not Authorized
+        '403':
+          description: Not Allowed
+      security:
+        - SecurityScheme: []
+        - SecurityScheme: []
   /api/templates/settings.js:
     get:
       tags:
@@ -270,6 +284,13 @@ paths:
             text/javascript:
               schema:
                 $ref: '#/components/schemas/TemplateInstance'
+        '401':
+          description: Not Authorized
+        '403':
+          description: Not Allowed
+      security:
+        - SecurityScheme: []
+        - SecurityScheme: []
   /api/versions:
     get:
       tags:
@@ -423,6 +444,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicUserDto'
+        '401':
+          description: Not Authorized
+        '403':
+          description: Not Allowed
+      security:
+        - SecurityScheme: []
+        - SecurityScheme: []
 components:
   schemas:
     BasicUserDto:
@@ -474,18 +502,18 @@ components:
             type: string
         registered:
           type: boolean
-    ContribuyenteEntity:
-      required:
-        - nombre
+    ContribuyenteDto:
       type: object
       properties:
+        versionId:
+          format: int64
+          type: integer
         ruc:
           type: string
         dni:
           type: string
         nombre:
           type: string
-          nullable: false
         estado:
           type: string
         condicionDomicilio:
@@ -612,7 +640,7 @@ components:
           type: string
         virtualMethod:
           type: boolean
-    SearchResultDtoContribuyenteEntity:
+    SearchResultDtoContribuyenteDto:
       type: object
       properties:
         meta:
@@ -620,13 +648,14 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/ContribuyenteEntity'
+            $ref: '#/components/schemas/ContribuyenteDto'
     Status:
       enum:
         - SCHEDULED
         - DOWNLOADING
         - UNZIPPING
         - IMPORTING
+        - INDEXING
         - ERROR
         - CANCELLED
         - COMPLETED
