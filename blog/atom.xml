@@ -22,6 +22,20 @@
         <category label="release" term="release"/>
     </entry>
     <entry>
+        <title type="html"><![CDATA[Ublhub 2.0.0-Beta1 released!]]></title>
+        <id>/2022/11/02/ublhub-2-0-0-Beta1-released</id>
+        <link href="https://project-openubl.github.io/blog/2022/11/02/ublhub-2-0-0-Beta1-released"/>
+        <updated>2022-11-02T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[2.0.0-Beta1 es el último release.]]></summary>
+        <content type="html"><![CDATA[<p>Acabamos de lanzar Ublhub 2.0.0-Beta1 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/ublhub/releases/tag/v2.0.0-Beta1" target="_blank" rel="noopener noreferrer">the full changelog of 2.0.0-Beta1 on GitHub</a>.</p>]]></content>
+        <author>
+            <name>Carlos Feria</name>
+            <uri>https://github.com/carlosthe19916</uri>
+        </author>
+        <category label="ublhub" term="ublhub"/>
+        <category label="release" term="release"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Searchpe 4.0.1 released!]]></title>
         <id>/2022/09/03/searchpe-4-0-1-released</id>
         <link href="https://project-openubl.github.io/blog/2022/09/03/searchpe-4-0-1-released"/>

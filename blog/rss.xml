@@ -19,6 +19,16 @@
             <category>release</category>
         </item>
         <item>
+            <title><![CDATA[Ublhub 2.0.0-Beta1 released!]]></title>
+            <link>https://project-openubl.github.io/blog/2022/11/02/ublhub-2-0-0-Beta1-released</link>
+            <guid>/2022/11/02/ublhub-2-0-0-Beta1-released</guid>
+            <pubDate>Wed, 02 Nov 2022 00:00:00 GMT</pubDate>
+            <description><![CDATA[2.0.0-Beta1 es el último release.]]></description>
+            <content:encoded><![CDATA[<p>Acabamos de lanzar Ublhub 2.0.0-Beta1 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/ublhub/releases/tag/v2.0.0-Beta1" target="_blank" rel="noopener noreferrer">the full changelog of 2.0.0-Beta1 on GitHub</a>.</p>]]></content:encoded>
+            <category>ublhub</category>
+            <category>release</category>
+        </item>
+        <item>
             <title><![CDATA[Searchpe 4.0.1 released!]]></title>
             <link>https://project-openubl.github.io/blog/2022/09/03/searchpe-4-0-1-released</link>
             <guid>/2022/09/03/searchpe-4-0-1-released</guid>
