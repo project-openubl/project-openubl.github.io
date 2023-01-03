@@ -4,10 +4,20 @@
         <title>Project OpenUBL Blog</title>
         <link>https://project-openubl.github.io/blog</link>
         <description>Project OpenUBL Blog</description>
-        <lastBuildDate>Thu, 22 Dec 2022 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 03 Jan 2023 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>es</language>
+        <item>
+            <title><![CDATA[Xsender 4.1.0 released!]]></title>
+            <link>https://project-openubl.github.io/blog/2023/01/03/xsender-4-1-0-released</link>
+            <guid>/2023/01/03/xsender-4-1-0-released</guid>
+            <pubDate>Tue, 03 Jan 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[4.1.0 es el último release.]]></description>
+            <content:encoded><![CDATA[<p>Acabamos de lanzar Xsender 4.1.0 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/xsender/releases/tag/v4.1.0" target="_blank" rel="noopener noreferrer">the full changelog of 4.1.0 on GitHub</a>.</p>]]></content:encoded>
+            <category>xsender</category>
+            <category>release</category>
+        </item>
         <item>
             <title><![CDATA[Ublhub 2.0.0-Beta3 released!]]></title>
             <link>https://project-openubl.github.io/blog/2022/12/22/ublhub-2-0-0-Beta3-released</link>
