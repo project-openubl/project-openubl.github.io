@@ -2,11 +2,25 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://project-openubl.github.io/blog</id>
     <title>Project OpenUBL Blog</title>
-    <updated>2023-04-16T00:00:00.000Z</updated>
+    <updated>2023-04-22T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://project-openubl.github.io/blog"/>
     <subtitle>Project OpenUBL Blog</subtitle>
     <icon>https://project-openubl.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Xsender 4.1.4 released!]]></title>
+        <id>/2023/04/22/xsender-4-1-4-released</id>
+        <link href="https://project-openubl.github.io/blog/2023/04/22/xsender-4-1-4-released"/>
+        <updated>2023-04-22T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[4.1.4 es el último release.]]></summary>
+        <content type="html"><![CDATA[<p>Acabamos de lanzar Xsender 4.1.4 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/xsender/releases/tag/v4.1.4" target="_blank" rel="noopener noreferrer">the full changelog of 4.1.4 on GitHub</a>.</p>]]></content>
+        <author>
+            <name>Carlos Feria</name>
+            <uri>https://github.com/carlosthe19916</uri>
+        </author>
+        <category label="xsender" term="xsender"/>
+        <category label="release" term="release"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Xbuilder 2.0.1 released!]]></title>
         <id>/2023/04/16/xbuilder-2-0-1-released</id>
