@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkproject_openubl=self.webpackChunkproject_openubl||[]).push([[2796],{99543:e=>{e.exports=JSON.parse('{"permalink":"/blog/tags/xsender","page":1,"postsPerPage":10,"totalPages":1,"totalCount":7,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
