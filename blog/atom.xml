@@ -8,6 +8,20 @@
     <subtitle>Project OpenUBL Blog</subtitle>
     <icon>https://project-openubl.github.io/img/favicon.ico</icon>
     <entry>
+        <title type="html"><![CDATA[Xbuilder 3.0.0.Beta1 released!]]></title>
+        <id>/2023/05/10/xbuilder-3-0-0-Beta1-released</id>
+        <link href="https://project-openubl.github.io/blog/2023/05/10/xbuilder-3-0-0-Beta1-released"/>
+        <updated>2023-05-10T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[3.0.0.Beta1 es el último release.]]></summary>
+        <content type="html"><![CDATA[<p>Acabamos de lanzar Xbuilder 3.0.0.Beta1 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/xbuilder/releases/tag/v3.0.0.Beta1" target="_blank" rel="noopener noreferrer">the full changelog of 3.0.0.Beta1 on GitHub</a>.</p>]]></content>
+        <author>
+            <name>Carlos Feria</name>
+            <uri>https://github.com/carlosthe19916</uri>
+        </author>
+        <category label="xbuilder" term="xbuilder"/>
+        <category label="release" term="release"/>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[Xsender 5.0.0.Beta1 released!]]></title>
         <id>/2023/05/10/xsender-5-0-0-Beta1-released</id>
         <link href="https://project-openubl.github.io/blog/2023/05/10/xsender-5-0-0-Beta1-released"/>
