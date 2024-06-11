@@ -4,10 +4,20 @@
         <title>Project OpenUBL Blog</title>
         <link>https://project-openubl.github.io/blog</link>
         <description>Project OpenUBL Blog</description>
-        <lastBuildDate>Sat, 23 Sep 2023 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 11 Jun 2024 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>es</language>
+        <item>
+            <title><![CDATA[Xhandler 5.0.2 released!]]></title>
+            <link>https://project-openubl.github.io/blog/2024/06/11/xhandler-5-0-2-released</link>
+            <guid>/2024/06/11/xhandler-5-0-2-released</guid>
+            <pubDate>Tue, 11 Jun 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[5.0.2 es el último release.]]></description>
+            <content:encoded><![CDATA[<p>Acabamos de lanzar Xhandler 5.0.2 con un conjunto de nuevas funcionalidades, corrección de errores, y mejor documentación.</p><h2 class="anchor anchorWithStickyNavbar_LWe7" id="full-changelog">Full changelog<a class="hash-link" href="#full-changelog" title="Enlace directo al encabezado">​</a></h2><p>Puedes ver <a href="https://github.com/project-openubl/xhandler/releases/tag/v5.0.2" target="_blank" rel="noopener noreferrer">the full changelog of 5.0.2 on GitHub</a>.</p>]]></content:encoded>
+            <category>xbuilder</category>
+            <category>release</category>
+        </item>
         <item>
             <title><![CDATA[Xbuilder 3.0.0.CR1 released!]]></title>
             <link>https://project-openubl.github.io/blog/2023/09/23/xbuilder-3-0-0-CR1-released</link>
