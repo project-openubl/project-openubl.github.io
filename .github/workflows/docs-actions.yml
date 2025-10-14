@@ -17,9 +17,9 @@ jobs:
           node-version: 22
       - name: Build
         run: |
-          yarn install
+          npm ci
           # yarn crowdin:sync
-          yarn build
+          npm run build
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
       - name: Deploy
