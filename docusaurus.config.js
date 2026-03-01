@@ -62,29 +62,6 @@ const config = {
         },
       }),
     ],
-    [
-      "redocusaurus",
-      {
-        // Plugin Options for loading OpenAPI files
-        specs: [
-          {
-            id: "searchpe",
-            spec: "static/openapi/searchpe/openapi.yaml",
-            route: "/api/searchpe",
-          },
-          {
-            id: "ublhub",
-            spec: "static/openapi/ublhub/openapi.yaml",
-            route: "/api/ublhub",
-          },
-        ],
-        // Theme Options for modifying how redoc renders them
-        theme: {
-          // Change with your site colors
-          primaryColor: "#1890ff",
-        },
-      },
-    ],
   ],
 
   themeConfig:
@@ -196,8 +173,7 @@ const config = {
     }),
 
   stylesheets: [
-    "https://fonts.googleapis.com/css2?family=Red+Hat+Text&display=swap",
-    "https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@400;700&display=swap",
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
   ],
   scripts: [
     // {
