@@ -22,7 +22,7 @@ Puedes utilizar [PgAdmin](https://www.pgadmin.org/download/) para configurar tu 
 
 ## Instala Searchpe
 
-- Descarga el archivo **searchpe-${version}.zip** desde [Searchpe Releases](https://github.com/project-openubl/searchpe/releases).
+- Descarga el archivo **searchpe-\{version\}.zip** desde [Searchpe Releases](https://github.com/project-openubl/searchpe/releases).
 
 - Descomprime el `.zip` descargado:
 
