@@ -1,223 +1,169 @@
 import React from "react";
-import clsx from "clsx";
 import Link from "@docusaurus/Link";
+
+const products = [
+  {
+    category: "Microservicio",
+    title: "Searchpe",
+    description:
+      "Consulta el DNI o RUC de cualquier persona natural o jurídica registrada en el territorio peruano. La información es obtenida del padrón reducido de la SUNAT.",
+    linkTo: "/docs/searchpe",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+      </svg>
+    ),
+  },
+  {
+    category: "Microservicio",
+    title: "Ublhub",
+    description:
+      "Administra tus archivos XML. Crea, envía y almacena tus comprobantes electrónicos y decláralos a la SUNAT.",
+    linkTo: "/docs/ublhub",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 0 1-3-3m3 3a3 3 0 1 0 0 6h13.5a3 3 0 1 0 0-6m-16.5-3a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3m-19.5 0a4.5 4.5 0 0 1 .9-2.7L5.737 5.1a3.375 3.375 0 0 1 2.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 0 1 .9 2.7m0 0a3 3 0 0 1-3 3m0 3h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Zm-3 6h.008v.008h-.008v-.008Zm0-6h.008v.008h-.008v-.008Z" />
+      </svg>
+    ),
+  },
+  {
+    category: "Librería Java",
+    title: "XBuilder",
+    description:
+      "Crea y firma electrónicamente archivos XMLs basados en UBL y los estándares de la SUNAT. Soporte para boletas, facturas, notas de crédito y débito.",
+    linkTo: "/docs/xbuilder",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+      </svg>
+    ),
+  },
+  {
+    category: "Librería Java",
+    title: "XSender",
+    description:
+      "Envía tus comprobantes electrónicos (archivos XML) a la SUNAT/OSE de manera sencilla y segura.",
+    linkTo: "/docs/xsender",
+    icon: (
+      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+      </svg>
+    ),
+  },
+];
 
 export default function HomepageFeatures() {
   return (
     <>
-      <section className="bg-gray-50 dark:bg-gray-800">
-        <div className="gap-16 items-center py-8 px-4 mx-auto max-w-screen-xl lg:grid lg:grid-cols-2 lg:py-16 lg:px-6">
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <img
-              className="w-full rounded-lg"
-              src="img/undraw_server_q2pb.svg"
-              alt="office content 1"
-            />
-            <img
-              className="mt-4 w-full lg:mt-10 rounded-lg"
-              src="img/undraw_Choose_bwbs.svg"
-              alt="office content 2"
-            />
-          </div>
-          <div className="font-light text-gray-500 sm:text-lg dark:text-gray-400">
-            <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-              Microservicios
-            </h2>
-            <p className="mb-4 text-gray-500 sm:text-xl dark:text-gray-400">
-              Integra tu software sin importar el lenguaje de programación que
-              uses.
+      {/* Products */}
+      <section className="relative bg-gray-50 dark:bg-[#0a0a0f] py-24 lg:py-32">
+        {/* Top border */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" aria-hidden="true" />
+
+        <div className="max-w-screen-xl mx-auto px-6">
+          {/* Section header */}
+          <div className="text-center max-w-2xl mx-auto mb-16 lg:mb-20">
+            <p className="text-sm font-semibold tracking-widest uppercase text-primary-600 dark:text-primary-400 mb-4">
+              Herramientas
             </p>
-            <div className="flex flex-col pt-4 pb-4 border border-solid border-l-transparent border-r-transparent border-gray-300">
-              <div className="flex space-x-4">
-                <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.02em] text-gray-950 dark:text-white mb-6">
+              Todo lo que necesitas para facturación electrónica
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+              Microservicios y librerías Java que se integran con tu stack
+              existente. Sin importar el lenguaje o plataforma.
+            </p>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid sm:grid-cols-2 gap-4 lg:gap-6 max-w-4xl mx-auto">
+            {products.map((product) => (
+              <Link
+                key={product.title}
+                to={product.linkTo}
+                className="card-link group relative rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] p-7 lg:p-8 transition-all duration-300 hover:border-primary-300 dark:hover:border-primary-500/30 hover:shadow-[0_0_40px_-12px_rgba(99,102,241,0.15)]"
+              >
+                {/* Icon */}
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 mb-5 group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors duration-300">
+                  {product.icon}
+                </div>
+
+                {/* Category */}
+                <p className="text-xs font-semibold tracking-wider uppercase text-gray-600 dark:text-gray-400 mb-2">
+                  {product.category}
+                </p>
+
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors duration-300">
+                  {product.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed mb-5">
+                  {product.description}
+                </p>
+
+                {/* Link indicator */}
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 dark:text-primary-400">
+                  Explorar
                   <svg
-                    class="w-4 h-4 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2.5}
+                    stroke="currentColor"
                   >
                     <path
-                      fill-rule="evenodd"
-                      d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    ></path>
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                    />
                   </svg>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <h3
-                    className="text-gray-900 dark:text-white"
-                    style={{ marginBottom: 0 }}
-                  >
-                    Searchpe
-                  </h3>
-                  <p>
-                    Consulta el DNI o RUC de cualquier persona natural o
-                    jurídica registrada en el territorio peruano. La información
-                    es obtenida del padrón reducido de la SUNAT.
-                  </p>
-                  <Link
-                    to="/docs/searchpe"
-                    className="inline-flex items-center text-xl text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-600"
-                  >
-                    Leer más
-                    <svg
-                      class="w-6 h-6"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-              <div className="flex space-x-4 pt-12">
-                <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-violet-100 lg:h-12 lg:w-12 dark:bg-violet-900">
-                  <svg
-                    class="w-4 h-4 text-violet-600 lg:w-6 lg:h-6 dark:text-violet-300"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <h3
-                    className="text-gray-900 dark:text-white"
-                    style={{ marginBottom: 0 }}
-                  >
-                    Ublhub
-                  </h3>
-                  <p>
-                    Administra tus archivos XML. Crea, envia y almacena tus
-                    comprobantes electronicos y decláralos a la SUNAT.
-                  </p>
-                  <Link
-                    to="/docs/ublhub"
-                    className="inline-flex items-center text-xl text-violet-600 hover:text-violet-800 dark:text-violet-500 dark:hover:text-violet-600"
-                  >
-                    Leer más
-                    <svg
-                      class="w-6 h-6"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white dark:bg-gray-900">
-        <div className="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
-          <div className="max-w-screen-lg mb-8 lg:mb-16">
-            <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-              Librerias Java
-            </h2>
-            <p className="text-gray-500 sm:text-xl dark:text-gray-400">
-              Importa las librerias Java en tu propio software, sin importar las
-              características de tu software (Desktop, Web, etc.). Solo
-              necesitas utilizar Maven o Gradle.
-            </p>
-          </div>
-          <div className="space-y-8 md:grid md:grid-cols-2 lg:grid-cols-2 md:gap-12 md:space-y-0">
-            <div>
-              <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
-                <svg
-                  className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-bold dark:text-white">
-                XBuilder
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Crea y firma electrónicamente archivos XMLs basados en UBL y los
-                estándares de la SUNAT. Soporte para boletas, facturas, notas de
-                crédito, notas de débito, etc.
-              </p>
-              <Link
-                to="/docs/xbuilder"
-                className="inline-flex items-center text-xl text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-600"
-              >
-                Leer más
-                <svg
-                  class="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </Link>
-            </div>
-            <div>
-              <div className="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900">
-                <svg
-                  className="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-bold dark:text-white">
-                XSender
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                Envía tus comprobantes electrónicos (archivos XML) a la
-                SUNAT/OSE de manera sensilla y segura.
-              </p>
-              <Link
-                to="/docs/xsender"
-                className="inline-flex items-center text-xl text-primary-600 hover:text-primary-800 dark:text-primary-500 dark:hover:text-primary-600"
-              >
-                Leer más
-                <svg
-                  class="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </Link>
-            </div>
+      {/* CTA */}
+      <section className="relative bg-white dark:bg-[#0a0a0f] py-24 lg:py-32 overflow-hidden">
+        {/* Top border */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" aria-hidden="true" />
+
+        {/* Radial glow */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.08] dark:opacity-[0.12]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, #6366f1 0%, transparent 70%)",
+          }}
+          aria-hidden="true"
+        />
+
+        <div className="relative max-w-2xl mx-auto px-6 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.02em] text-gray-950 dark:text-white mb-5">
+            ¿Listo para empezar?
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 leading-relaxed">
+            Únete a la comunidad de desarrolladores que ya utilizan Project
+            OpenUBL para facturación electrónica en Perú.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              to="/docs/"
+              className="btn-primary inline-flex items-center justify-center rounded-lg bg-primary-600 px-6 py-3 text-[15px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.15)] hover:bg-primary-500 transition-colors duration-200"
+            >
+              Documentación
+            </Link>
+            <a
+              href="https://projectopenubl.zulipchat.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 px-6 py-3 text-[15px] font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors duration-200"
+            >
+              Chatea con nosotros
+            </a>
           </div>
         </div>
       </section>
