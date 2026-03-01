@@ -22,13 +22,17 @@ jobs:
           npm run build
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          personal_token: ${{ secrets.PERSONAL_TOKEN }}
-          publish_dir: build
-          external_repository: project-openubl/project-openubl.github.io
-          publish_branch: master
+          path: "./build"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Algolia crawler creation and crawl
         uses: algolia/algoliasearch-crawler-github-actions@v1.1.0
         id: algolia_crawler
