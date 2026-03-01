@@ -1,8 +1,9 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require("prism-react-renderer/themes/palenight");
-const darkCodeTheme = require("prism-react-renderer/themes/nightOwl");
+const { themes } = require("prism-react-renderer");
+const lightCodeTheme = themes.palenight;
+const darkCodeTheme = themes.nightOwl;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -11,8 +12,12 @@ const config = {
   url: "https://project-openubl.github.io",
   baseUrl: "/",
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -42,12 +47,11 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/project-openubl/website/tree/master/",
+          onInlineAuthors: "ignore",
+          onUntruncatedBlogPosts: "ignore",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
-        },
-        googleAnalytics: {
-          trackingID: "UA-152706512-2",
         },
         gtag: {
           trackingID: "UA-152706512-2",

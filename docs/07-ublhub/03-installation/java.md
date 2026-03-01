@@ -22,7 +22,7 @@ Puedes utilizar [PgAdmin](https://www.pgadmin.org/download/) para configurar tu 
 
 ## Instala Ublhub
 
-- Descarga el archivo **ublhub-${version}.zip** desde [Ublhub Releases](https://github.com/project-openubl/ublhub/releases).
+- Descarga el archivo **ublhub-\{version\}.zip** desde [Ublhub Releases](https://github.com/project-openubl/ublhub/releases).
 
 - Descomprime el `.zip` descargado:
 
