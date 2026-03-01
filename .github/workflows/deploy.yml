@@ -1,14 +1,25 @@
-name: Docs
+name: Deploy
 
 on:
   push:
     branches:
-      - master
+      - main
+  workflow_dispatch:
+  workflow_call:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   gh-pages:
     name: "Github pages"
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
