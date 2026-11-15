@@ -245,6 +245,8 @@ const config = {
         highlightSearchTermsOnTargetPage: true,
         searchResultLimits: 8,
         searchResultContextMaxLength: 60,
+        // Release notes of the retired Searchpe and Ublhub projects stay published but out of search
+        ignoreFiles: [/^blog\/.*(searchpe|ublhub)/i],
       },
     ],
   ],

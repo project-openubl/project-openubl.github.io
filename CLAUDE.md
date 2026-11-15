@@ -36,7 +36,7 @@ There is no test suite — this is a docs-focused project.
 - `components/Playground/` — In-browser YAML → XML playground running the xhandler core (`xhandler.wasm`, fetched and SHA-256 checked by `scripts/fetch-xhandler-wasm.mjs` on `prestart`/`prebuild`; bump `VERSION`/`SHA256` there to upgrade).
 
 **Configuration**:
-- `docusaurus.config.js` — Main config including a custom PostCSS plugin that adds `@tailwindcss/postcss`, PWA, Algolia search, and Google Analytics.
+- `docusaurus.config.js` — Main config including a custom PostCSS plugin that adds `@tailwindcss/postcss`, PWA, local search (`@easyops-cn/docusaurus-search-local`, Spanish stemming, index built at build time) and Google Analytics. SEO: `trailingSlash: true` (GitHub Pages serves `/x/`), social card `static/img/social-card.png`, JSON-LD in `headTags`, `static/robots.txt`, sitemap filters.
 
 ## Content rules
 
@@ -49,4 +49,4 @@ Tailwind CSS v4 is the primary styling approach but Infima (Docusaurus default) 
 
 ## Deployment
 
-GitHub Pages at `project-openubl.github.io`. CI via `.github/workflows/ci.yml` (PRs and pushes to `main`: `npm ci → npm run build`). Deploy via `.github/workflows/deploy.yml` on pushes to `main`. Algolia crawler runs post-deploy for search indexing.
+GitHub Pages at `project-openubl.github.io`. CI via `.github/workflows/ci.yml` (PRs and pushes to `main`: `npm ci → npm run build`). Deploy via `.github/workflows/deploy.yml` on pushes to `main`.
