@@ -1,16 +1,39 @@
 version: 2
+
+# Dependabot PRs are auto-approved and auto-merged once CI passes
+# (.github/workflows/auto-merge-dependabot.yaml), so the cooldown keeps freshly published
+# (possibly compromised) releases out; security updates skip it.
+# Groups take minor/patch only, so a breaking major arrives as its own PR; the Docusaurus
+# packages are the exception: they must always move together, majors included.
 updates:
+
+  # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     commit-message:
-      prefix: "GitHub Actions"
+      prefix: "chore"
       include: "scope"
+    groups:
+      github-actions:
+        update-types: ["minor", "patch"]
+
+  # Maintain dependencies for package.json
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-    allow:
-      - dependency-name: "@docusaurus/*"
-        dependency-type: "direct"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      docusaurus:
+        patterns: ["@docusaurus/*"]
+      npm:
+        update-types: ["minor", "patch"]

@@ -1,0 +1,602 @@
+---
+title: Envío y respuestas de la SUNAT
+description: Envía comprobantes firmados a la SUNAT o a un OSE y procesa sus respuestas, CDR, ticket o error, en Java, Rust, Python y Go.
+slug: /fundamentals/sending
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+`FileSender` envía un XML firmado a la SUNAT y te devuelve su respuesta. Representa a **una empresa**: lo creas con las URLs de los servicios y las credenciales, y lo reutilizas para todos sus comprobantes.
+
+## URLs: beta, producción u OSE {#urls}
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.Credentials;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.URLs;
+
+Credentials credentials = Credentials.builder()
+        .username("12345678959MODDATOS")
+        .password("MODDATOS")
+        .build();
+
+// Beta (sin guías de remisión)
+FileSender beta = new FileSender(URLs.beta(), credentials);
+
+// Producción
+FileSender production = new FileSender(URLs.production(), credentials);
+
+// URLs propias, por ejemplo un OSE
+URLs ose = URLs.builder()
+        .invoice("https://ose.example.com/ol-ti-itcpe/billService")
+        .perceptionRetention("https://ose.example.com/otroscpe/billService")
+        .despatch(null) // API REST de guías, opcional
+        .build();
+FileSender oseSender = new FileSender(ose, credentials);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+use xhandler::prelude::*;
+
+let credentials = Credentials {
+    username: "12345678959MODDATOS".into(),
+    password: "MODDATOS".into(),
+    ..Default::default()
+};
+
+// Beta (sin guías de remisión)
+let beta = FileSender { urls: Urls::beta(), credentials: credentials.clone() };
+
+// Producción
+let production = FileSender { urls: Urls::production(), credentials: credentials.clone() };
+
+// URLs propias, por ejemplo un OSE
+let ose = FileSender {
+    urls: Urls {
+        invoice: "https://ose.example.com/ol-ti-itcpe/billService".into(),
+        perception_retention: "https://ose.example.com/otroscpe/billService".into(),
+        despatch: String::new(), // vacío si no envías guías
+    },
+    credentials,
+};
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from xhandler.xsender import Credentials, FileSender, URLs
+
+credentials = Credentials(username="12345678959MODDATOS", password="MODDATOS")
+
+# Beta (sin guías de remisión)
+beta = FileSender(URLs.beta(), credentials)
+
+# Producción
+production = FileSender(URLs.production(), credentials)
+
+# URLs propias, por ejemplo un OSE
+ose = FileSender(
+    URLs(
+        invoice="https://ose.example.com/ol-ti-itcpe/billService",
+        perception_retention="https://ose.example.com/otroscpe/billService",
+        despatch="",  # vacío si no envías guías
+    ),
+    credentials,
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+import "github.com/project-openubl/xhandler-go/v6/xsender"
+
+credentials := xsender.Credentials{Username: "12345678959MODDATOS", Password: "MODDATOS"}
+
+// Beta (sin guías de remisión)
+beta := &xsender.FileSender{URLs: xsender.BetaURLs, Credentials: credentials}
+
+// Producción
+production := &xsender.FileSender{URLs: xsender.ProductionURLs, Credentials: credentials}
+
+// URLs propias, por ejemplo un OSE
+ose := &xsender.FileSender{
+	URLs: xsender.URLs{
+		Invoice:             "https://ose.example.com/ol-ti-itcpe/billService",
+		PerceptionRetention: "https://ose.example.com/otroscpe/billService",
+		Despatch:            "", // vacío si no envías guías
+	},
+	Credentials: credentials,
+}
+```
+
+</TabItem>
+</Tabs>
+
+Las URLs predefinidas son:
+
+| Servicio | Beta | Producción |
+|---|---|---|
+| Facturas, boletas, notas, resúmenes y bajas (`invoice`) | `https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService` | `https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService` |
+| Percepciones, retenciones y reversiones (`perception_retention`) | `https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService` | `https://e-factura.sunat.gob.pe/ol-ti-itemision-otroscpe-gem/billService` |
+| Guías de remisión, API REST (`despatch`) | No existe | `https://api-cpe.sunat.gob.pe/v1/contribuyente/gem` |
+
+- Para un OSE solo cambias las URLs; el resto del código es igual. Las URLs del ejemplo son ficticias: usa las que te indique tu OSE.
+- xhandler arma las mismas peticiones SOAP que espera la SUNAT. Confirma con tu OSE que acepta ese mismo formato.
+- Si envías una guía con un `FileSender` sin URL de guías, obtienes un error. Revisa [Guías de remisión](../04-use-cases/05-despatch-advice.mdx).
+
+## El XML decide a dónde va
+
+No eliges el servicio ni la operación de la SUNAT: `FileSender` los deduce del XML firmado.
+
+| Comprobante | Servicio | Operación | Respuesta |
+|---|---|---|---|
+| Factura, boleta, nota de crédito y de débito | `invoice` | `sendBill` | CDR |
+| Resumen diario | `invoice` | `sendSummary` | Ticket |
+| Comunicación de baja | `invoice` (o `perception_retention` si da de baja percepciones o retenciones) | `sendSummary` | Ticket |
+| Percepción y retención | `perception_retention` | `sendBill` | CDR |
+| Resumen de reversiones | `perception_retention` | `sendSummary` | Ticket |
+| Guía de remisión | `despatch` | API REST con OAuth | Ticket |
+
+También arma el zip con el nombre que exige la SUNAT (`{ruc}-{tipo}-{serie-numero}.zip`, por ejemplo `12345678912-01-F001-1.zip`) a partir del contenido del XML, no del nombre del archivo en disco.
+
+## Enviar y procesar la respuesta
+
+La SUNAT responde de una de tres formas:
+
+- **CDR**: el comprobante fue procesado. Trae el estado, el código de respuesta, la descripción y las observaciones (_notes_).
+- **Ticket**: la SUNAT procesará el envío después. Consulta el ticket para obtener el CDR.
+- **Error de la SUNAT** (_fault_): la SUNAT no procesó el envío. Trae el código y el mensaje.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.models.Metadata;
+import io.github.project.openubl.xsender.models.Status;
+import io.github.project.openubl.xsender.models.SunatResponse;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+SunatResponse response = beta.sendFile(signed); // byte[] o Path
+
+if (response.isTicket()) {
+    // Resúmenes, bajas, reversiones y guías: consulta el ticket
+    String ticket = response.getSunat().getTicket();
+    response = beta.verifyFileTicket(signed, ticket);
+}
+
+Metadata metadata = response.getMetadata();
+switch (response.getStatus()) {
+    case ACEPTADO -> {
+        // Código 0, o 4000 en adelante si hay observaciones
+        System.out.println(metadata.getResponseCode() + " " + metadata.getDescription());
+        metadata.getNotes().forEach(System.out::println);
+        Files.write(Path.of("R-12345678912-01-F001-1.zip"), response.getSunat().getCdr()); // CDR
+    }
+    case RECHAZADO -> System.out.println("Rechazado " + metadata.getResponseCode() + ": " + metadata.getDescription());
+    case EXCEPCION -> System.out.println("Excepción " + metadata.getResponseCode() + ": " + metadata.getDescription());
+    case EN_PROCESO -> System.out.println("La SUNAT aún procesa el ticket, consulta más tarde");
+    default -> System.out.println(response.getStatus() + " " + metadata);
+}
+```
+
+- `getStatus()` devuelve `ACEPTADO`, `RECHAZADO`, `BAJA`, `EXCEPCION`, `EN_PROCESO` o `UNKNOWN`.
+- `getMetadata()` trae `responseCode`, `description`, `notes` y, en los errores de la SUNAT, `httpStatus`.
+- `getSunat()` trae el `ticket` o el `cdr` (el zip). Es `null` cuando la SUNAT respondió con un error.
+- Si la respuesta es un ticket, `getStatus()` y `getMetadata()` son `null` hasta que lo consultes.
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+use base64::Engine;
+use xhandler::prelude::*;
+
+let ubl = UblFile::from_bytes(signed)?;
+let sent = beta.send_file(&ubl).await?;
+
+match sent.response {
+    SendFileAggregatedResponse::Cdr(cdr_base64, cdr) => {
+        println!("{} {} {}", cdr.status(), cdr.response_code, cdr.description);
+        for note in &cdr.notes {
+            println!("observación: {note}");
+        }
+        // Guardar el CDR (zip)
+        let zip = base64::engine::general_purpose::STANDARD.decode(cdr_base64)?;
+        std::fs::write("R-12345678912-01-F001-1.zip", zip)?;
+    }
+    SendFileAggregatedResponse::Ticket(ticket) => {
+        // Resúmenes, bajas, reversiones y guías: consulta el ticket
+        let answer = beta.verify_file_ticket(&ubl, &ticket).await?;
+        match answer.response {
+            VerifyTicketAggregatedResponse::Cdr(status, cdr) => {
+                println!("{} {} {}", status.status_code, cdr.status(), cdr.description)
+            }
+            VerifyTicketAggregatedResponse::NoCdr { status_code } => {
+                // p. ej. "98": la SUNAT aún lo procesa
+                println!("{status_code} {}", Status::from_code_str(&status_code))
+            }
+            VerifyTicketAggregatedResponse::Fault(fault) => println!("{} {}", fault.code, fault.message),
+        }
+    }
+    SendFileAggregatedResponse::Fault(fault) => {
+        println!(
+            "{} {} {:?} {:?} {}",
+            fault.status(), fault.code, fault.sunat_code(), fault.http_status, fault.message
+        );
+    }
+}
+```
+
+- `cdr.status()` devuelve `Status::Accepted`, `Rejected`, `Exception`, `InProgress` o `Unknown`, y se imprime como `ACEPTADO`, `RECHAZADO`, etc.
+- `fault.sunat_code()` extrae el número del código, por ejemplo `111` de `soap-env:Client.0111`.
+- Para guardar el CDR necesitas el crate `base64` en tu `Cargo.toml`.
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from pathlib import Path
+
+from xhandler.xsender import Status
+
+result = beta.send_file(signed)  # bytes o str
+
+if result.cdr:
+    cdr = result.cdr
+    print(cdr.status, cdr.response_code, cdr.description)  # ACEPTADO 0 La Factura numero F001-1, ha sido aceptada
+    for note in cdr.notes:
+        print("observación:", note)
+    Path("R-12345678912-01-F001-1.zip").write_bytes(cdr.zip)  # CDR
+elif result.ticket:
+    # Resúmenes, bajas, reversiones y guías: consulta el ticket
+    verify = beta.verify_file_ticket(signed, result.ticket)
+    if verify.cdr:
+        print(verify.cdr.status_code, verify.cdr.status, verify.cdr.description)
+    elif verify.no_cdr:
+        print(verify.no_cdr.status_code, verify.no_cdr.status)  # 98 EN_PROCESO
+    elif verify.fault:
+        print(verify.fault.code, verify.fault.message)
+elif result.fault:
+    fault = result.fault
+    print(fault.status, fault.code, fault.sunat_code, fault.http_status, fault.message)
+```
+
+- `status` es un `Status`: `ACCEPTED`, `REJECTED`, `EXCEPTION`, `IN_PROGRESS` o `UNKNOWN`, y se imprime como `ACEPTADO`, `RECHAZADO`, etc.
+- `fault.code` es el código tal como lo envía la SUNAT (`soap-env:Client.0111`) y `fault.sunat_code` su número (`111`), o `None`.
+- `result.send_target` indica a qué servicio se envió el comprobante.
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+result, err := beta.SendFile(ctx, signed)
+if err != nil {
+	return err // error local, de red o respuesta ilegible
+}
+
+switch {
+case result.CDR != nil:
+	cdr := result.CDR
+	fmt.Println(cdr.Status, cdr.ResponseCode, cdr.Description)
+	for _, note := range cdr.Notes {
+		fmt.Println("observación:", note)
+	}
+	if err := os.WriteFile("R-12345678912-01-F001-1.zip", cdr.Zip, 0o644); err != nil { // CDR
+		return err
+	}
+
+case result.Ticket != nil:
+	// Resúmenes, bajas, reversiones y guías: consulta el ticket
+	verify, err := beta.VerifyFileTicket(ctx, signed, *result.Ticket)
+	if err != nil {
+		return err
+	}
+	switch {
+	case verify.CDR != nil:
+		fmt.Println(verify.CDR.StatusCode, verify.CDR.Status, verify.CDR.Description)
+	case verify.NoCDR != nil:
+		fmt.Println(verify.NoCDR.StatusCode, verify.NoCDR.Status) // 98 EN_PROCESO
+	case verify.Fault != nil:
+		fmt.Println(verify.Fault.Code, verify.Fault.Message)
+	}
+
+case result.Fault != nil:
+	f := result.Fault
+	fmt.Println(f.Status, f.Code, f.HTTPStatus, f.Message)
+	if f.SunatCode != nil {
+		fmt.Println("código SUNAT:", *f.SunatCode) // p. ej. 111 de "soap-env:Client.0111"
+	}
+}
+```
+
+- `Status` es `xsender.StatusAccepted`, `StatusRejected`, `StatusException`, `StatusInProgress` o `StatusUnknown`.
+- `result.SendTarget` indica a qué servicio se envió el comprobante.
+
+</TabItem>
+</Tabs>
+
+### Cómo se clasifica el código de la SUNAT
+
+| Código | Estado | Qué significa |
+|---|---|---|
+| `0` | ACEPTADO | Aceptado. |
+| `4000` en adelante | ACEPTADO | Aceptado con observaciones, que llegan en las _notes_. |
+| `98` | EN_PROCESO | El ticket aún se está procesando. Consulta más tarde. |
+| `99` a `1999` | EXCEPCION | La SUNAT no procesó el envío; puedes corregir y reenviar. |
+| `2000` a `3999` | RECHAZADO | El comprobante fue rechazado. |
+
+Guarda siempre el zip del CDR que devuelve la SUNAT: es la constancia de que el comprobante fue procesado. xhandler ya te da sus datos (estado, código, descripción, observaciones), así que no necesitas abrir el zip para leerlos.
+
+### Un rechazo no es un error
+
+Un comprobante rechazado o un error de la SUNAT **no** lanzan una excepción ni devuelven un error: llegan como parte de la respuesta, igual que una aceptación. Solo obtienes un error cuando la librería no pudo completar el envío: un XML que no es un comprobante, un fallo de red o una respuesta ilegible. Revisa [Manejo de errores](./05-errors.mdx).
+
+## Consultar un ticket más tarde
+
+En los ejemplos anteriores, el ticket se consulta con el mismo XML que enviaste (`verifyFileTicket`): el XML indica en qué servicio consultarlo. Si la SUNAT responde que aún está en proceso (`98`), vuelve a consultar después de unos segundos.
+
+Si guardaste el ticket pero ya no tienes el XML, indica tú el servicio:
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.sunat.BillServiceDestination;
+
+BillServiceDestination destination = BillServiceDestination.builder()
+        .url(URLs.beta().getInvoice())
+        .soapOperation(BillServiceDestination.SoapOperation.GET_STATUS)
+        .build();
+SunatResponse status = beta.verifyTicket(destination, "1703154974517");
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let target = VerifyTicketTarget::Soap(Urls::beta().invoice);
+let answer = beta.verify_ticket(&target, "1703154974517").await?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+Guarda también `result.verify_ticket_target` junto con el ticket y úsalo después:
+
+```python
+verify = beta.verify_ticket(result.verify_ticket_target, result.ticket)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+Guarda también `result.VerifyTicketTarget` junto con el ticket y úsalo después:
+
+```go
+verify, err := beta.VerifyTicket(ctx, *result.VerifyTicketTarget, *result.Ticket)
+```
+
+</TabItem>
+</Tabs>
+
+Usa el servicio donde enviaste el documento: `invoice` para resúmenes y bajas, `perception_retention` para reversiones y bajas de percepciones o retenciones.
+
+## Varias facturas en un zip (sendPack)
+
+La operación `sendPack` de la SUNAT recibe varias facturas en un solo zip y responde con un ticket. Le das el nombre del zip, sin la extensión `.zip`; la librería no genera ni valida ese nombre.
+
+:::caution Solo en producción
+
+La SUNAT solo acepta `sendPack` en producción. En beta responde con un error de la SUNAT con estado `EXCEPCION`. Por eso los ejemplos usan las URLs de producción, con credenciales de ejemplo.
+
+:::
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.sunat.BillServiceDestination;
+
+FileSender sender = new FileSender(
+        URLs.production(),
+        Credentials.builder().username("12345678912USUARIO").password("clave-sol").build()
+);
+
+SunatResponse response = sender.sendPack("12345678912-20261115-1", List.of(factura1, factura2)); // XML firmados
+
+if (response.isTicket()) {
+    // El ticket de un lote se consulta en el servicio de facturas
+    SunatResponse status = sender.verifyTicket(
+            BillServiceDestination.builder()
+                    .url(URLs.production().getInvoice())
+                    .soapOperation(BillServiceDestination.SoapOperation.GET_STATUS)
+                    .build(),
+            response.getSunat().getTicket());
+    System.out.println(status.getStatus());
+}
+```
+
+`verifyFileTicket` no sirve para un lote, porque necesita un solo documento.
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let sender = FileSender {
+    urls: Urls::production(),
+    credentials: Credentials {
+        username: "12345678912USUARIO".into(),
+        password: "clave-sol".into(),
+        ..Default::default()
+    },
+};
+
+let files = vec![UblFile::from_bytes(factura1)?, UblFile::from_bytes(factura2)?]; // XML firmados
+let sent = sender.send_pack("12345678912-20261115-1", &files).await?;
+
+match sent.response {
+    SendFileAggregatedResponse::Ticket(ticket) => {
+        if let Some(target) = sent.verify_ticket_target {
+            let answer = sender.verify_ticket(&target, &ticket).await?;
+            if let VerifyTicketAggregatedResponse::Cdr(status, cdr) = answer.response {
+                println!("{} {}", status.status_code, cdr.description);
+            }
+        }
+    }
+    SendFileAggregatedResponse::Fault(fault) => println!("{} {} {}", fault.status(), fault.code, fault.message),
+    SendFileAggregatedResponse::Cdr(..) => {} // un lote responde con ticket
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+sender = FileSender(
+    URLs.production(),
+    Credentials(username="12345678912USUARIO", password="clave-sol"),
+)
+
+result = sender.send_pack("12345678912-20261115-1", [factura1, factura2])  # XML firmados
+if result.fault:
+    raise SystemExit(f"{result.fault.code}: {result.fault.message}")
+
+verify = sender.verify_ticket(result.verify_ticket_target, result.ticket)
+print(verify)
+```
+
+`verify_file_ticket` no sirve para un lote, porque necesita un solo documento.
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+sender := &xsender.FileSender{
+	URLs:        xsender.ProductionURLs,
+	Credentials: xsender.Credentials{Username: "12345678912USUARIO", Password: "clave-sol"},
+}
+
+result, err := sender.SendPack(ctx, "12345678912-20261115-1", [][]byte{factura1, factura2}) // XML firmados
+if err != nil {
+	return err
+}
+if result.Fault != nil {
+	return fmt.Errorf("SUNAT: %s %s", result.Fault.Code, result.Fault.Message)
+}
+
+verify, err := sender.VerifyTicket(ctx, *result.VerifyTicketTarget, *result.Ticket)
+if err != nil {
+	return err
+}
+fmt.Printf("%+v\n", verify)
+```
+
+`VerifyFileTicket` no sirve para un lote, porque necesita un solo documento.
+
+</TabItem>
+</Tabs>
+
+## Reintentos y tiempos de espera
+
+El cliente HTTP incluido ya maneja los problemas más comunes de la SUNAT:
+
+- Si falla la conexión, reintenta una vez.
+- Si el proxy de la SUNAT limita las peticiones (una página `401` que no es SOAP, frecuente en beta), reintenta después de 1 y 2 segundos. Si sigue fallando, devuelve un error de _rate limiting_.
+- En las guías, pide el token OAuth, lo guarda en caché y lo renueva una vez si la SUNAT responde `401`.
+- Espera hasta 30 segundos para conectar y 120 segundos por petición.
+
+Para cambiar el cliente HTTP (proxy, tiempos de espera) o compartirlo entre varias empresas, revisa [Varias empresas](../04-use-cases/08-multiple-companies.mdx).
+
+## Sin cliente HTTP (Rust)
+
+Por defecto, el crate de Rust incluye un cliente HTTP (la feature `http`). Si quieres usar tu propio cliente, por ejemplo en Android, iOS o WebAssembly, desactívala:
+
+```toml title="Cargo.toml"
+[dependencies]
+xhandler = { version = "6.0.0-alpha.1", default-features = false }
+```
+
+Así obtienes una librería Rust pura: crear y firmar funcionan igual, pero desaparecen `SunatClient` y los métodos `async` de `FileSender` (`send_file`, `send_pack`, `verify_ticket`, `verify_file_ticket`). En su lugar, el módulo `xsender::exchange` arma las peticiones HTTP y lee las respuestas; tú solo las envías.
+
+```rust
+use xhandler::prelude::*;
+use xhandler::xsender::exchange::{Answer, Call, HttpRequest, HttpResponse};
+
+/// Envía la petición con tu cliente HTTP y devuelve status, headers y body,
+/// también cuando la SUNAT responde HTTP 500 (así llegan sus errores SOAP).
+fn my_http_send(request: &HttpRequest) -> anyhow::Result<HttpResponse> {
+    let _ = (&request.method, &request.url, &request.headers, &request.body);
+    todo!("enviar con tu cliente HTTP")
+}
+
+fn send(signed: Vec<u8>, credentials: &Credentials) -> anyhow::Result<()> {
+    let ubl = UblFile::from_bytes(signed)?;
+
+    // 1. Preparar: zip, servicio de envío y servicio para consultar el ticket
+    let prepared = prepare_send_file(&ubl, &Urls::beta())?;
+
+    // 2. Armar la petición (las guías necesitan antes un token OAuth)
+    let call = Call::SendFile {
+        target: prepared.send_file_target.clone(),
+        file: prepared.file.clone(),
+    };
+    let token = if call.needs_token() {
+        let token_call = Call::Token { url: None };
+        let response = my_http_send(&token_call.request(credentials, None)?)?;
+        match token_call.parse(&response)? {
+            Answer::Token(token) => Some(token.access_token),
+            _ => unreachable!(),
+        }
+    } else {
+        None
+    };
+    let request = call.request(credentials, token.as_deref())?;
+
+    // 3. Enviar con tu cliente y 4. leer la respuesta
+    let response = my_http_send(&request)?;
+    let Answer::SendFile(answer) = call.parse(&response)? else { unreachable!() };
+    match SendFileAggregatedResponse::try_from(answer)? {
+        SendFileAggregatedResponse::Cdr(_, cdr) => println!("{} {}", cdr.status(), cdr.description),
+        SendFileAggregatedResponse::Ticket(ticket) => {
+            // Consulta luego con Call::VerifyTicket { target: prepared.verify_ticket_target.unwrap(), ticket }
+            println!("ticket {ticket}");
+        }
+        SendFileAggregatedResponse::Fault(fault) => println!("{} {}", fault.code, fault.message),
+    }
+    Ok(())
+}
+```
+
+- `prepare_send_pack` y `file_verify_ticket_target` también están disponibles sin la feature `http`.
+- `Call` tiene variantes para todas las operaciones: `SendFile`, `VerifyTicket`, `GetStatus`, `GetStatusCdr`, `ValidateCdp`, `ValidateFile` y `Token`.
+- `Call`, `Answer`, `HttpRequest`, `HttpResponse` y `HttpMethod` no están en el `prelude`: impórtalos desde `xhandler::xsender::exchange`.
+- Lo que hace el cliente incluido y ahora te toca a ti: reintentar una vez si falla la conexión, reintentar tras 1 y 2 segundos cuando `parse` devuelve `SunatClientError::RateLimited`, guardar el token hasta 60 segundos antes de que venza (`expires_in`) y pedir uno nuevo si una llamada REST recibe `401`.
+
+Es el mismo mecanismo que usan por dentro las librerías de Java, Python y Go.
+
+## Python y asyncio
+
+La librería de Python solo tiene API síncrona: no hay métodos `async`. Es thread-safe, así que desde código `asyncio` puedes delegar el envío a un hilo con `asyncio.to_thread` de la biblioteca estándar:
+
+```python
+import asyncio
+
+from xhandler.xsender import Credentials, FileSender, URLs
+
+sender = FileSender(URLs.beta(), Credentials(username="12345678959MODDATOS", password="MODDATOS"))
+
+
+async def enviar(signed: bytes):
+    return await asyncio.to_thread(sender.send_file, signed)
+```

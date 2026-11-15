@@ -1,0 +1,121 @@
+---
+title: Instalación
+description: Instala xhandler para Java, Rust, Python o Go, o la línea de comandos.
+slug: /installation
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Elige tu lenguaje. La versión actual es **6.0.0-alpha.1**; al ser una versión preliminar, en algunos gestores de paquetes debes indicarla explícitamente.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+Requiere **Java 25** o superior.
+
+```xml title="pom.xml"
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>xbuilder</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>xsender</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+```
+
+Con Gradle (Kotlin DSL):
+
+```kotlin title="build.gradle.kts"
+dependencies {
+    implementation("io.github.project-openubl:xbuilder:6.0.0-alpha.1")
+    implementation("io.github.project-openubl:xsender:6.0.0-alpha.1")
+}
+```
+
+- `xbuilder` crea **y firma** el XML (`XBuilder`, `XSigner`, `SigningKey`).
+- `xsender` envía el XML a la SUNAT (`FileSender`, `SunatClient`).
+- Si solo creas y firmas, basta con `xbuilder`; si solo envías XML ya firmados, basta con `xsender`.
+- Sin código nativo: funciona en cualquier JVM y es compatible con GraalVM native.
+- Para Spring Boot, Quarkus o Jakarta EE revisa [Integrar con frameworks Java](./04-use-cases/09-java-frameworks.mdx).
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```shell
+cargo add xhandler@6.0.0-alpha.1
+```
+
+Los ejemplos de esta documentación también usan estos crates:
+
+```toml title="Cargo.toml"
+[dependencies]
+xhandler = "6.0.0-alpha.1"
+rust_decimal = "1"
+rust_decimal_macros = "1"
+chrono = "0.4"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+anyhow = "1"
+```
+
+- La feature `http` (activa por defecto) incluye el cliente HTTP para enviar a la SUNAT. Necesita un compilador de C para la capa TLS.
+- Con `default-features = false` obtienes una librería Rust pura que arma las peticiones y lee las respuestas para que uses [tu propio cliente HTTP](./05-fundamentals/03-sending.mdx#sin-cliente-http-rust).
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+Requiere **Python 3.10** o superior, en Linux, macOS o Windows.
+
+```shell
+pip install --pre xhandler
+# o, fijando la versión
+pip install "xhandler==6.0.0a1"
+uv add "xhandler==6.0.0a1"
+```
+
+- No hay extensiones nativas que compilar: el paquete es una _wheel_ universal.
+- `--pre` es necesario mientras la versión 6 sea preliminar.
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+Requiere **Go 1.25** o superior.
+
+```shell
+go get github.com/project-openubl/xhandler-go/v6@v6.0.0-alpha.1
+```
+
+```go
+import (
+	"github.com/project-openubl/xhandler-go/v6/xbuilder" // crear
+	"github.com/project-openubl/xhandler-go/v6/xsigner"  // firmar
+	"github.com/project-openubl/xhandler-go/v6/xsender"  // enviar
+)
+```
+
+- Go puro, sin cgo: compila para cualquier sistema operativo y arquitectura que soporte Go.
+- Indica la versión (`@v6.0.0-alpha.1`) mientras la versión 6 sea preliminar; `@latest` no elige versiones preliminares.
+
+</TabItem>
+</Tabs>
+
+## Línea de comandos
+
+La línea de comandos `xhandler` crea, firma y envía comprobantes descritos en YAML o JSON, sin escribir código.
+
+Descarga el binario para tu sistema (Linux, macOS o Windows) desde la [página de la versión 6.0.0-alpha.1](https://github.com/project-openubl/xhandler-rust/releases/tag/v6.0.0-alpha.1), o compílalo con [Rust](https://rustup.rs) (necesita un compilador de C):
+
+```shell
+cargo install --locked xhandler-cli@6.0.0-alpha.1
+```
+
+¿Quieres probar el formato antes de instalar nada? Usa el [playground](pathname:///playground/).
+
+Revisa [Usar la línea de comandos](./04-use-cases/10-cli.mdx).
+
+## Siguiente paso
+
+Sigue el [inicio rápido](./03-quickstart.mdx) para enviar tu primera factura al entorno beta de la SUNAT.

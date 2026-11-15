@@ -1,0 +1,299 @@
+---
+title: Notas de crédito y débito
+description: Corrige una factura o boleta ya emitida con una nota de crédito (Catálogo 9) o una nota de débito (Catálogo 10).
+slug: /use-cases/credit-debit-notes
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Una vez emitida, una factura o boleta no se puede editar. Para corregirla emites una **nota de crédito**, que anula o reduce el importe del comprobante (devoluciones, descuentos, errores), o una **nota de débito**, que lo aumenta (intereses por mora, penalidades).
+
+Toda nota hace referencia al **comprobante afectado** e indica un **motivo** (el tipo de nota) y un **sustento** (una descripción del motivo). El resto de los campos son los mismos de una [factura](./01-invoices.mdx): proveedor, cliente y detalles.
+
+## Nota de crédito
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+CreditNote notaCredito = CreditNote.builder()
+        .serieNumero("FC01-1")
+        .comprobanteAfectadoSerieNumero("F001-1")   // la factura que corriges
+        .tipoNota("01")                             // Catálogo 9: anulación de la operación
+        .descripcionSustento("Anulación de la operación")
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("6")
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .detalles(List.of(Detalle.builder()
+                .descripcion("Item")
+                .cantidad(new BigDecimal("2"))
+                .precio(new BigDecimal("100.00"))
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(notaCredito);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut nota_credito = CreditNote {
+    serie_numero: "FC01-1".into(),
+    comprobante_afectado_serie_numero: "F001-1".into(), // la factura que corriges
+    tipo_nota: Some("01".into()), // Catálogo 9: anulación de la operación
+    descripcion_sustento: "Anulación de la operación".into(),
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    cliente: Cliente {
+        tipo_documento_identidad: "6".into(),
+        numero_documento_identidad: "12121212121".into(),
+        nombre: "Carlos Feria".into(),
+        ..Default::default()
+    },
+    detalles: vec![Detalle {
+        descripcion: "Item".into(),
+        cantidad: dec!(2),
+        precio: Some(dec!(100.00)),
+        ..Default::default()
+    }],
+    ..Default::default()
+};
+
+nota_credito.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = nota_credito.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+nota_credito = xbuilder.CreditNote(
+    serie_numero="FC01-1",
+    comprobante_afectado_serie_numero="F001-1",  # la factura que corriges
+    tipo_nota="01",                              # Catálogo 9: anulación de la operación
+    descripcion_sustento="Anulación de la operación",
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    detalles=[
+        xbuilder.Detalle(descripcion="Item", cantidad=Decimal(2), precio=Decimal("100.00")),
+    ],
+)
+
+xml = xbuilder.build(nota_credito)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+notaCredito := &xbuilder.CreditNote{
+	SerieNumero:                    "FC01-1",
+	ComprobanteAfectadoSerieNumero: "F001-1",           // la factura que corriges
+	TipoNota:                       xbuilder.Ptr("01"), // Catálogo 9: anulación de la operación
+	DescripcionSustento:            "Anulación de la operación",
+	Proveedor:                      xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Cliente: xbuilder.Cliente{
+		TipoDocumentoIdentidad:   "6",
+		NumeroDocumentoIdentidad: "12121212121",
+		Nombre:                   "Carlos Feria",
+	},
+	Detalles: []xbuilder.Detalle{
+		{Descripcion: "Item", Cantidad: xbuilder.DecimalFromInt(2), Precio: xbuilder.Ptr(xbuilder.MustDecimal("100.00"))},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, notaCredito, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Tipos de nota de crédito (Catálogo 9)
+
+| Código | Motivo |
+| ------ | ------ |
+| `01` | Anulación de la operación (valor por defecto) |
+| `02` | Anulación por error en el RUC |
+| `03` | Corrección por error en la descripción |
+| `04` | Descuento global |
+| `05` | Descuento por ítem |
+| `06` | Devolución total |
+| `07` | Devolución por ítem |
+| `08` | Bonificación |
+| `09` | Disminución en el valor |
+| `10` | Otros conceptos |
+
+:::caution Nota de crédito tipo 13
+
+La SUNAT define además el tipo `13` (ajuste de montos o fechas de pago), que exige informar cuotas. xhandler solo acepta los códigos `01` a `10` y la nota de crédito no tiene campo de forma de pago, así que este tipo no está soportado por ahora.
+
+:::
+
+## Nota de débito
+
+La nota de débito tiene exactamente los mismos campos; solo cambia el catálogo del tipo de nota.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+DebitNote notaDebito = DebitNote.builder()
+        .serieNumero("FD01-1")
+        .comprobanteAfectadoSerieNumero("F001-1")
+        .tipoNota("01")                             // Catálogo 10: intereses por mora
+        .descripcionSustento("Intereses por mora")
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("6")
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .detalles(List.of(Detalle.builder()
+                .descripcion("Intereses")
+                .cantidad(new BigDecimal("1"))
+                .precio(new BigDecimal("10.00"))
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(notaDebito);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut nota_debito = DebitNote {
+    serie_numero: "FD01-1".into(),
+    comprobante_afectado_serie_numero: "F001-1".into(),
+    tipo_nota: Some("01".into()), // Catálogo 10: intereses por mora
+    descripcion_sustento: "Intereses por mora".into(),
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    cliente: Cliente {
+        tipo_documento_identidad: "6".into(),
+        numero_documento_identidad: "12121212121".into(),
+        nombre: "Carlos Feria".into(),
+        ..Default::default()
+    },
+    detalles: vec![Detalle {
+        descripcion: "Intereses".into(),
+        cantidad: dec!(1),
+        precio: Some(dec!(10.00)),
+        ..Default::default()
+    }],
+    ..Default::default()
+};
+
+nota_debito.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = nota_debito.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+nota_debito = xbuilder.DebitNote(
+    serie_numero="FD01-1",
+    comprobante_afectado_serie_numero="F001-1",
+    tipo_nota="01",                              # Catálogo 10: intereses por mora
+    descripcion_sustento="Intereses por mora",
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    detalles=[
+        xbuilder.Detalle(descripcion="Intereses", cantidad=Decimal(1), precio=Decimal("10.00")),
+    ],
+)
+
+xml = xbuilder.build(nota_debito)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+notaDebito := &xbuilder.DebitNote{
+	SerieNumero:                    "FD01-1",
+	ComprobanteAfectadoSerieNumero: "F001-1",
+	TipoNota:                       xbuilder.Ptr("01"), // Catálogo 10: intereses por mora
+	DescripcionSustento:            "Intereses por mora",
+	Proveedor:                      xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Cliente: xbuilder.Cliente{
+		TipoDocumentoIdentidad:   "6",
+		NumeroDocumentoIdentidad: "12121212121",
+		Nombre:                   "Carlos Feria",
+	},
+	Detalles: []xbuilder.Detalle{
+		{Descripcion: "Intereses", Cantidad: xbuilder.DecimalFromInt(1), Precio: xbuilder.Ptr(xbuilder.MustDecimal("10.00"))},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, notaDebito, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Tipos de nota de débito (Catálogo 10)
+
+| Código | Motivo |
+| ------ | ------ |
+| `01` | Intereses por mora |
+| `02` | Aumento en el valor (valor por defecto) |
+| `03` | Penalidades u otros conceptos |
+
+## Campos de la nota
+
+| Campo | Java | Rust y Python | Go |
+| ----- | ---- | ------------- | -- |
+| Comprobante afectado | `comprobanteAfectadoSerieNumero` | `comprobante_afectado_serie_numero` | `ComprobanteAfectadoSerieNumero` |
+| Tipo del comprobante afectado (Catálogo 1) | `comprobanteAfectadoTipo` | `comprobante_afectado_tipo` | `ComprobanteAfectadoTipo` |
+| Tipo de nota (Catálogo 9 o 10) | `tipoNota` | `tipo_nota` | `TipoNota` |
+| Sustento | `descripcionSustento` | `descripcion_sustento` | `DescripcionSustento` |
+
+Valores por defecto cuando omites un campo:
+
+- **Tipo de nota**: `01` (anulación de la operación) en la nota de crédito y `02` (aumento en el valor) en la nota de débito. Los valores por defecto son distintos, así que indica siempre el tipo para dejar claro el motivo.
+- **Tipo del comprobante afectado**: se deduce de la **serie de la propia nota**. Una serie que empieza con `F` (por ejemplo `FC01`) da `01` (factura) y una que empieza con `B` (por ejemplo `BC01`) da `03` (boleta). Con cualquier otra serie el campo queda vacío, así que indícalo tú.
+
+El tipo de nota es un texto con el código del catálogo. Un código que no existe hace fallar la creación del documento con un error de validación. En Rust también puedes usar el nombre de la variante (por ejemplo `"ANULACION_DE_LA_OPERACION"`), que se guarda como su código.
+
+## Notas de boletas
+
+Para corregir una boleta usa una serie que empiece con `B` (por ejemplo `BC01-1` o `BD01-1`), haz referencia a la boleta (`B001-1`) y usa el mismo cliente de la boleta, normalmente con DNI. La estructura es idéntica.
+
+## Siguientes pasos
+
+- Las notas se [firman](../05-fundamentals/02-signing.mdx) y se [envían](../05-fundamentals/03-sending.mdx) igual que una factura: la SUNAT responde de inmediato con un CDR.
+- Para anular una factura sin emitir una nota, usa una [comunicación de baja](./03-void-documents.mdx).
+- Los impuestos y totales de la nota se calculan como en la factura. Revisa [Cálculos de impuestos y totales](../05-fundamentals/04-calculations.mdx).

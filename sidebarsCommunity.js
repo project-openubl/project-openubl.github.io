@@ -16,10 +16,5 @@ module.exports = {
     //   href: "/apis",
     //   label: "API Reference",
     // },
-    // {
-    //   type: "link",
-    //   label: "Chatea con nosotros en Zulip",
-    //   href: "https://projectopenubl.zulipchat.com",
-    // },
   ],
 };

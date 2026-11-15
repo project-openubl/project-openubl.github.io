@@ -1,105 +1,299 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Global styles.
+ *
+ * Tailwind CSS v4 is loaded without its Preflight (Infima, bundled with
+ * Docusaurus, already provides the base styles). Utilities are imported
+ * unlayered on purpose: Infima's CSS is unlayered too, and unlayered rules
+ * always win over layered ones, which would make utilities unusable.
+ *
+ * Colors follow PatternFly 6 (https://www.patternfly.org/foundations-and-styles/colors):
+ * the palette below plus semantic tokens that switch between light and dark,
+ * mapped the same way PatternFly maps its `--pf-t--global--*` tokens.
  */
+@layer theme;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css";
 
-@import "tailwindcss/theme" layer(theme);
-@import "tailwindcss/utilities" layer(utilities);
+@source not "../../build";
+@source not "../../.docusaurus";
 
-@custom-variant dark (&:is([data-theme="dark"] *));
+/* Follow Docusaurus' color mode toggle. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* PatternFly palette (--pf-t--color--*) and fonts */
 @theme {
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
+  --font-sans: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --font-family-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-family-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --color-pf-blue-10: #e0f0ff;
+  --color-pf-blue-20: #b9dafc;
+  --color-pf-blue-30: #92c5f9;
+  --color-pf-blue-40: #4394e5;
+  --color-pf-blue-50: #0066cc;
+  --color-pf-blue-60: #004d99;
+  --color-pf-blue-70: #003366;
+  --color-pf-blue-80: #032142;
 
-  --animate-fade-in-up: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-fade-in-up-delay-1: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  --animate-fade-in-up-delay-2: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-  --animate-fade-in-up-delay-3: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  --color-pf-gray-10: #f2f2f2;
+  --color-pf-gray-20: #e0e0e0;
+  --color-pf-gray-30: #c7c7c7;
+  --color-pf-gray-40: #a3a3a3;
+  --color-pf-gray-50: #707070;
+  --color-pf-gray-60: #4d4d4d;
+  --color-pf-gray-70: #383838;
+  --color-pf-gray-80: #292929;
+  --color-pf-gray-90: #1f1f1f;
+  --color-pf-gray-95: #151515;
+
+  --color-pf-green-30: #afdc8f;
+  --color-pf-green-40: #87bb62;
+  --color-pf-green-60: #3d7317;
+  --color-pf-red-orange-30: #f89b78;
+  --color-pf-red-orange-60: #b1380b;
+  --color-pf-yellow-30: #ffcc17;
 }
 
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Semantic colors, resolved per theme below */
+@theme inline {
+  --color-brand: var(--ou-brand);
+  --color-brand-hover: var(--ou-brand-hover);
+  --color-brand-subtle: var(--ou-brand-subtle);
+  --color-on-brand: var(--ou-on-brand);
+  --color-fg: var(--ou-fg);
+  --color-fg-subtle: var(--ou-fg-subtle);
+  --color-page: var(--ou-page);
+  --color-band: var(--ou-band);
+  --color-card: var(--ou-card);
+  --color-line: var(--ou-line);
+  --color-success: var(--ou-success);
+  --color-code: var(--ou-code);
 }
 
-/* Infima overrides */
 :root {
-  --ifm-font-family-base: "Inter", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", sans-serif;
-  --ifm-color-primary: #6366f1;
-  --ifm-color-primary-dark: #4f46e5;
-  --ifm-color-primary-darker: #4338ca;
-  --ifm-color-primary-darkest: #3730a3;
-  --ifm-color-primary-light: #818cf8;
-  --ifm-color-primary-lighter: #a5b4fc;
-  --ifm-color-primary-lightest: #c7d2fe;
-  --ifm-navbar-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.05);
-  --ifm-global-radius: 0.5rem;
+  --ou-brand: #0066cc; /* blue-50: global--color--brand--default */
+  --ou-brand-hover: #004d99; /* blue-60 */
+  --ou-brand-subtle: #e0f0ff; /* blue-10: brand--subtle--default */
+  --ou-on-brand: #ffffff;
+  --ou-fg: #151515; /* gray-95: text--color--regular */
+  --ou-fg-subtle: #4d4d4d; /* gray-60: text--color--subtle */
+  --ou-page: #ffffff; /* background--color--primary */
+  --ou-band: #f2f2f2; /* gray-10: background--color--secondary */
+  --ou-card: #ffffff;
+  --ou-line: #e0e0e0; /* gray-20: border--color--subtle */
+  --ou-success: #3d7317; /* green-60 */
+  --ou-code: #1f1f1f; /* gray-90: code windows */
 }
 
-[data-theme="dark"] {
-  --ifm-color-primary: #818cf8;
-  --ifm-color-primary-dark: #6366f1;
-  --ifm-color-primary-darker: #4f46e5;
-  --ifm-color-primary-darkest: #4338ca;
-  --ifm-color-primary-light: #a5b4fc;
-  --ifm-color-primary-lighter: #c7d2fe;
-  --ifm-color-primary-lightest: #e0e7ff;
-  --ifm-background-color: #0a0a0f;
-  --ifm-background-surface-color: #111118;
-  --ifm-navbar-background-color: rgba(10, 10, 15, 0.8);
-  --ifm-navbar-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.06);
-  --ifm-footer-background-color: #050508;
-  --ifm-color-emphasis-300: #333;
+html[data-theme="dark"] {
+  --ou-brand: #92c5f9; /* blue-30 */
+  --ou-brand-hover: #b9dafc; /* blue-20 */
+  --ou-brand-subtle: #003366; /* blue-70 */
+  --ou-on-brand: #1f1f1f; /* gray-90: text--color--inverse */
+  --ou-fg: #ffffff;
+  --ou-fg-subtle: #c7c7c7; /* gray-30 */
+  --ou-page: #151515; /* gray-95 */
+  --ou-band: #1f1f1f; /* gray-90 */
+  --ou-card: #292929; /* gray-80: background--color--primary */
+  --ou-line: #383838; /* gray-70 */
+  --ou-success: #87bb62; /* green-40 */
+  --ou-code: #292929; /* gray-80 */
 }
 
-[data-theme="dark"] .navbar {
-  backdrop-filter: saturate(180%) blur(16px);
-  -webkit-backdrop-filter: saturate(180%) blur(16px);
+/* Infima overrides: light. */
+:root {
+  --ifm-font-family-base: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --ifm-heading-font-family: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --ifm-font-family-monospace: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ifm-color-primary: #0066cc;
+  --ifm-color-primary-dark: #005cb8;
+  --ifm-color-primary-darker: #004d99;
+  --ifm-color-primary-darkest: #003366;
+  --ifm-color-primary-light: #1a75d1;
+  --ifm-color-primary-lighter: #4394e5;
+  --ifm-color-primary-lightest: #92c5f9;
+
+  --ifm-font-color-base: #151515;
+  --ifm-heading-color: #151515;
+  --ifm-background-color: #ffffff;
+  --ifm-toc-border-color: #e0e0e0;
+  --ifm-color-emphasis-300: #e0e0e0;
+  --ifm-navbar-shadow: 0 1px 0 #e0e0e0;
+  --ifm-footer-background-color: #151515;
+  --ifm-code-border-radius: 6px;
+  --docusaurus-highlighted-code-line-bg: rgb(0 102 204 / 0.1);
 }
 
-[data-theme="dark"] .footer--dark {
-  --ifm-footer-background-color: #050508;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+/* Infima overrides: dark. Infima uses `html[data-theme="dark"]`, so match it. */
+html[data-theme="dark"] {
+  --ifm-color-primary: #92c5f9;
+  --ifm-color-primary-dark: #6aaef0;
+  --ifm-color-primary-darker: #4394e5;
+  --ifm-color-primary-darkest: #0066cc;
+  --ifm-color-primary-light: #a6d0fa;
+  --ifm-color-primary-lighter: #b9dafc;
+  --ifm-color-primary-lightest: #e0f0ff;
+
+  --ifm-font-color-base: #ffffff;
+  --ifm-heading-color: #ffffff;
+  --ifm-background-color: #151515;
+  --ifm-background-surface-color: #1f1f1f;
+  --ifm-navbar-background-color: #151515;
+  --ifm-toc-border-color: #383838;
+  --ifm-color-emphasis-300: #383838;
+  --ifm-navbar-shadow: 0 1px 0 #383838;
+  --ifm-footer-background-color: #1f1f1f;
+  --docusaurus-highlighted-code-line-bg: rgb(146 197 249 / 0.14);
 }
 
-/* Fix Infima link color override on styled buttons/cards */
-a.btn-primary,
-a.btn-primary:hover {
-  color: #fff !important;
-  text-decoration: none !important;
+.navbar {
+  box-shadow: var(--ifm-navbar-shadow);
 }
 
-a.btn-secondary,
-a.btn-secondary:hover {
-  text-decoration: none !important;
+/* Infima's dark footer sets its own background on .footer--dark; use PatternFly grays. */
+.footer--dark {
+  --ifm-footer-background-color: #151515; /* gray-95 */
 }
 
-a.card-link,
-a.card-link:hover {
-  color: inherit !important;
-  text-decoration: none !important;
+html[data-theme="dark"] .footer--dark {
+  --ifm-footer-background-color: #1f1f1f; /* gray-90 */
+  border-top: 1px solid #383838;
+}
+
+/* GitHub icon for the navbar item with className "header-github-link". */
+.header-github-link {
+  display: flex;
+  align-items: center;
+}
+
+.header-github-link::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  background-color: var(--ifm-navbar-link-color);
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat center / contain;
+}
+
+.header-github-link:hover::before {
+  background-color: var(--ifm-navbar-link-hover-color);
+}
+
+/*
+ * Local search (@easyops-cn/docusaurus-search-local).
+ * The plugin exposes `--search-local-*` variables; map them to the semantic
+ * tokens above so the navbar search box and its dropdown follow PatternFly in
+ * both color modes (styled like a PatternFly search input and menu).
+ */
+:root {
+  --ifm-navbar-search-input-background-color: var(--ou-page);
+  --ifm-navbar-search-input-color: var(--ou-fg);
+  --ifm-navbar-search-input-placeholder-color: var(--ou-fg-subtle);
+
+  --search-local-modal-background: var(--ou-card);
+  --search-local-modal-shadow: 0 0.25rem 0.5rem 0 rgb(41 41 41 / 0.16); /* box-shadow--md */
+  --search-local-modal-width: 600px;
+  --search-local-spacing: 8px;
+  --search-local-hit-background: transparent;
+  --search-local-hit-shadow: none;
+  --search-local-hit-color: var(--ou-fg);
+  --search-local-hit-active-color: var(--ou-fg);
+  --search-local-hit-height: 60px;
+  --search-local-muted-color: var(--ou-fg-subtle);
+  --search-local-highlight-color: var(--ou-brand);
+  --search-local-input-active-border-color: var(--ou-brand);
+}
+
+html[data-theme="dark"] {
+  --search-local-modal-background: var(--ou-card);
+  --search-local-modal-shadow: 0 0.25rem 0.5rem 0 rgb(0 0 0 / 0.48);
+  --search-local-hit-background: transparent;
+  --search-local-hit-color: var(--ou-fg);
+  --search-local-muted-color: var(--ou-fg-subtle);
+}
+
+.navbar__search-input {
+  border: 1px solid #c7c7c7; /* gray-30: border--color--default */
+  border-radius: 6px;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
+}
+
+.navbar__search-input:hover {
+  border-color: var(--ou-brand);
+}
+
+html[data-theme="dark"] .navbar__search-input {
+  background-color: var(--ou-band);
+  border-color: #707070; /* gray-50 */
+}
+
+html[data-theme="dark"] .navbar__search-input:hover {
+  border-color: var(--ou-brand);
+}
+
+.navbar__search kbd {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  color: var(--ou-fg-subtle);
+  background-color: var(--ou-band);
+  border: 1px solid var(--ou-line);
+  border-radius: 4px;
+  box-shadow: none;
+  padding: 0 0.375rem;
+}
+
+/* Dropdown menu */
+.navbar__search [class*="dropdownMenu_"] {
+  border: 1px solid var(--ou-line);
+  border-radius: 8px;
+}
+
+.navbar__search [class*="dropdownMenu_"] [class*="suggestion_"] {
+  border-radius: 6px;
+}
+
+.navbar__search [class*="dropdownMenu_"] [class*="suggestion_"][class*="cursor_"] {
+  background-color: var(--ou-brand-subtle) !important; /* PatternFly menu: selected item */
+  box-shadow: inset 3px 0 0 var(--ou-brand);
+}
+
+.navbar__search [class*="dropdownMenu_"] [class*="suggestion_"][class*="cursor_"] mark {
+  color: var(--ou-brand) !important;
+}
+
+.navbar__search [class*="hitFooter_"] a {
+  color: var(--ou-brand);
+}
+
+/* Search page (/search/) */
+[class*="searchResultItem_"] {
+  border-bottom-color: var(--ou-line) !important;
+}
+
+[class*="searchQueryInput_"],
+[class*="searchContextInput_"] {
+  border: 1px solid #c7c7c7 !important;
+  border-radius: 6px !important;
+  background: var(--ou-page) !important;
+}
+
+html[data-theme="dark"] [class*="searchQueryInput_"],
+html[data-theme="dark"] [class*="searchContextInput_"] {
+  border-color: #707070 !important;
+  background: var(--ou-band) !important;
+}
+
+[class*="searchQueryInput_"]:focus,
+[class*="searchContextInput_"]:focus {
+  outline: 2px solid var(--ou-brand);
+  outline-offset: -1px;
+}
+
+[class*="searchResultItem_"] mark {
+  background-color: var(--ou-brand-subtle);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
 }

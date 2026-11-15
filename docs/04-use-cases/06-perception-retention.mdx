@@ -1,0 +1,555 @@
+---
+title: Percepciones y retenciones
+description: Crea, firma y envía comprobantes de percepción y de retención a la SUNAT.
+slug: /use-cases/perception-retention
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Un **comprobante de percepción** acredita el monto que cobraste por adelantado a tu cliente como agente de percepción. Un **comprobante de retención** acredita el monto que retuviste al pagar a tu proveedor como agente de retención. Ambos se firman igual que una factura, pero se envían a un servicio distinto de la SUNAT.
+
+## Antes de empezar
+
+Estos comprobantes se diferencian de una factura en tres puntos:
+
+- **Serie y número van separados**: usas `serie` (`P001`, `R001`) y `numero` (`1`), no `serie_numero`. El identificador del documento (`P001-1`) se calcula a partir de ellos.
+- **Los importes no se calculan**: tú indicas el porcentaje, el monto percibido o retenido y el total cobrado o pagado. Solo se completan automáticamente la fecha de emisión (hoy), la moneda (`PEN`), el firmante (el proveedor) y el identificador.
+- **Otro servicio de la SUNAT**: al enviarlos, xhandler elige solo la URL de percepciones y retenciones (`perception_retention`) de tus URLs. La respuesta es un CDR directo, no un ticket.
+
+Cada comprobante tiene **una sola operación** (`operacion`), es decir, un solo comprobante afectado.
+
+## Percepción
+
+En el ejemplo, la factura `F001-1` de 236.00 soles tiene una percepción del 2% (régimen `01` del Catálogo 22): 236.00 × 2% = 4.72 percibido, y 236.00 + 4.72 = 240.72 cobrado.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java title="Percepcion.java"
+import io.github.project.openubl.xbuilder.XBuilder;
+import io.github.project.openubl.xbuilder.models.Cliente;
+import io.github.project.openubl.xbuilder.models.PercepcionRetencionComprobanteAfectado;
+import io.github.project.openubl.xbuilder.models.PercepcionRetencionOperacion;
+import io.github.project.openubl.xbuilder.models.Perception;
+import io.github.project.openubl.xbuilder.models.Proveedor;
+import io.github.project.openubl.xsigner.SigningKey;
+import io.github.project.openubl.xsigner.XSigner;
+import io.github.project.openubl.xsender.Credentials;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.URLs;
+import io.github.project.openubl.xsender.models.SunatResponse;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+
+LocalDate fecha = LocalDate.of(2026, 11, 10);
+
+Perception perception = Perception.builder()
+        .serie("P001")
+        .numero(1L)
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("6")
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .tipoRegimen("01")                              // Catálogo 22
+        .tipoRegimenPorcentaje(new BigDecimal("2"))
+        .importeTotalPercibido(new BigDecimal("4.72"))
+        .importeTotalCobrado(new BigDecimal("240.72"))
+        .observaciones("Percepción de prueba")
+        .operacion(PercepcionRetencionOperacion.builder()
+                .numeroOperacion(1L)
+                .fechaOperacion(fecha)
+                .importeOperacion(new BigDecimal("236.00"))
+                .comprobanteAfectado(PercepcionRetencionComprobanteAfectado.builder()
+                        .tipoComprobante("01")          // factura
+                        .serieNumero("F001-1")
+                        .fechaEmision(fecha)
+                        .importeTotal(new BigDecimal("236.00"))
+                        .moneda("PEN")
+                        .build())
+                .build())
+        .build();
+String xml = new XBuilder().build(perception);
+
+SigningKey key = SigningKey.fromPkcs12(Files.readAllBytes(Path.of("certificado.pfx")), "password");
+byte[] signed = new XSigner().sign(xml.getBytes(StandardCharsets.UTF_8), key);
+
+FileSender sender = new FileSender(
+        URLs.beta(),
+        Credentials.builder()
+                .username("12345678959MODDATOS")
+                .password("MODDATOS")
+                .build()
+);
+SunatResponse response = sender.sendFile(signed); // va a la URL de percepciones y retenciones
+System.out.println(response.getStatus());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust title="src/main.rs"
+use chrono::NaiveDate;
+use rust_decimal_macros::dec;
+use xhandler::prelude::*;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let fecha = NaiveDate::from_ymd_opt(2026, 11, 10).unwrap();
+
+    let mut perception = Perception {
+        serie: "P001".into(),
+        numero: 1,
+        proveedor: Proveedor {
+            ruc: "12345678912".into(),
+            razon_social: "Softgreen S.A.C.".into(),
+            ..Default::default()
+        },
+        cliente: Cliente {
+            tipo_documento_identidad: "6".into(),
+            numero_documento_identidad: "12121212121".into(),
+            nombre: "Carlos Feria".into(),
+            ..Default::default()
+        },
+        tipo_regimen: "01".into(), // Catálogo 22
+        tipo_regimen_porcentaje: dec!(2),
+        importe_total_percibido: dec!(4.72),
+        importe_total_cobrado: dec!(240.72),
+        observaciones: Some("Percepción de prueba".into()),
+        operacion: Some(PercepcionRetencionOperacion {
+            numero_operacion: 1,
+            fecha_operacion: fecha,
+            importe_operacion: dec!(236.00),
+            comprobante_afectado: PercepcionRetencionComprobanteAfectado {
+                tipo_comprobante: "01".into(), // factura
+                serie_numero: "F001-1".into(),
+                fecha_emision: fecha,
+                importe_total: dec!(236.00),
+                moneda: Some("PEN".into()),
+            },
+            tipo_cambio: None,
+        }),
+        ..Default::default()
+    };
+    perception.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+    let xml = perception.render()?;
+
+    let key = RsaKeyPair::from_pkcs12(&std::fs::read("certificado.pfx")?, "password")?;
+    let signed = XSigner { xml_document: xml }.sign(&key)?;
+
+    let sender = FileSender {
+        urls: Urls::beta(), // va a urls.perception_retention
+        credentials: Credentials {
+            username: "12345678959MODDATOS".into(),
+            password: "MODDATOS".into(),
+            ..Default::default()
+        },
+    };
+    let result = sender.send_file(&UblFile::from_bytes(signed)?).await?;
+
+    if let SendFileAggregatedResponse::Cdr(_, cdr) = result.response {
+        println!("{} {}", cdr.status(), cdr.description);
+    }
+    Ok(())
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="percepcion.py"
+from datetime import date
+from decimal import Decimal
+from pathlib import Path
+
+from xhandler import xbuilder
+from xhandler.xsender import Credentials, FileSender, URLs
+from xhandler.xsigner import SigningKey, sign
+
+fecha = date(2026, 11, 10)
+
+perception = xbuilder.Perception(
+    serie="P001",
+    numero=1,
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    tipo_regimen="01",  # Catálogo 22
+    tipo_regimen_porcentaje=Decimal("2"),
+    importe_total_percibido=Decimal("4.72"),
+    importe_total_cobrado=Decimal("240.72"),
+    observaciones="Percepción de prueba",
+    operacion=xbuilder.PercepcionRetencionOperacion(
+        numero_operacion=1,
+        fecha_operacion=fecha,
+        importe_operacion=Decimal("236.00"),
+        comprobante_afectado=xbuilder.PercepcionRetencionComprobanteAfectado(
+            tipo_comprobante="01",  # factura
+            serie_numero="F001-1",
+            fecha_emision=fecha,
+            importe_total=Decimal("236.00"),
+            moneda="PEN",
+        ),
+    ),
+)
+xml = xbuilder.build(perception)
+
+key = SigningKey.from_pkcs12(Path("certificado.pfx").read_bytes(), "password")
+signed = sign(xml.encode(), key)
+
+sender = FileSender(
+    URLs.beta(),
+    Credentials(username="12345678959MODDATOS", password="MODDATOS"),
+)
+result = sender.send_file(signed)  # va a URLs.perception_retention
+
+if result.cdr:
+    print(result.cdr.status, result.cdr.description)
+elif result.fault:
+    print(result.fault.code, result.fault.message)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="main.go"
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"time"
+
+	"github.com/project-openubl/xhandler-go/v6/xbuilder"
+	"github.com/project-openubl/xhandler-go/v6/xsender"
+	"github.com/project-openubl/xhandler-go/v6/xsigner"
+)
+
+func main() {
+	if err := run(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run(ctx context.Context) error {
+	fecha := xbuilder.NewDate(2026, time.November, 10)
+
+	perception := &xbuilder.Perception{
+		Serie:     "P001",
+		Numero:    1,
+		Proveedor: xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+		Cliente: xbuilder.Cliente{
+			TipoDocumentoIdentidad:   "6",
+			NumeroDocumentoIdentidad: "12121212121",
+			Nombre:                   "Carlos Feria",
+		},
+		TipoRegimen:           "01", // Catálogo 22
+		TipoRegimenPorcentaje: xbuilder.MustDecimal("2"),
+		ImporteTotalPercibido: xbuilder.MustDecimal("4.72"),
+		ImporteTotalCobrado:   xbuilder.MustDecimal("240.72"),
+		Observaciones:         xbuilder.Ptr("Percepción de prueba"),
+		Operacion: &xbuilder.PercepcionRetencionOperacion{
+			NumeroOperacion:  1,
+			FechaOperacion:   fecha,
+			ImporteOperacion: xbuilder.MustDecimal("236.00"),
+			ComprobanteAfectado: xbuilder.PercepcionRetencionComprobanteAfectado{
+				TipoComprobante: "01", // factura
+				SerieNumero:     "F001-1",
+				FechaEmision:    fecha,
+				ImporteTotal:    xbuilder.MustDecimal("236.00"),
+				Moneda:          xbuilder.Ptr("PEN"),
+			},
+		},
+	}
+	xml, err := xbuilder.Build(ctx, perception, xbuilder.Defaults{})
+	if err != nil {
+		return err
+	}
+
+	pfx, err := os.ReadFile("certificado.pfx")
+	if err != nil {
+		return err
+	}
+	signed, err := xsigner.Sign(ctx, []byte(xml), xsigner.FromPKCS12(pfx, "password"))
+	if err != nil {
+		return err
+	}
+
+	sender := &xsender.FileSender{
+		URLs:        xsender.BetaURLs, // va a URLs.PerceptionRetention
+		Credentials: xsender.Credentials{Username: "12345678959MODDATOS", Password: "MODDATOS"},
+	}
+	result, err := sender.SendFile(ctx, signed)
+	if err != nil {
+		return err
+	}
+	switch {
+	case result.CDR != nil:
+		fmt.Println(result.CDR.Status, result.CDR.Description)
+	case result.Fault != nil:
+		fmt.Println(result.Fault.Code, result.Fault.Message)
+	}
+	return nil
+}
+```
+
+</TabItem>
+<TabItem value="cli" label="CLI">
+
+```yaml title="percepcion.yaml"
+kind: Perception
+spec:
+  serie: "P001"
+  numero: 1
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  cliente:
+    tipo_documento_identidad: "6"
+    numero_documento_identidad: "12121212121"
+    nombre: "Carlos Feria"
+  tipo_regimen: "01" # Catálogo 22
+  tipo_regimen_porcentaje: 2
+  importe_total_percibido: 4.72
+  importe_total_cobrado: 240.72
+  operacion:
+    numero_operacion: 1
+    fecha_operacion: "10-11-2026"
+    importe_operacion: 236
+    comprobante_afectado:
+      tipo_comprobante: "01"
+      serie_numero: "F001-1"
+      fecha_emision: "10-11-2026"
+      importe_total: 236
+      moneda: "PEN"
+```
+
+```shell
+xhandler apply -f percepcion.yaml --beta
+```
+
+</TabItem>
+</Tabs>
+
+## Retención
+
+La retención tiene la misma forma que la percepción. Solo cambian tres cosas:
+
+| | Percepción | Retención |
+|---|---|---|
+| Modelo | `Perception` | `Retention` |
+| Régimen (`tipo_regimen`) | Catálogo 22 | Catálogo 23 |
+| Importes | `importe_total_percibido`, `importe_total_cobrado` | `importe_total_retenido`, `importe_total_pagado` |
+
+En el ejemplo, al pagar la factura `F001-1` de 236.00 soles retienes el 3% (régimen `01` del Catálogo 23): 236.00 × 3% = 7.08 retenido, y 236.00 − 7.08 = 228.92 pagado. La firma y el envío son idénticos a los de la percepción.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+Retention retention = Retention.builder()
+        .serie("R001")
+        .numero(1L)
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("6")
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .tipoRegimen("01")                              // Catálogo 23
+        .tipoRegimenPorcentaje(new BigDecimal("3"))
+        .importeTotalRetenido(new BigDecimal("7.08"))
+        .importeTotalPagado(new BigDecimal("228.92"))
+        .observaciones("Retención de prueba")
+        .operacion(PercepcionRetencionOperacion.builder()
+                .numeroOperacion(1L)
+                .fechaOperacion(fecha)
+                .importeOperacion(new BigDecimal("236.00"))
+                .comprobanteAfectado(PercepcionRetencionComprobanteAfectado.builder()
+                        .tipoComprobante("01")
+                        .serieNumero("F001-1")
+                        .fechaEmision(fecha)
+                        .importeTotal(new BigDecimal("236.00"))
+                        .moneda("PEN")
+                        .build())
+                .build())
+        .build();
+String xml = new XBuilder().build(retention);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut retention = Retention {
+    serie: "R001".into(),
+    numero: 1,
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    cliente: Cliente {
+        tipo_documento_identidad: "6".into(),
+        numero_documento_identidad: "12121212121".into(),
+        nombre: "Carlos Feria".into(),
+        ..Default::default()
+    },
+    tipo_regimen: "01".into(), // Catálogo 23
+    tipo_regimen_porcentaje: dec!(3),
+    importe_total_retenido: dec!(7.08),
+    importe_total_pagado: dec!(228.92),
+    observaciones: Some("Retención de prueba".into()),
+    operacion: Some(PercepcionRetencionOperacion {
+        numero_operacion: 1,
+        fecha_operacion: fecha,
+        importe_operacion: dec!(236.00),
+        comprobante_afectado: PercepcionRetencionComprobanteAfectado {
+            tipo_comprobante: "01".into(),
+            serie_numero: "F001-1".into(),
+            fecha_emision: fecha,
+            importe_total: dec!(236.00),
+            moneda: Some("PEN".into()),
+        },
+        tipo_cambio: None,
+    }),
+    ..Default::default()
+};
+retention.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = retention.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+retention = xbuilder.Retention(
+    serie="R001",
+    numero=1,
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    tipo_regimen="01",  # Catálogo 23
+    tipo_regimen_porcentaje=Decimal("3"),
+    importe_total_retenido=Decimal("7.08"),
+    importe_total_pagado=Decimal("228.92"),
+    observaciones="Retención de prueba",
+    operacion=xbuilder.PercepcionRetencionOperacion(
+        numero_operacion=1,
+        fecha_operacion=fecha,
+        importe_operacion=Decimal("236.00"),
+        comprobante_afectado=xbuilder.PercepcionRetencionComprobanteAfectado(
+            tipo_comprobante="01",
+            serie_numero="F001-1",
+            fecha_emision=fecha,
+            importe_total=Decimal("236.00"),
+            moneda="PEN",
+        ),
+    ),
+)
+xml = xbuilder.build(retention)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+retention := &xbuilder.Retention{
+	Serie:     "R001",
+	Numero:    1,
+	Proveedor: xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Cliente: xbuilder.Cliente{
+		TipoDocumentoIdentidad:   "6",
+		NumeroDocumentoIdentidad: "12121212121",
+		Nombre:                   "Carlos Feria",
+	},
+	TipoRegimen:           "01", // Catálogo 23
+	TipoRegimenPorcentaje: xbuilder.MustDecimal("3"),
+	ImporteTotalRetenido:  xbuilder.MustDecimal("7.08"),
+	ImporteTotalPagado:    xbuilder.MustDecimal("228.92"),
+	Observaciones:         xbuilder.Ptr("Retención de prueba"),
+	Operacion: &xbuilder.PercepcionRetencionOperacion{
+		NumeroOperacion:  1,
+		FechaOperacion:   fecha,
+		ImporteOperacion: xbuilder.MustDecimal("236.00"),
+		ComprobanteAfectado: xbuilder.PercepcionRetencionComprobanteAfectado{
+			TipoComprobante: "01",
+			SerieNumero:     "F001-1",
+			FechaEmision:    fecha,
+			ImporteTotal:    xbuilder.MustDecimal("236.00"),
+			Moneda:          xbuilder.Ptr("PEN"),
+		},
+	},
+}
+xml, err := xbuilder.Build(ctx, retention, xbuilder.Defaults{})
+```
+
+</TabItem>
+<TabItem value="cli" label="CLI">
+
+```yaml title="retencion.yaml"
+kind: Retention
+spec:
+  serie: "R001"
+  numero: 1
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  cliente:
+    tipo_documento_identidad: "6"
+    numero_documento_identidad: "12121212121"
+    nombre: "Carlos Feria"
+  tipo_regimen: "01" # Catálogo 23
+  tipo_regimen_porcentaje: 3
+  importe_total_retenido: 7.08
+  importe_total_pagado: 228.92
+  operacion:
+    numero_operacion: 1
+    fecha_operacion: "10-11-2026"
+    importe_operacion: 236
+    comprobante_afectado:
+      tipo_comprobante: "01"
+      serie_numero: "F001-1"
+      fecha_emision: "10-11-2026"
+      importe_total: 236
+      moneda: "PEN"
+```
+
+```shell
+xhandler apply -f retencion.yaml --beta
+```
+
+</TabItem>
+</Tabs>
+
+## Tener en cuenta
+
+- **Revisa tus cálculos**: la librería no verifica que el monto percibido o retenido corresponda al porcentaje. Lo que indiques es lo que va en el XML.
+- **Moneda extranjera**: si el comprobante afectado no está en soles, agrega el tipo de cambio en la operación (`tipo_cambio`, con `valor` y `fecha`).
+- **Nombre del archivo**: al enviar, el zip se nombra con el tipo de comprobante de la SUNAT: `12345678912-40-P001-1.zip` para la percepción y `12345678912-20-R001-1.zip` para la retención. No tienes que hacer nada, xhandler lo arma por ti.
+- **Anular**: una percepción o retención no se anula con una comunicación de baja, sino con una **reversión**. Revisa [Anular comprobantes](./03-void-documents.mdx).
+
+## Ver también
+
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx)
+- [Firma digital](../05-fundamentals/02-signing.mdx)

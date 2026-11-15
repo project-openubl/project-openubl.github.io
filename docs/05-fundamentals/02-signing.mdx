@@ -1,0 +1,210 @@
+---
+title: Firma digital
+description: Firma tus comprobantes con un certificado PKCS#12 (.pfx), con llave y certificado PEM o con un KeyStore de Java.
+slug: /fundamentals/signing
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+La SUNAT solo acepta comprobantes firmados digitalmente. xhandler agrega al XML una firma XML _enveloped_ RSA-SHA256, en el formato que pide la SUNAT.
+
+## El certificado
+
+- El certificado digital debe pertenecer al **RUC emisor** del comprobante. Si firmas con el certificado de otra empresa, la SUNAT rechaza el comprobante.
+- Para el entorno beta usa el [certificado de prueba del inicio rápido](../03-quickstart.mdx#antes-de-empezar) (`certificado.pfx`, contraseña `password`), que corresponde al RUC de prueba `12345678912`.
+- En producción usa el certificado que te entregó tu proveedor de certificados o la SUNAT.
+
+xhandler acepta el certificado en estos formatos:
+
+| Formato | Java | Rust | Python | Go |
+|---|---|---|---|---|
+| PKCS#12 (`.pfx` / `.p12`) | Sí | Sí | Sí | Sí |
+| PEM (llave privada + certificado) | Sí | Sí | Sí | Sí |
+| `java.security.KeyStore` | Sí | No aplica | No aplica | No aplica |
+
+Se soportan también los archivos PKCS#12 antiguos cifrados con 3DES, como los que exporta Windows.
+
+## Firmar con un archivo PKCS#12 (.pfx)
+
+Es el formato más común. Necesitas los bytes del archivo y su contraseña.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsigner.SigningKey;
+import io.github.project.openubl.xsigner.XSigner;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+String xml = new XBuilder().build(invoice);
+
+SigningKey key = SigningKey.fromPkcs12(Files.readAllBytes(Path.of("certificado.pfx")), "password");
+XSigner signer = new XSigner(); // sin estado y thread-safe
+
+String signedXml = signer.sign(xml, key);                                     // String -> String
+byte[] signedBytes = signer.sign(xml.getBytes(StandardCharsets.UTF_8), key);  // byte[] -> byte[]
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+use xhandler::prelude::*;
+
+let key = RsaKeyPair::from_pkcs12(&std::fs::read("certificado.pfx")?, "password")?;
+
+// Desde un String (por ejemplo, el resultado de render())
+let signed: Vec<u8> = XSigner { xml_document: xml }.sign(&key)?;
+
+// O desde un archivo
+let signed_from_file: Vec<u8> = XSigner::from_path("factura.xml")?.sign(&key)?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from pathlib import Path
+
+from xhandler import xbuilder
+from xhandler.xsigner import SigningKey, sign
+
+xml = xbuilder.build(invoice)
+
+key = SigningKey.from_pkcs12(Path("certificado.pfx").read_bytes(), "password")
+
+signed_text = sign(xml, key)            # str -> str
+signed_bytes = sign(xml.encode(), key)  # bytes -> bytes (UTF-8)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+import (
+	"os"
+
+	"github.com/project-openubl/xhandler-go/v6/xsigner"
+)
+
+pfx, err := os.ReadFile("certificado.pfx")
+if err != nil {
+	return err
+}
+key := xsigner.FromPKCS12(pfx, "password")
+
+signed, err := xsigner.Sign(ctx, []byte(xml), key) // []byte -> []byte
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Firmar con llave y certificado PEM
+
+Si tienes la llave privada y el certificado por separado, en formato PEM. La llave puede ser PKCS#8 (`BEGIN PRIVATE KEY`) o PKCS#1 (`BEGIN RSA PRIVATE KEY`); el certificado es X.509. Ambos se pasan como **texto**.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+SigningKey key = SigningKey.fromPem(
+        Files.readString(Path.of("private.key")),
+        Files.readString(Path.of("certificate.pem"))
+);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let key = RsaKeyPair::from_pem(
+    &std::fs::read_to_string("private.key")?,
+    &std::fs::read_to_string("certificate.pem")?,
+)?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+key = SigningKey.from_pem(
+    Path("private.key").read_text(),
+    Path("certificate.pem").read_text(),
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+privateKey, err := os.ReadFile("private.key")
+if err != nil {
+	return err
+}
+certificate, err := os.ReadFile("certificate.pem")
+if err != nil {
+	return err
+}
+key := xsigner.FromPEM(string(privateKey), string(certificate))
+```
+
+En Go, `FromPEM` recibe `string`, mientras que `FromPKCS12` recibe `[]byte`.
+
+</TabItem>
+</Tabs>
+
+## Firmar con un KeyStore (solo Java)
+
+Si tu aplicación ya carga un `java.security.KeyStore`, puedes crear la llave a partir de él:
+
+```java
+import java.io.InputStream;
+import java.security.KeyStore;
+
+KeyStore keyStore = KeyStore.getInstance("PKCS12");
+try (InputStream in = Files.newInputStream(Path.of("certificado.pfx"))) {
+    keyStore.load(in, "password".toCharArray());
+}
+String alias = keyStore.aliases().nextElement();
+
+SigningKey key = SigningKey.fromKeyStore(keyStore, alias, "password".toCharArray());
+```
+
+- `fromKeyStore` lanza `GeneralSecurityException` (checked) si no hay llave o certificado para ese alias.
+- La llave privada debe ser **exportable**. No sirven los keystores de hardware, como PKCS#11.
+- Produce la misma firma que `fromPkcs12` con el mismo certificado.
+
+## Diferencias entre lenguajes
+
+| | Java | Rust | Python | Go |
+|---|---|---|---|---|
+| Crear la llave | `SigningKey.fromPkcs12`, `fromPem`, `fromKeyStore` | `RsaKeyPair::from_pkcs12`, `from_pem` | `SigningKey.from_pkcs12`, `from_pem` | `xsigner.FromPKCS12`, `FromPEM` |
+| Firmar | `new XSigner().sign(xml, key)` | `XSigner { xml_document }.sign(&key)` | `sign(xml, key)` | `xsigner.Sign(ctx, xml, key)` |
+| Entrada → salida | `String` → `String`, `byte[]` → `byte[]` | `String` o bytes → `Vec<u8>` | `str` → `str`, `bytes` → `bytes` | `[]byte` → `[]byte` |
+| Cuándo se valida la llave | Al firmar | Al crearla | Al firmar | Al firmar |
+
+## Detalles de la firma
+
+- La firma se coloca en el primer `ext:ExtensionContent` vacío, el que deja preparado el paso de crear. El nodo de firma tiene el Id `PROJECT-OPENUBL-SIGN`.
+- Puedes firmar XML que no generó xhandler. Un XML cuyo `ext:ExtensionContent` ya está ocupado, por ejemplo uno ya firmado, da error.
+- El XML de entrada puede estar en UTF-8 o ISO-8859-1 (según su declaración XML). El XML firmado siempre sale en **UTF-8**.
+- La llave es reutilizable: créala una vez, por ejemplo al iniciar la aplicación, y úsala para todos los comprobantes.
+- Al imprimir o registrar en logs la llave, sus secretos no se muestran (`SigningKey(<redacted>)` en Java, Python y Go).
+
+## Errores frecuentes
+
+Una contraseña incorrecta, un archivo PKCS#12 dañado, un PEM inválido o un certificado que no corresponde a la llave privada producen un error de llave inválida:
+
+- **Java**: `XhandlerException` con `ErrorKind.INVALID_KEY`.
+- **Rust**: `SignError`; una contraseña incorrecta es `SignError::WrongPassword`.
+- **Python**: `XhandlerError` con `ErrorKind.INVALID_KEY`.
+- **Go**: `*xhandler.Error` con `xhandler.KindInvalidKey`.
+
+Revisa [Manejo de errores](./05-errors.mdx).

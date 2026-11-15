@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import Translate from "@docusaurus/Translate";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 
 const TITLE = "¿Qué es Project OpenUBL?";
 const DESCRIPTION =
@@ -16,7 +17,7 @@ function About() {
           </h1>
           <img
             alt="Project OpenUBL"
-            src="img/project-openubl-logo.png"
+            src={useBaseUrl("/img/project-openubl-logo.png")}
             style={{ height: 100 }}
           />
           <h4>Project OpenUBL</h4>

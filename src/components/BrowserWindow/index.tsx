@@ -13,7 +13,7 @@ export default function BrowserWindow({
   children,
   minHeight,
   url = "http://localhost:3000",
-}: Props): React.JSX.Element {
+}: Props): ReactNode {
   return (
     <div className={styles.browserWindow} style={{ minHeight }}>
       <div className={styles.browserWindowHeader}>

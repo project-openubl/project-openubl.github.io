@@ -1,0 +1,222 @@
+---
+title: Manejo de errores
+description: Qué errores devuelve xhandler en Java, Rust, Python y Go, cómo distinguirlos y por qué un rechazo de la SUNAT no es un error.
+slug: /fundamentals/errors
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Un rechazo de la SUNAT no es un error
+
+Esta es la regla más importante: si la SUNAT **rechaza** un comprobante o responde con un error propio (_fault_), xhandler **no** lanza una excepción ni devuelve un error. La respuesta llega como un valor más, igual que una aceptación, con su estado, código y descripción. Revisa [Envío y respuestas de la SUNAT](./03-sending.mdx).
+
+Solo obtienes un error cuando xhandler **no pudo hacer su trabajo**:
+
+- El documento tiene datos inválidos, por ejemplo un código de catálogo que no existe.
+- El certificado o su contraseña no son válidos.
+- El archivo no es un comprobante de la SUNAT, o falta la URL del servicio.
+- No se pudo conectar con la SUNAT, o su respuesta no se puede leer.
+
+## Tipos de error
+
+Java, Python y Go comparten el mismo modelo, porque los errores vienen del mismo núcleo: una excepción o error de xhandler con un **tipo** (_kind_).
+
+| Tipo | Java (`ErrorKind`) | Python (`ErrorKind`) | Go | Cuándo ocurre |
+|---|---|---|---|---|
+| Validación | `VALIDATION` | `VALIDATION` | `KindValidation` | Valores inválidos: un código de catálogo desconocido, una guía sin fecha de traslado. |
+| Entrada inválida | `INVALID_INPUT` | `INVALID_INPUT` | `KindInvalidInput` | Faltan campos o tienen tipos incorrectos; un XML que no es un comprobante; una guía sin URL de guías; un XML ya firmado al firmar; consultar el ticket de un documento que no usa tickets. |
+| Llave inválida | `INVALID_KEY` | `INVALID_KEY` | `KindInvalidKey` | Contraseña del certificado incorrecta, llave o certificado ilegibles, o un certificado que no corresponde a la llave. |
+| Generación del XML | `RENDER` | `RENDER` | `KindRender` | No se pudo generar el XML. |
+| Respuesta ilegible | `RESPONSE` | `RESPONSE` | `KindResponse` | La SUNAT respondió algo que no se puede leer, por ejemplo una página HTML de error. |
+| Límite de peticiones | `RATE_LIMITED` | `RATE_LIMITED` | `KindRateLimited` | El proxy de la SUNAT siguió rechazando la petición después de los reintentos automáticos. |
+| Petición inválida | `INVALID_REQUEST` | `INVALID_REQUEST` | `KindInvalidRequest` | Uso interno: la petición no llegó a ninguna operación del núcleo. |
+
+El mensaje de estos errores tiene la forma `xhandler <tipo>: <mensaje>`, por ejemplo `xhandler validation: ...`.
+
+Rust no tiene un único tipo de error: cada paso devuelve el suyo. Lo ves en la pestaña de Rust.
+
+## Manejar los errores
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xhandler.core.ErrorKind;
+import io.github.project.openubl.xhandler.core.XhandlerException;
+import io.github.project.openubl.xsender.models.Status;
+import io.github.project.openubl.xsender.models.SunatResponse;
+
+import java.io.UncheckedIOException;
+
+try {
+    String xml = new XBuilder().build(invoice);
+    byte[] signed = new XSigner().sign(xml.getBytes(StandardCharsets.UTF_8), key);
+    SunatResponse response = sender.sendFile(signed);
+
+    // Los rechazos de la SUNAT NO son excepciones
+    if (response.getStatus() == Status.RECHAZADO || response.getStatus() == Status.EXCEPCION) {
+        System.out.println(response.getMetadata().getResponseCode() + ": " + response.getMetadata().getDescription());
+    }
+} catch (XhandlerException e) {
+    ErrorKind kind = e.getKind(); // null si el núcleo falló internamente
+    if (kind == null) {
+        throw e;
+    }
+    switch (kind) {
+        case VALIDATION -> System.out.println("Documento inválido: " + e.getMessage());
+        case INVALID_KEY -> System.out.println("Certificado o contraseña inválidos: " + e.getMessage());
+        case RESPONSE, RATE_LIMITED -> System.out.println("Problema con la SUNAT, reintenta más tarde: " + e.getMessage());
+        default -> System.out.println(e.getMessage());
+    }
+} catch (UncheckedIOException e) {
+    // No se pudo conectar con la SUNAT (ya se reintentó una vez)
+    System.out.println("Sin conexión con la SUNAT: " + e.getMessage());
+}
+```
+
+- `XhandlerException` es una `RuntimeException` (unchecked). `getKind()` devuelve el `ErrorKind`, o `null` si el núcleo no pudo responder.
+- Los errores de red llegan como `java.io.UncheckedIOException`. También se usa si `sendFile(Path)` no puede leer el archivo, o si el hilo fue interrumpido.
+- Una URL inválida lanza `IllegalArgumentException`.
+- `SigningKey.fromKeyStore` lanza `GeneralSecurityException` (checked).
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+use xhandler::prelude::*;
+
+async fn emitir(invoice: &mut Invoice, key: &RsaKeyPair, sender: &FileSender) -> anyhow::Result<()> {
+    // enrich: anyhow::Error, p. ej. "detalles[0].igv_tipo: 99 is not a valid Catalog7"
+    invoice.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+
+    // render: tera::Error
+    let xml = invoice.render()?;
+
+    // sign: SignError
+    let signed = match (XSigner { xml_document: xml }).sign(key) {
+        Ok(signed) => signed,
+        Err(SignError::WrongPassword) => anyhow::bail!("contraseña del certificado incorrecta"),
+        Err(e) => return Err(e.into()),
+    };
+
+    // send: FileSenderError
+    let sent = match sender.send_file(&UblFile::from_bytes(signed)?).await {
+        Ok(sent) => sent,
+        Err(FileSenderError::NoDespatchUrl) => anyhow::bail!("falta la URL de guías"),
+        Err(FileSenderError::TargetDiscovery) => anyhow::bail!("no se pudo deducir el servicio"),
+        Err(FileSenderError::SunatClient(SunatClientError::RateLimited)) => anyhow::bail!("reintenta más tarde"),
+        Err(FileSenderError::SunatClient(SunatClientError::Response(http))) => anyhow::bail!("respuesta ilegible, HTTP {http}"),
+        Err(e) => return Err(e.into()),
+    };
+
+    // Los rechazos de la SUNAT NO son Err: llegan en la respuesta
+    match sent.response {
+        SendFileAggregatedResponse::Cdr(_, cdr) => match cdr.status() {
+            Status::Accepted => Ok(()),
+            status => anyhow::bail!("{status}: {} ({})", cdr.description, cdr.response_code),
+        },
+        SendFileAggregatedResponse::Fault(fault) => {
+            anyhow::bail!("{} {}: {}", fault.status(), fault.code, fault.message)
+        }
+        SendFileAggregatedResponse::Ticket(_) => Ok(()),
+    }
+}
+```
+
+Cada paso tiene su propio tipo de error:
+
+| Paso | Tipo de error |
+|---|---|
+| `enrich` | `anyhow::Error`: códigos de catálogo inválidos o valores obligatorios que faltan |
+| `render` | `tera::Error` |
+| `RsaKeyPair::from_pkcs12`, `from_pem`, `XSigner::sign` | `SignError`: `QuickXml`, `Key`, `WrongPassword`, `Invalid` |
+| `XSigner::from_path`, `UblFile::from_path` | `std::io::Error` |
+| `UblFile::from_bytes` | `anyhow::Error` |
+| `FileSender` (`send_file`, `send_pack`, `verify_ticket`, `verify_file_ticket`) y `prepare_*` | `FileSenderError`: `TargetDiscovery`, `NoDespatchUrl`, `Zip`, `SunatClient`, `Any` |
+| `SunatClient` y `exchange::Call` | `SunatClientError`: `HttpClient` (solo con la feature `http`), `Response(u16)`, `RateLimited`, `Templating`, `Any` |
+
+- Todos implementan `std::error::Error`, así que `?` los convierte a `anyhow::Error`.
+- `SunatClientError` es `#[non_exhaustive]`: un `match` sobre él necesita un brazo `_`.
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from xhandler import ErrorKind, XhandlerError
+
+try:
+    xml = xbuilder.build(invoice)
+    signed = sign(xml, key)
+    result = sender.send_file(signed)
+except XhandlerError as error:
+    print(error)          # "xhandler validation: ..."
+    print(error.kind)     # ErrorKind.VALIDATION
+    print(error.message)  # mensaje del núcleo
+    if error.kind is ErrorKind.VALIDATION:
+        ...               # datos del documento inválidos
+    elif error.kind is ErrorKind.INVALID_KEY:
+        ...               # certificado o contraseña
+    elif error.kind in (ErrorKind.RESPONSE, ErrorKind.RATE_LIMITED):
+        ...               # problema con la SUNAT: reintenta más tarde
+    raise
+else:
+    if result.fault:      # los rechazos de la SUNAT NO son excepciones
+        print(result.fault.status, result.fault.code, result.fault.message)
+```
+
+- `XhandlerError` tiene `kind` (`ErrorKind`) y `message`. Ambos se importan desde el paquete raíz: `from xhandler import ErrorKind, XhandlerError`.
+- Los errores al construir los modelos (un campo que no existe, un tipo incorrecto, una fecha inválida) son `pydantic.ValidationError`, no `XhandlerError`.
+- Los errores de red que no son de conexión, como `httpx.ReadTimeout`, llegan como excepciones de `httpx`. Los fallos de conexión se reintentan una vez antes de propagarse.
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+import (
+	"errors"
+	"fmt"
+
+	"github.com/project-openubl/xhandler-go/v6"
+	"github.com/project-openubl/xhandler-go/v6/xsender"
+)
+
+result, err := sender.SendFile(ctx, signed)
+if err != nil {
+	var xerr *xhandler.Error
+	if errors.As(err, &xerr) {
+		switch xerr.Kind {
+		case xhandler.KindValidation, xhandler.KindInvalidInput:
+			fmt.Println("entrada inválida:", xerr.Message)
+		case xhandler.KindResponse, xhandler.KindRateLimited:
+			fmt.Println("problema con la SUNAT, reintenta más tarde:", xerr.Message)
+		default:
+			fmt.Println(xerr) // "xhandler <kind>: <message>"
+		}
+		return err
+	}
+	// No es *xhandler.Error: error de red, contexto cancelado, etc.
+	return err
+}
+
+// Los rechazos de la SUNAT NO son errores de Go: llegan en result.Fault
+if result.Fault != nil {
+	fmt.Println(result.Fault.Status, result.Fault.Code, result.Fault.Message)
+}
+```
+
+- `*xhandler.Error` tiene `Kind` (`xhandler.ErrorKind`) y `Message`. Usa siempre un puntero con `errors.As`.
+- No todos los errores son `*xhandler.Error`:
+  - `xbuilder` devuelve un error simple si le pasas un documento `nil` (`xbuilder: nil document`).
+  - `xsender` envuelve los errores de red y HTTP (`xsender: ...`); puedes inspeccionarlos con `errors.Is` y `errors.As`.
+  - Si el contexto se cancela o vence, obtienes `ctx.Err()`.
+
+</TabItem>
+</Tabs>
+
+## Qué hacer con cada error
+
+- **Validación, entrada inválida, generación del XML**: corrige los datos del documento. Reintentar no sirve.
+- **Llave inválida**: revisa el certificado y su contraseña. Revisa [Firma digital](./02-signing.mdx).
+- **Respuesta ilegible, límite de peticiones o red**: suelen ser problemas temporales de la SUNAT. Reintenta más tarde; xhandler ya reintentó lo razonable antes de devolverte el error.
+- **Rechazo o error de la SUNAT** (en la respuesta, no como error): revisa el código y la descripción. Un estado `EXCEPCION` (códigos `99` a `1999`) permite corregir y reenviar; un `RECHAZADO` (`2000` a `3999`) es definitivo para ese comprobante.

@@ -1,0 +1,318 @@
+---
+title: Inicio rápido
+description: Crea, firma y envía tu primera factura electrónica al entorno beta de la SUNAT.
+slug: /quickstart
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+En esta guía vas a crear una factura, firmarla y enviarla al **entorno beta** de la SUNAT, que acepta comprobantes de prueba sin valor tributario.
+
+## Antes de empezar
+
+1. [Instala](./02-installation.mdx) xhandler para tu lenguaje.
+2. Descarga el certificado digital de prueba [`LLAMA-PE-CERTIFICADO-DEMO-12345678912.pfx`](https://github.com/project-openubl/xhandler-java/raw/main/examples/xbuilder/src/main/resources/LLAMA-PE-CERTIFICADO-DEMO-12345678912.pfx) (contraseña `password`) y guárdalo como `certificado.pfx`. El entorno beta solo acepta firmas de este certificado para el RUC de prueba `12345678912`.
+3. Usa las credenciales públicas del entorno beta: usuario `12345678959MODDATOS` y contraseña `MODDATOS`.
+
+## Crea, firma y envía
+
+Todo el flujo tiene tres pasos:
+
+- **Crear**: describes la factura solo con los datos esenciales. La fecha de emisión, los impuestos, los totales y las leyendas se calculan automáticamente.
+- **Firmar**: firmas el XML con tu certificado digital.
+- **Enviar**: envías el XML firmado a la SUNAT y recibes la respuesta (el CDR).
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java title="Quickstart.java"
+import io.github.project.openubl.xbuilder.XBuilder;
+import io.github.project.openubl.xbuilder.models.Cliente;
+import io.github.project.openubl.xbuilder.models.Detalle;
+import io.github.project.openubl.xbuilder.models.Invoice;
+import io.github.project.openubl.xbuilder.models.Proveedor;
+import io.github.project.openubl.xsigner.SigningKey;
+import io.github.project.openubl.xsigner.XSigner;
+import io.github.project.openubl.xsender.Credentials;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.URLs;
+import io.github.project.openubl.xsender.models.SunatResponse;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class Quickstart {
+
+    public static void main(String[] args) throws Exception {
+        // 1. Crear
+        Invoice invoice = Invoice.builder()
+                .serieNumero("F001-1")
+                .proveedor(Proveedor.builder()
+                        .ruc("12345678912")
+                        .razonSocial("Softgreen S.A.C.")
+                        .build())
+                .cliente(Cliente.builder()
+                        .tipoDocumentoIdentidad("6") // RUC (Catálogo 6)
+                        .numeroDocumentoIdentidad("12121212121")
+                        .nombre("Carlos Feria")
+                        .build())
+                .detalles(List.of(Detalle.builder()
+                        .descripcion("Item")
+                        .cantidad(new BigDecimal("2"))
+                        .precio(new BigDecimal("100.00"))
+                        .build()))
+                .build();
+        String xml = new XBuilder().build(invoice);
+
+        // 2. Firmar
+        SigningKey key = SigningKey.fromPkcs12(Files.readAllBytes(Path.of("certificado.pfx")), "password");
+        byte[] signed = new XSigner().sign(xml.getBytes(StandardCharsets.UTF_8), key);
+
+        // 3. Enviar
+        FileSender sender = new FileSender(
+                URLs.beta(),
+                Credentials.builder()
+                        .username("12345678959MODDATOS")
+                        .password("MODDATOS")
+                        .build()
+        );
+        SunatResponse response = sender.sendFile(signed);
+
+        System.out.println(response.getStatus());                    // ACEPTADO
+        System.out.println(response.getMetadata().getDescription()); // La Factura numero F001-1, ha sido aceptada
+    }
+}
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust title="src/main.rs"
+use rust_decimal_macros::dec;
+use xhandler::prelude::*;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // 1. Crear
+    let mut invoice = Invoice {
+        serie_numero: "F001-1".into(),
+        proveedor: Proveedor {
+            ruc: "12345678912".into(),
+            razon_social: "Softgreen S.A.C.".into(),
+            ..Default::default()
+        },
+        cliente: Cliente {
+            tipo_documento_identidad: "6".into(), // RUC (Catálogo 6)
+            numero_documento_identidad: "12121212121".into(),
+            nombre: "Carlos Feria".into(),
+            ..Default::default()
+        },
+        detalles: vec![Detalle {
+            descripcion: "Item".into(),
+            cantidad: dec!(2),
+            precio: Some(dec!(100.00)),
+            ..Default::default()
+        }],
+        ..Default::default()
+    };
+    invoice.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+    let xml = invoice.render()?;
+
+    // 2. Firmar
+    let key = RsaKeyPair::from_pkcs12(&std::fs::read("certificado.pfx")?, "password")?;
+    let signed = XSigner { xml_document: xml }.sign(&key)?;
+
+    // 3. Enviar
+    let sender = FileSender {
+        urls: Urls::beta(),
+        credentials: Credentials {
+            username: "12345678959MODDATOS".into(),
+            password: "MODDATOS".into(),
+            ..Default::default()
+        },
+    };
+    let result = sender.send_file(&UblFile::from_bytes(signed)?).await?;
+
+    if let SendFileAggregatedResponse::Cdr(_, cdr) = result.response {
+        // ACEPTADO La Factura numero F001-1, ha sido aceptada
+        println!("{} {}", cdr.status(), cdr.description);
+    }
+    Ok(())
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python title="quickstart.py"
+from decimal import Decimal
+from pathlib import Path
+
+from xhandler import xbuilder
+from xhandler.xsender import Credentials, FileSender, URLs
+from xhandler.xsigner import SigningKey, sign
+
+# 1. Crear
+invoice = xbuilder.Invoice(
+    serie_numero="F001-1",
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",  # RUC (Catálogo 6)
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    detalles=[
+        xbuilder.Detalle(descripcion="Item", cantidad=Decimal(2), precio=Decimal("100.00")),
+    ],
+)
+xml = xbuilder.build(invoice)
+
+# 2. Firmar
+key = SigningKey.from_pkcs12(Path("certificado.pfx").read_bytes(), "password")
+signed = sign(xml.encode(), key)
+
+# 3. Enviar
+sender = FileSender(
+    URLs.beta(),
+    Credentials(username="12345678959MODDATOS", password="MODDATOS"),
+)
+result = sender.send_file(signed)
+
+if result.cdr:
+    # ACEPTADO La Factura numero F001-1, ha sido aceptada
+    print(result.cdr.status, result.cdr.description)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go title="main.go"
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/project-openubl/xhandler-go/v6/xbuilder"
+	"github.com/project-openubl/xhandler-go/v6/xsender"
+	"github.com/project-openubl/xhandler-go/v6/xsigner"
+)
+
+func main() {
+	if err := run(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run(ctx context.Context) error {
+	// 1. Crear
+	invoice := &xbuilder.Invoice{
+		SerieNumero: "F001-1",
+		Proveedor:   xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+		Cliente: xbuilder.Cliente{
+			TipoDocumentoIdentidad:   "6", // RUC (Catálogo 6)
+			NumeroDocumentoIdentidad: "12121212121",
+			Nombre:                   "Carlos Feria",
+		},
+		Detalles: []xbuilder.Detalle{
+			{
+				Descripcion: "Item",
+				Cantidad:    xbuilder.DecimalFromInt(2),
+				Precio:      xbuilder.Ptr(xbuilder.MustDecimal("100.00")),
+			},
+		},
+	}
+	xml, err := xbuilder.Build(ctx, invoice, xbuilder.Defaults{})
+	if err != nil {
+		return err
+	}
+
+	// 2. Firmar
+	pfx, err := os.ReadFile("certificado.pfx")
+	if err != nil {
+		return err
+	}
+	signed, err := xsigner.Sign(ctx, []byte(xml), xsigner.FromPKCS12(pfx, "password"))
+	if err != nil {
+		return err
+	}
+
+	// 3. Enviar
+	sender := &xsender.FileSender{
+		URLs:        xsender.BetaURLs,
+		Credentials: xsender.Credentials{Username: "12345678959MODDATOS", Password: "MODDATOS"},
+	}
+	result, err := sender.SendFile(ctx, signed)
+	if err != nil {
+		return err
+	}
+	if result.CDR != nil {
+		// ACEPTADO La Factura numero F001-1, ha sido aceptada
+		fmt.Println(result.CDR.Status, result.CDR.Description)
+	}
+	return nil
+}
+```
+
+</TabItem>
+<TabItem value="cli" label="CLI">
+
+Describe la factura en YAML:
+
+```yaml title="factura.yaml"
+kind: Invoice
+spec:
+  serie_numero: "F001-1"
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  cliente:
+    tipo_documento_identidad: "6" # RUC (Catálogo 6)
+    numero_documento_identidad: "12121212121"
+    nombre: "Carlos Feria"
+  detalles:
+    - descripcion: "Item"
+      cantidad: 2
+      precio: 100
+```
+
+Crea, firma y envía en un solo paso. Con `--beta` se usan las credenciales y el certificado de prueba, así que no necesitas descargar nada:
+
+```shell
+xhandler apply -f factura.yaml --beta
+```
+
+</TabItem>
+</Tabs>
+
+Si todo salió bien, la SUNAT responde:
+
+```text
+ACEPTADO La Factura numero F001-1, ha sido aceptada
+```
+
+:::tip El entorno beta recuerda los comprobantes
+
+Si vuelves a enviar `F001-1`, la SUNAT puede rechazarlo por duplicado. Cambia el número (`F001-2`, `F001-3`...) en cada prueba.
+
+:::
+
+## ¿Qué acaba de pasar?
+
+1. **Crear** generó el XML UBL 2.1 de la factura. Como no indicaste la fecha, la moneda ni los impuestos, se usaron la fecha de hoy en Perú, soles (PEN) y las tasas vigentes, y se calcularon el IGV y los totales.
+2. **Firmar** agregó la firma digital al XML.
+3. **Enviar** comprimió el XML, eligió el servicio correcto de la SUNAT según el tipo de comprobante y devolvió la respuesta: un **CDR** (constancia de recepción) con el estado `ACEPTADO`.
+
+Un rechazo de la SUNAT **no** es un error de programación: llega como parte de la respuesta, igual que una aceptación. Revisa [Envío y respuestas de la SUNAT](./05-fundamentals/03-sending.mdx) para procesar todos los casos.
+
+## Siguientes pasos
+
+- [Emitir facturas y boletas](./04-use-cases/01-invoices.mdx) con más datos: moneda, forma de pago, varios ítems.
+- [Firma digital](./05-fundamentals/02-signing.mdx) con tu propio certificado.
+- Pasar a **producción**: cambia las URLs beta por las de producción y usa tu usuario SOL y tu certificado. Revisa [Envío y respuestas de la SUNAT](./05-fundamentals/03-sending.mdx).

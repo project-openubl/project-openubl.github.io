@@ -1,0 +1,105 @@
+---
+title: Cómo funciona
+description: Los tres pasos de xhandler, su núcleo compartido, los comprobantes soportados, los entornos de la SUNAT y las credenciales que necesitas.
+slug: /fundamentals/how-it-works
+---
+
+xhandler resuelve tres tareas de la facturación electrónica en Perú: **crear** el XML de un comprobante, **firmarlo** y **enviarlo** a la SUNAT. Esta página explica cómo encajan esas piezas y qué necesitas para usarlas.
+
+## Tres pasos independientes
+
+| Paso | Qué hace | Entrada | Salida |
+|---|---|---|---|
+| **Crear** | Completa los datos que faltan, calcula impuestos y totales, y genera el XML UBL 2.1. | Un documento con los datos esenciales | XML sin firmar |
+| **Firmar** | Agrega la firma digital XML (RSA-SHA256) que exige la SUNAT. | XML + certificado digital | XML firmado |
+| **Enviar** | Comprime el XML, elige el servicio de la SUNAT según el tipo de comprobante y devuelve la respuesta. | XML firmado + usuario SOL | CDR, ticket o error de la SUNAT |
+
+Cada paso funciona por separado, así que puedes usar solo el que necesites:
+
+- Si ya generas el XML con otro sistema, puedes usar solo **firmar** y **enviar**. La firma no exige que el XML venga de xhandler.
+- Si tu sistema ya firma, puedes usar solo **enviar** con cualquier XML firmado.
+- Si solo necesitas el XML, por ejemplo para revisarlo o archivarlo, puedes usar solo **crear**.
+
+Más detalles en [Firma digital](./02-signing.mdx), [Envío y respuestas de la SUNAT](./03-sending.mdx) y [Cálculos automáticos](./04-calculations.mdx).
+
+## Un solo núcleo para todos los lenguajes
+
+La lógica de xhandler está escrita **una sola vez, en Rust**: generar el XML, calcular impuestos, firmar, armar las peticiones SOAP y REST para la SUNAT y leer sus respuestas.
+
+- **Rust** usa ese núcleo directamente, como un crate más.
+- **Java**, **Python** y **Go** traen el mismo núcleo compilado a **WebAssembly** y embebido en la librería:
+  - En Java se ejecuta como bytecode de la JVM, así que funciona en cualquier JVM y es compatible con GraalVM native.
+  - En Python el paquete es una _wheel_ universal, sin extensiones nativas que compilar.
+  - En Go es Go puro, sin cgo.
+
+Por eso:
+
+- **El comportamiento es idéntico** en los cuatro lenguajes: el mismo documento genera el mismo XML, la misma firma y la misma petición a la SUNAT.
+- **No compilas código nativo** en Java, Python ni Go.
+- Los nombres de las clases y tipos (`Invoice`, `FileSender`, `SigningKey`, `SunatClient`...) son los mismos en todos los lenguajes.
+
+Lo que sí cambia entre lenguajes es la parte de entrada y salida: el cliente HTTP, los reintentos y el caché de tokens. Cada librería usa el cliente HTTP propio de su lenguaje.
+
+:::note
+
+En Go, la primera llamada compila el módulo WebAssembly, un costo que se paga una sola vez por proceso.
+
+:::
+
+## Comprobantes soportados
+
+El nombre del tipo es el mismo en los cuatro lenguajes; solo cambia el paquete desde donde lo importas.
+
+| Comprobante | Java | Rust | Python | Go | Respuesta de la SUNAT |
+|---|---|---|---|---|---|
+| Factura y boleta | `Invoice` | `Invoice` | `xbuilder.Invoice` | `xbuilder.Invoice` | CDR |
+| Nota de crédito | `CreditNote` | `CreditNote` | `xbuilder.CreditNote` | `xbuilder.CreditNote` | CDR |
+| Nota de débito | `DebitNote` | `DebitNote` | `xbuilder.DebitNote` | `xbuilder.DebitNote` | CDR |
+| Guía de remisión (remitente y transportista) | `DespatchAdvice` | `DespatchAdvice` | `xbuilder.DespatchAdvice` | `xbuilder.DespatchAdvice` | Ticket |
+| Comprobante de percepción | `Perception` | `Perception` | `xbuilder.Perception` | `xbuilder.Perception` | CDR |
+| Comprobante de retención | `Retention` | `Retention` | `xbuilder.Retention` | `xbuilder.Retention` | CDR |
+| Resumen diario de boletas | `SummaryDocuments` | `SummaryDocuments` | `xbuilder.SummaryDocuments` | `xbuilder.SummaryDocuments` | Ticket |
+| Comunicación de baja | `VoidedDocuments` | `VoidedDocuments` | `xbuilder.VoidedDocuments` | `xbuilder.VoidedDocuments` | Ticket |
+| Resumen de reversiones | `Reversion` | `Reversion` | `xbuilder.Reversion` | `xbuilder.Reversion` | Ticket |
+
+- **Java**: paquete `io.github.project.openubl.xbuilder.models`.
+- **Rust**: `use xhandler::prelude::*;`.
+- **Python**: `from xhandler import xbuilder`.
+- **Go**: `github.com/project-openubl/xhandler-go/v6/xbuilder`.
+
+Algunos tipos se deducen de los datos: en `Invoice`, la serie decide si es factura (`F001`) o boleta (`B001`); en `DespatchAdvice`, si es guía del remitente (`T001`, tipo `09`) o del transportista (`V001`, tipo `31`).
+
+Las guías paso a paso están en [Casos de uso](../04-use-cases/01-invoices.mdx).
+
+## Entornos de la SUNAT
+
+| | Beta | Producción |
+|---|---|---|
+| Para qué sirve | Pruebas, sin valor tributario | Comprobantes reales |
+| Facturas, boletas, notas, resúmenes y bajas | Sí | Sí |
+| Percepciones, retenciones y reversiones | Sí | Sí |
+| Guías de remisión | **No** | Sí |
+| Consulta y validación de comprobantes | **No** | Sí |
+| Varias facturas en un zip (`sendPack`) | **No** | Sí |
+| Credenciales | Públicas: `12345678959MODDATOS` / `MODDATOS` | Tu usuario SOL |
+| Certificado | El [certificado de prueba](../03-quickstart.mdx#antes-de-empezar) para el RUC `12345678912` | Tu certificado digital |
+
+Cada librería trae las URLs de ambos entornos. Para pasar de beta a producción solo cambias las URLs y las credenciales; el resto del código es el mismo. También puedes usar URLs propias, por ejemplo las de un OSE. Revisa [Envío y respuestas de la SUNAT](./03-sending.mdx#urls).
+
+## Credenciales que necesitas
+
+- **Usuario SOL**: el RUC seguido del usuario (por ejemplo `12345678912USUARIO`) y su contraseña. Sirve para enviar cualquier comprobante.
+- **Certificado digital**: un archivo PKCS#12 (`.pfx` o `.p12`) con su contraseña, o la llave privada y el certificado en PEM. Debe pertenecer al RUC emisor. Revisa [Firma digital](./02-signing.mdx).
+- **Client ID y client secret**: solo para las guías de remisión, que usan la API REST de la SUNAT con OAuth. Los obtienes en el menú SOL. Revisa [Guías de remisión](../04-use-cases/05-despatch-advice.mdx).
+
+Las credenciales se indican en `Credentials`: `username`, `password` y, para guías, `clientId`/`clientSecret` en Java, `client_id`/`client_secret` en Rust y Python, y `ClientID`/`ClientSecret` en Go.
+
+## Las respuestas de la SUNAT
+
+Al enviar un comprobante, la SUNAT puede responder de tres formas:
+
+- **CDR** (constancia de recepción): la respuesta inmediata para facturas, boletas, notas, percepciones y retenciones. Indica si el comprobante fue aceptado, aceptado con observaciones o rechazado.
+- **Ticket**: para resúmenes diarios, comunicaciones de baja, reversiones y guías de remisión. La SUNAT procesa el envío después y tú consultas el ticket para obtener el CDR.
+- **Error de la SUNAT** (_fault_): la SUNAT no procesó el envío, por ejemplo por credenciales sin permisos.
+
+Ninguna de las tres es una excepción o un error de programación: todas llegan como respuesta. Revisa [Envío y respuestas de la SUNAT](./03-sending.mdx) para procesarlas y [Manejo de errores](./05-errors.mdx) para los errores que sí se lanzan.

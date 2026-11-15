@@ -1,0 +1,5 @@
+/* Infima styles every link; keep buttons free of underlines. */
+.plainLink,
+.plainLink:hover {
+  text-decoration: none;
+}

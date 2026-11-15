@@ -1,0 +1,388 @@
+---
+title: Emitir facturas y boletas
+description: Crea el XML de una factura o una boleta con moneda, fechas, varios ítems y forma de pago al contado o al crédito.
+slug: /use-cases/invoices
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+La **factura** y la **boleta de venta** son los comprobantes de pago más comunes. Emites una factura cuando vendes a una empresa o persona con RUC, y una boleta cuando vendes a un consumidor final, normalmente identificado con su DNI.
+
+En xhandler las dos se crean con el mismo modelo, `Invoice`. **La serie decide el tipo**: una serie que empieza con `F` (por ejemplo `F001-1`) genera una factura (tipo `01`), y una que empieza con `B` (por ejemplo `B001-1`) genera una boleta (tipo `03`).
+
+## Factura
+
+Solo necesitas la serie y número, el proveedor, el cliente y los detalles. Este ejemplo agrega los campos más usados: moneda, fechas, unidad de medida, tipo de IGV y observaciones.
+
+En cada detalle indica el precio unitario **sin impuestos** (`precio`) **o** el precio **con impuestos** (`precioConImpuestos`); el otro se calcula.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+Invoice factura = Invoice.builder()
+        .serieNumero("F001-1")
+        .moneda("PEN")                               // por defecto "PEN"
+        .fechaEmision(LocalDate.of(2026, 11, 15))    // por defecto: hoy en Perú
+        .horaEmision(LocalTime.of(10, 30))           // opcional
+        .fechaVencimiento(LocalDate.of(2026, 12, 15)) // opcional
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("6")         // RUC (Catálogo 6)
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .detalles(List.of(
+                Detalle.builder()
+                        .descripcion("Item")
+                        .cantidad(new BigDecimal("2"))
+                        .precio(new BigDecimal("100.00")) // sin impuestos
+                        .unidadMedida("NIU")              // por defecto "NIU"
+                        .igvTipo("10")                    // Catálogo 7; por defecto "10" (gravado)
+                        .build(),
+                Detalle.builder()
+                        .descripcion("Item 2")
+                        .cantidad(new BigDecimal("1"))
+                        .precioConImpuestos(new BigDecimal("118.00")) // con impuestos
+                        .build()))
+        .observaciones("Entregar en almacén")
+        .build();
+
+String xml = new XBuilder().build(factura);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut factura = Invoice {
+    serie_numero: "F001-1".into(),
+    moneda: Some("PEN".into()),                           // por defecto "PEN"
+    fecha_emision: NaiveDate::from_ymd_opt(2026, 11, 15), // por defecto: Defaults.fecha_emision
+    hora_emision: NaiveTime::from_hms_opt(10, 30, 0),     // opcional
+    fecha_vencimiento: NaiveDate::from_ymd_opt(2026, 12, 15), // opcional
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    cliente: Cliente {
+        tipo_documento_identidad: "6".into(), // RUC (Catálogo 6)
+        numero_documento_identidad: "12121212121".into(),
+        nombre: "Carlos Feria".into(),
+        ..Default::default()
+    },
+    detalles: vec![
+        Detalle {
+            descripcion: "Item".into(),
+            cantidad: dec!(2),
+            precio: Some(dec!(100.00)),        // sin impuestos
+            unidad_medida: Some("NIU".into()), // por defecto "NIU"
+            igv_tipo: Some("10".into()),       // Catálogo 7; por defecto "10" (gravado)
+            ..Default::default()
+        },
+        Detalle {
+            descripcion: "Item 2".into(),
+            cantidad: dec!(1),
+            precio_con_impuestos: Some(dec!(118.00)), // con impuestos
+            ..Default::default()
+        },
+    ],
+    observaciones: Some("Entregar en almacén".into()),
+    ..Default::default()
+};
+
+factura.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = factura.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+factura = xbuilder.Invoice(
+    serie_numero="F001-1",
+    moneda="PEN",                         # por defecto "PEN"
+    fecha_emision=date(2026, 11, 15),     # por defecto: hoy en Perú
+    hora_emision=time(10, 30),            # opcional
+    fecha_vencimiento=date(2026, 12, 15), # opcional
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="6",     # RUC (Catálogo 6)
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    detalles=[
+        xbuilder.Detalle(
+            descripcion="Item",
+            cantidad=Decimal(2),
+            precio=Decimal("100.00"),     # sin impuestos
+            unidad_medida="NIU",          # por defecto "NIU"
+            igv_tipo="10",                # Catálogo 7; por defecto "10" (gravado)
+        ),
+        xbuilder.Detalle(
+            descripcion="Item 2",
+            cantidad=Decimal(1),
+            precio_con_impuestos=Decimal("118.00"),  # con impuestos
+        ),
+    ],
+    observaciones="Entregar en almacén",
+)
+
+xml = xbuilder.build(factura)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+factura := &xbuilder.Invoice{
+	SerieNumero:      "F001-1",
+	Moneda:           xbuilder.Ptr("PEN"),                                     // por defecto "PEN"
+	FechaEmision:     xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 15)), // por defecto: hoy en Perú
+	HoraEmision:      xbuilder.Ptr(xbuilder.NewTime(10, 30, 0)),               // opcional
+	FechaVencimiento: xbuilder.Ptr(xbuilder.NewDate(2026, time.December, 15)), // opcional
+	Proveedor:        xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Cliente: xbuilder.Cliente{
+		TipoDocumentoIdentidad:   "6", // RUC (Catálogo 6)
+		NumeroDocumentoIdentidad: "12121212121",
+		Nombre:                   "Carlos Feria",
+	},
+	Detalles: []xbuilder.Detalle{
+		{
+			Descripcion:  "Item",
+			Cantidad:     xbuilder.DecimalFromInt(2),
+			Precio:       xbuilder.Ptr(xbuilder.MustDecimal("100.00")), // sin impuestos
+			UnidadMedida: xbuilder.Ptr("NIU"),                          // por defecto "NIU"
+			IgvTipo:      xbuilder.Ptr("10"),                           // Catálogo 7; por defecto "10" (gravado)
+		},
+		{
+			Descripcion:        "Item 2",
+			Cantidad:           xbuilder.DecimalFromInt(1),
+			PrecioConImpuestos: xbuilder.Ptr(xbuilder.MustDecimal("118.00")), // con impuestos
+		},
+	},
+	Observaciones: xbuilder.Ptr("Entregar en almacén"),
+}
+
+xml, err := xbuilder.Build(ctx, factura, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+El resultado es el XML **UBL 2.1** de la factura, todavía sin firmar. Los campos que no indicaste se completan con valores por defecto: moneda `PEN`, fecha de emisión de hoy en Perú, tipo de operación `0101` (venta interna), unidad de medida `NIU`, tipo de IGV `10` (gravado) y forma de pago al contado. El IGV, los totales y las leyendas se calculan a partir de los detalles; revisa [Cálculos de impuestos y totales](../05-fundamentals/04-calculations.mdx) para ver cómo.
+
+## Venta al crédito
+
+Si no indicas la forma de pago, el comprobante se emite **al contado**. Para una venta **al crédito**, agrega las cuotas con su importe y fecha de pago. No hace falta indicar el tipo: si hay cuotas, se completa como crédito, y el total del crédito se calcula como la suma de las cuotas.
+
+Las cuotas de este ejemplo suman 354.00, el total de la factura anterior: (2 × 100.00 + 100.00) + 18 % de IGV.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+Invoice factura = Invoice.builder()
+        // ... los mismos campos de la factura anterior
+        .formaPago(FormaPago.builder()
+                .cuotas(List.of(
+                        CuotaPago.builder()
+                                .importe(new BigDecimal("200.00"))
+                                .fechaPago(LocalDate.of(2026, 12, 15))
+                                .build(),
+                        CuotaPago.builder()
+                                .importe(new BigDecimal("154.00"))
+                                .fechaPago(LocalDate.of(2027, 1, 15))
+                                .build()))
+                .build())
+        .build();
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut factura = Invoice {
+    // ... los mismos campos de la factura anterior
+    forma_pago: Some(FormaPago {
+        tipo: None,  // se completa como crédito porque hay cuotas
+        total: None, // se calcula como la suma de las cuotas
+        cuotas: vec![
+            CuotaPago { importe: dec!(200.00), fecha_pago: NaiveDate::from_ymd_opt(2026, 12, 15).unwrap() },
+            CuotaPago { importe: dec!(154.00), fecha_pago: NaiveDate::from_ymd_opt(2027, 1, 15).unwrap() },
+        ],
+    }),
+    ..Default::default()
+};
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+factura = xbuilder.Invoice(
+    # ... los mismos campos de la factura anterior
+    forma_pago=xbuilder.FormaPago(
+        cuotas=[
+            xbuilder.CuotaPago(importe=Decimal("200.00"), fecha_pago=date(2026, 12, 15)),
+            xbuilder.CuotaPago(importe=Decimal("154.00"), fecha_pago=date(2027, 1, 15)),
+        ],
+    ),
+)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+factura := &xbuilder.Invoice{
+	// ... los mismos campos de la factura anterior
+	FormaPago: &xbuilder.FormaPago{
+		Cuotas: []xbuilder.CuotaPago{
+			{Importe: xbuilder.MustDecimal("200.00"), FechaPago: xbuilder.NewDate(2026, time.December, 15)},
+			{Importe: xbuilder.MustDecimal("154.00"), FechaPago: xbuilder.NewDate(2027, time.January, 15)},
+		},
+	},
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::caution Las cuotas no se validan contra el total
+
+xhandler no comprueba que la suma de las cuotas coincida con el importe del comprobante, pero la SUNAT sí lo valida y rechaza el comprobante si no cuadra. Calcula las cuotas a partir del total que obtienes al crear el documento.
+
+:::
+
+Si quieres indicar el tipo de forma de pago de forma explícita, usa el enum `TipoFormaPago`: `CONTADO` o `CREDITO` en Java y Python, `TipoFormaPago::Contado` o `TipoFormaPago::Credito` en Rust, y las constantes `TipoFormaPagoContado` o `TipoFormaPagoCredito` en Go.
+
+## Boleta
+
+Una boleta tiene la misma estructura. Usa una serie que empiece con `B` y, normalmente, un cliente identificado con su DNI (tipo `1` del Catálogo 6).
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+Invoice boleta = Invoice.builder()
+        .serieNumero("B001-1")                       // serie B: boleta (tipo "03")
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .cliente(Cliente.builder()
+                .tipoDocumentoIdentidad("1")         // DNI (Catálogo 6)
+                .numeroDocumentoIdentidad("12345678")
+                .nombre("Carlos Feria")
+                .build())
+        .detalles(List.of(Detalle.builder()
+                .descripcion("Item")
+                .cantidad(new BigDecimal("2"))
+                .precio(new BigDecimal("100.00"))
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(boleta);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut boleta = Invoice {
+    serie_numero: "B001-1".into(), // serie B: boleta (tipo "03")
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    cliente: Cliente {
+        tipo_documento_identidad: "1".into(), // DNI (Catálogo 6)
+        numero_documento_identidad: "12345678".into(),
+        nombre: "Carlos Feria".into(),
+        ..Default::default()
+    },
+    detalles: vec![Detalle {
+        descripcion: "Item".into(),
+        cantidad: dec!(2),
+        precio: Some(dec!(100.00)),
+        ..Default::default()
+    }],
+    ..Default::default()
+};
+
+boleta.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = boleta.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+boleta = xbuilder.Invoice(
+    serie_numero="B001-1",                # serie B: boleta (tipo "03")
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    cliente=xbuilder.Cliente(
+        tipo_documento_identidad="1",     # DNI (Catálogo 6)
+        numero_documento_identidad="12345678",
+        nombre="Carlos Feria",
+    ),
+    detalles=[
+        xbuilder.Detalle(descripcion="Item", cantidad=Decimal(2), precio=Decimal("100.00")),
+    ],
+)
+
+xml = xbuilder.build(boleta)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+boleta := &xbuilder.Invoice{
+	SerieNumero: "B001-1", // serie B: boleta (tipo "03")
+	Proveedor:   xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Cliente: xbuilder.Cliente{
+		TipoDocumentoIdentidad:   "1", // DNI (Catálogo 6)
+		NumeroDocumentoIdentidad: "12345678",
+		Nombre:                   "Carlos Feria",
+	},
+	Detalles: []xbuilder.Detalle{
+		{Descripcion: "Item", Cantidad: xbuilder.DecimalFromInt(2), Precio: xbuilder.Ptr(xbuilder.MustDecimal("100.00"))},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, boleta, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Diferencias entre lenguajes
+
+- **Rust** separa la creación en dos pasos: `enrich(&Defaults)` completa los valores por defecto y calcula impuestos y totales, y `render()` genera el XML. En Java, Python y Go, `build` hace las dos cosas.
+- **Go** usa punteros para los campos opcionales: envuélvelos con `xbuilder.Ptr(...)`. Los montos son `xbuilder.Decimal` (`MustDecimal("100.00")`, `DecimalFromInt(2)`) y las fechas `xbuilder.NewDate(...)`.
+- **Python** valida los modelos al construirlos: un campo con un nombre que no existe falla de inmediato. Usa siempre `Decimal` para los montos, nunca `float`.
+- Los códigos de catálogo (tipo de documento, tipo de IGV, etc.) son textos, como `"6"` o `"10"`. Un código que no existe hace fallar la creación del documento con un error de validación.
+
+## Otros campos disponibles
+
+`Invoice` también acepta, entre otros: orden de compra (`ordenCompra` / `orden_compra`), guías relacionadas, documentos relacionados, detracción, percepción, anticipos, descuentos, cargos y dirección de entrega. Los nombres siguen la misma convención en cada lenguaje (camelCase en Java, snake_case en Rust y Python, PascalCase en Go).
+
+## Siguientes pasos
+
+- [Firma](../05-fundamentals/02-signing.mdx) el XML con tu certificado y [envíalo a la SUNAT](../05-fundamentals/03-sending.mdx). El [Inicio rápido](../03-quickstart.mdx) muestra el flujo completo.
+- [Notas de crédito y débito](./02-credit-debit-notes.mdx) para corregir una factura o boleta ya emitida.
+- [Resumen diario de boletas](./04-daily-summary.mdx) si informas tus boletas a la SUNAT mediante resumen.

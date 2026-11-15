@@ -1,0 +1,324 @@
+---
+title: Resumen diario de boletas
+description: Informa tus boletas y sus notas a la SUNAT en un resumen diario, envíalo y consulta el ticket.
+slug: /use-cases/daily-summary
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+El **resumen diario** es un documento que agrupa las boletas (y las notas de crédito o débito de boletas) emitidas en un día y las informa a la SUNAT en un solo envío. También sirve para modificar o anular boletas ya informadas.
+
+Igual que la [comunicación de baja](./03-void-documents.mdx), el resumen se procesa de forma **asíncrona**: al enviarlo la SUNAT responde con un **ticket**, que luego consultas para obtener el resultado.
+
+## Crear el resumen
+
+Cada línea del resumen describe una boleta: su tipo y número, el cliente, los importes y los impuestos, y un **tipo de operación** del Catálogo 19:
+
+| Código | Operación |
+| ------ | --------- |
+| `1` | Adicionar |
+| `2` | Modificar |
+| `3` | Anulado |
+
+El identificador del documento, `RC-AAAAMMDD-N`, se calcula a partir de la fecha de emisión del resumen y del correlativo (`numero`) que indicas.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+SummaryDocuments resumen = SummaryDocuments.builder()
+        .numero(1L)                                          // RC-AAAAMMDD-1
+        .fechaEmisionComprobantes(LocalDate.of(2026, 11, 14)) // fecha de las boletas
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .comprobantes(List.of(SummaryDocumentsItem.builder()
+                .tipoOperacion("1")                          // Catálogo 19: adicionar
+                .comprobante(SummaryDocumentsItemComprobante.builder()
+                        .tipoComprobante("03")               // boleta (Catálogo 1)
+                        .serieNumero("B001-1")
+                        .cliente(SummaryDocumentsCliente.builder()
+                                .tipoDocumentoIdentidad("1") // DNI
+                                .numeroDocumentoIdentidad("12345678")
+                                .build())
+                        .valorVenta(SummaryDocumentsValorVenta.builder()
+                                .importeTotal(new BigDecimal("236.00"))
+                                .gravado(new BigDecimal("200.00"))
+                                .build())
+                        .impuestos(SummaryDocumentsImpuestos.builder()
+                                .igv(new BigDecimal("36.00"))
+                                .igvTasa(new BigDecimal("18")) // porcentaje: 18 = 18 %
+                                .build())
+                        .build())
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(resumen);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut resumen = SummaryDocuments {
+    numero: 1, // RC-AAAAMMDD-1
+    fecha_emision_comprobantes: NaiveDate::from_ymd_opt(2026, 11, 14), // fecha de las boletas
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    comprobantes: vec![SummaryDocumentsItem {
+        tipo_operacion: "1".into(), // Catálogo 19: adicionar
+        comprobante: SummaryDocumentsItemComprobante {
+            tipo_comprobante: "03".into(), // boleta (Catálogo 1)
+            serie_numero: "B001-1".into(),
+            cliente: SummaryDocumentsCliente {
+                tipo_documento_identidad: "1".into(), // DNI
+                numero_documento_identidad: "12345678".into(),
+            },
+            valor_venta: SummaryDocumentsValorVenta {
+                importe_total: dec!(236.00),
+                gravado: Some(dec!(200.00)),
+                ..Default::default()
+            },
+            impuestos: SummaryDocumentsImpuestos {
+                igv: Some(dec!(36.00)),
+                igv_tasa: Some(dec!(18)), // porcentaje: 18 = 18 %
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+    }],
+    ..Default::default()
+};
+
+resumen.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = resumen.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+resumen = xbuilder.SummaryDocuments(
+    numero=1,                                      # RC-AAAAMMDD-1
+    fecha_emision_comprobantes=date(2026, 11, 14), # fecha de las boletas
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    comprobantes=[
+        xbuilder.SummaryDocumentsItem(
+            tipo_operacion="1",                    # Catálogo 19: adicionar
+            comprobante=xbuilder.SummaryDocumentsItemComprobante(
+                tipo_comprobante="03",             # boleta (Catálogo 1)
+                serie_numero="B001-1",
+                cliente=xbuilder.SummaryDocumentsCliente(
+                    tipo_documento_identidad="1",  # DNI
+                    numero_documento_identidad="12345678",
+                ),
+                valor_venta=xbuilder.SummaryDocumentsValorVenta(
+                    importe_total=Decimal("236.00"),
+                    gravado=Decimal("200.00"),
+                ),
+                impuestos=xbuilder.SummaryDocumentsImpuestos(
+                    igv=Decimal("36.00"),
+                    igv_tasa=Decimal("18"),        # porcentaje: 18 = 18 %
+                ),
+            ),
+        ),
+    ],
+)
+
+xml = xbuilder.build(resumen)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+resumen := &xbuilder.SummaryDocuments{
+	Numero:                   1, // RC-AAAAMMDD-1
+	FechaEmisionComprobantes: xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 14)), // fecha de las boletas
+	Proveedor:                xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Comprobantes: []xbuilder.SummaryDocumentsItem{
+		{
+			TipoOperacion: "1", // Catálogo 19: adicionar
+			Comprobante: xbuilder.SummaryDocumentsItemComprobante{
+				TipoComprobante: "03", // boleta (Catálogo 1)
+				SerieNumero:     "B001-1",
+				Cliente: xbuilder.SummaryDocumentsCliente{
+					TipoDocumentoIdentidad:   "1", // DNI
+					NumeroDocumentoIdentidad: "12345678",
+				},
+				ValorVenta: xbuilder.SummaryDocumentsValorVenta{
+					ImporteTotal: xbuilder.MustDecimal("236.00"),
+					Gravado:      xbuilder.Ptr(xbuilder.MustDecimal("200.00")),
+				},
+				Impuestos: xbuilder.SummaryDocumentsImpuestos{
+					Igv:     xbuilder.Ptr(xbuilder.MustDecimal("36.00")),
+					IgvTasa: xbuilder.Ptr(xbuilder.MustDecimal("18")), // porcentaje: 18 = 18 %
+				},
+			},
+		},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, resumen, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::warning Los importes del resumen no se calculan
+
+A diferencia de una factura o boleta, en el resumen **tú indicas** los importes y los impuestos de cada línea; xhandler no los calcula ni los compara con las boletas originales. Usa los totales que obtuviste al crear cada boleta (revisa [Cálculos de impuestos y totales](../05-fundamentals/04-calculations.mdx)).
+
+:::
+
+:::caution La tasa del IGV es un porcentaje
+
+En las líneas del resumen, la tasa del IGV (`igvTasa` / `igv_tasa` / `IgvTasa`) es un **porcentaje**: `18` significa 18 %. En cambio, en los `Defaults` y en la factura la tasa es una **fracción**: `0.18`. Esto aplica a los cuatro lenguajes. Si escribes `0.18` en el resumen, el XML dirá 0.18 %.
+
+:::
+
+Lo único que se completa solo:
+
+- `documentoId` / `documento_id` / `DocumentoId`: `RC-AAAAMMDD-N`.
+- Fecha de emisión del resumen: hoy en Perú.
+- Moneda: `PEN`.
+- IGV de cada línea: `0` si no lo indicas.
+- Tasa del IGV de cada línea: la de los `Defaults`, convertida a porcentaje (`0.18` → `18`).
+
+Cada línea admite además otros importes en el valor de venta (`exonerado`, `inafecto`, `gratuito`, `otrosCargos` / `otros_cargos`) y otros impuestos (`icb`, `isc`, `ivap`, `otros`).
+
+### Notas de boletas y anulaciones
+
+- **Nota de crédito o débito de una boleta**: usa tipo de comprobante `07` o `08` e indica la boleta afectada en `comprobanteAfectado` / `comprobante_afectado` / `ComprobanteAfectado` (con `tipoComprobante` `03` y su `serieNumero`).
+- **Anular una boleta**: agrega una línea con la boleta y tipo de operación `3`.
+
+## Enviar y consultar el ticket
+
+El resumen se firma y se envía con `FileSender`. xhandler usa el servicio de resúmenes de la SUNAT (`sendSummary`) en las URLs de facturas, y la consulta del ticket va al mismo servicio. El flujo es el mismo de la [comunicación de baja](./03-void-documents.mdx#enviar-y-consultar-el-ticket); aquí `signed` es el XML firmado y `sender` un `FileSender` configurado como en el [Inicio rápido](../03-quickstart.mdx).
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+SunatResponse sent = sender.sendFile(signed);
+if (!sent.isTicket()) {
+    throw new IllegalStateException(sent.getStatus() + " " + sent.getMetadata().getDescription());
+}
+String ticket = sent.getSunat().getTicket();
+
+SunatResponse result = sender.verifyFileTicket(signed, ticket);
+while (result.getStatus() == Status.EN_PROCESO) {
+    Thread.sleep(5_000);
+    result = sender.verifyFileTicket(signed, ticket);
+}
+System.out.println(result.getStatus() + " " + result.getMetadata().getDescription());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let ticket = match sender.send_file(&signed).await?.response {
+    SendFileAggregatedResponse::Ticket(ticket) => ticket,
+    SendFileAggregatedResponse::Fault(fault) => anyhow::bail!("{} {}", fault.code, fault.message),
+    SendFileAggregatedResponse::Cdr(_, cdr) => anyhow::bail!("CDR inesperado: {}", cdr.description),
+};
+
+loop {
+    match sender.verify_file_ticket(&signed, &ticket).await?.response {
+        VerifyTicketAggregatedResponse::NoCdr { status_code }
+            if Status::from_code_str(&status_code) == Status::InProgress =>
+        {
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        }
+        VerifyTicketAggregatedResponse::Cdr(_, cdr) => {
+            println!("{} {}", cdr.status(), cdr.description);
+            break;
+        }
+        VerifyTicketAggregatedResponse::NoCdr { status_code } => {
+            println!("sin CDR, código {status_code}");
+            break;
+        }
+        VerifyTicketAggregatedResponse::Fault(fault) => {
+            println!("{} {}", fault.code, fault.message);
+            break;
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+result = sender.send_file(signed)
+if result.fault:
+    raise SystemExit(f"{result.fault.code}: {result.fault.message}")
+
+while True:
+    verify = sender.verify_file_ticket(signed, result.ticket)
+    if verify.no_cdr and verify.no_cdr.status is Status.IN_PROGRESS:
+        time.sleep(5)
+        continue
+    break
+
+if verify.cdr:
+    print(verify.cdr.status, verify.cdr.description)
+elif verify.fault:
+    print(verify.fault.code, verify.fault.message)
+else:
+    print(verify.no_cdr.status, verify.no_cdr.status_code)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+result, err := sender.SendFile(ctx, signed)
+if err != nil {
+	return err
+}
+if result.Fault != nil {
+	return fmt.Errorf("SUNAT: %s %s", result.Fault.Code, result.Fault.Message)
+}
+if result.Ticket == nil {
+	return errors.New("la SUNAT no devolvió un ticket")
+}
+
+verify, err := sender.VerifyFileTicket(ctx, signed, *result.Ticket)
+for err == nil && verify.NoCDR != nil && verify.NoCDR.Status == xsender.StatusInProgress {
+	time.Sleep(5 * time.Second)
+	verify, err = sender.VerifyFileTicket(ctx, signed, *result.Ticket)
+}
+if err != nil {
+	return err
+}
+
+switch {
+case verify.CDR != nil:
+	fmt.Println(verify.CDR.Status, verify.CDR.Description)
+case verify.Fault != nil:
+	fmt.Println(verify.Fault.Code, verify.Fault.Message)
+case verify.NoCDR != nil:
+	fmt.Println(verify.NoCDR.Status, verify.NoCDR.StatusCode)
+}
+```
+
+</TabItem>
+</Tabs>
+
+Guarda el ticket junto al resumen: la SUNAT puede tardar en procesarlo, y xhandler no consulta el ticket automáticamente.
+
+## Siguientes pasos
+
+- [Emitir facturas y boletas](./01-invoices.mdx) para crear las boletas que luego informas en el resumen.
+- [Anular comprobantes](./03-void-documents.mdx) para dar de baja facturas.
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx) para interpretar el CDR y los errores.
