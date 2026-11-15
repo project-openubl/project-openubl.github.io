@@ -3,7 +3,10 @@
 // functions, implemented below, and exposes one JSON entry point:
 // https://github.com/project-openubl/xhandler-rust/tree/main/xhandler-wasm
 
-export const CORE_VERSION = "6.0.0-alpha.1";
+import xhandler from "../../../xhandler.json";
+
+/** The xhandler release the playground runs (see scripts/set-xhandler-version.mjs). */
+export const CORE_VERSION: string = xhandler.version;
 
 export type CoreResult<T> =
   | { ok: T; error?: undefined }
