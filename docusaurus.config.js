@@ -9,7 +9,12 @@ const config = {
   tagline: "Crea XMLs basados en UBL y después envíalos a la SUNAT",
   url: "https://project-openubl.github.io",
   baseUrl: "/",
+  // GitHub Pages serves `/foo/index.html` at `/foo/` and redirects `/foo` to
+  // `/foo/`, so emit trailing slashes everywhere: canonical URLs, links and
+  // the sitemap then match the URL that is actually served (no duplicates).
+  trailingSlash: true,
   onBrokenLinks: "throw",
+  onBrokenAnchors: "throw",
   favicon: "img/favicon.ico",
   markdown: {
     hooks: {
@@ -47,6 +52,8 @@ const config = {
           editUrl: "https://github.com/project-openubl/project-openubl.github.io/tree/main/",
           onInlineAuthors: "ignore",
           onUntruncatedBlogPosts: "ignore",
+          blogTitle: "Blog",
+          blogDescription: "Novedades y lanzamientos de Project OpenUBL.",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -57,6 +64,9 @@ const config = {
         sitemap: {
           changefreq: "weekly",
           priority: 0.5,
+          // Listing pages with no content of their own.
+          ignorePatterns: ["/blog/tags/**", "/blog/page/**", "/blog/archive/**", "/blog/authors/**", "/search/**"],
+          filename: "sitemap.xml",
         },
       }),
     ],
@@ -65,6 +75,16 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      // Social card used by og:image / twitter:image (1200x630).
+      image: "img/social-card.png",
+      metadata: [
+        {
+          name: "keywords",
+          content:
+            "facturación electrónica, SUNAT, Perú, UBL 2.1, XML, factura electrónica, boleta, nota de crédito, guía de remisión, firma digital, CDR, OSE, xhandler, Java, Rust, Python, Go, open source",
+        },
+        { property: "og:site_name", content: "Project OpenUBL" },
+      ],
       colorMode: {
         respectPrefersColorScheme: true,
       },
@@ -162,12 +182,6 @@ const config = {
         darkTheme: patternflyDark,
         additionalLanguages: ["bash", "java", "toml", "properties", "groovy"],
       },
-      algolia: {
-        appId: "T6D5AOPGJ0",
-        apiKey: "eb158900ba04825f922b4c8c934f502b",
-        indexName: "project-openubl",
-        contextualSearch: false,
-      },
     }),
 
   stylesheets: [
@@ -178,6 +192,61 @@ const config = {
     //   src: "https://project-openubl.atlassian.net/s/d41d8cd98f00b204e9800998ecf8427e-T/o2joag/b/24/a44af77267a987a660377e5c46e0fb64/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?locale=en-US&collectorId=bd3ea422",
     //   async: true,
     // },
+  ],
+  headTags: [
+    {
+      tagName: "script",
+      attributes: { type: "application/ld+json" },
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://project-openubl.github.io/#organization",
+            name: "Project OpenUBL",
+            url: "https://project-openubl.github.io/",
+            logo: "https://project-openubl.github.io/img/project-openubl-logo.png",
+            sameAs: [
+              "https://github.com/project-openubl",
+              "https://www.youtube.com/channel/UChq3xxjyDgjcU346rp0bbtA",
+            ],
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://project-openubl.github.io/#website",
+            name: "Project OpenUBL",
+            url: "https://project-openubl.github.io/",
+            description:
+              "Librerías open source para crear, firmar y enviar comprobantes electrónicos a la SUNAT desde Java, Rust, Python y Go.",
+            inLanguage: "es",
+            publisher: { "@id": "https://project-openubl.github.io/#organization" },
+          },
+        ],
+      }),
+    },
+  ],
+  themes: [
+    [
+      // Offline search: the index is built at build time and downloaded by the
+      // browser, so it works on GitHub Pages without any external service.
+      "@easyops-cn/docusaurus-search-local",
+      {
+        hashed: true,
+        // Spanish stemming and stop words; English too, for code identifiers.
+        language: ["es", "en"],
+        indexDocs: true,
+        docsRouteBasePath: ["docs", "community"],
+        docsDir: ["docs", "community"],
+        indexBlog: true,
+        blogRouteBasePath: "blog",
+        blogDir: "blog",
+        indexPages: false,
+        explicitSearchResultPath: true,
+        highlightSearchTermsOnTargetPage: true,
+        searchResultLimits: 8,
+        searchResultContextMaxLength: 60,
+      },
+    ],
   ],
   plugins: [
     [
@@ -214,18 +283,18 @@ const config = {
           {
             tagName: "link",
             rel: "apple-touch-icon",
-            href: "img/project-openubl-logo.png",
+            href: "/img/project-openubl-logo.png",
           },
           {
             tagName: "link",
             rel: "mask-icon",
-            href: "img/project-openubl-logo.png",
+            href: "/img/project-openubl-logo.png",
             color: "#0066cc",
           },
           {
             tagName: "meta",
             name: "msapplication-TileImage",
-            content: "img/project-openubl-logo.png",
+            content: "/img/project-openubl-logo.png",
           },
           {
             tagName: "meta",

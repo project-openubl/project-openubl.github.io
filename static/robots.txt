@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://project-openubl.github.io/sitemap.xml

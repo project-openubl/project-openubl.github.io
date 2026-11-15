@@ -1,0 +1,33 @@
+{
+  "theme.SearchBar.label": {
+    "message": "Buscar",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Ver todos los resultados"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "Sin resultados"
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "Ver todos los resultados en \"{context}\""
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "Ver todos los resultados fuera de \"{context}\""
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Resultados de búsqueda para \"{query}\""
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Buscar en la documentación"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "1 documento encontrado|{count} documentos encontrados"
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "No se encontraron documentos"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "En todo el sitio"
+  }
+}
