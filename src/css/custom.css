@@ -1,33 +1,90 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Global styles.
+ *
+ * Tailwind CSS v4 is loaded without its Preflight (Infima, bundled with
+ * Docusaurus, already provides the base styles). Utilities are imported
+ * unlayered on purpose: Infima's CSS is unlayered too, and unlayered rules
+ * always win over layered ones, which would make utilities unusable.
  */
+@layer theme;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Only scan the files that actually use Tailwind classes. */
+@source not "../../build";
+@source not "../../.docusaurus";
 
-/* You can override the default Infima variables here. */
-:root {
-  --ifm-font-family-base: "Red Hat Text", "Overpass", helvetica, sans-serif;
+/* Follow Docusaurus' color mode toggle. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-  --ifm-color-primary: #0ea5e9;
-  --ifm-color-primary-dark: #0d95d2;
-  --ifm-color-primary-darker: #0c8cc6;
-  --ifm-color-primary-darkest: #0a74a3;
-  --ifm-color-primary-light: #1eb0f1;
-  --ifm-color-primary-lighter: #2ab4f2;
-  --ifm-color-primary-lightest: #4dc0f4;
+@theme {
+  --font-sans: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-primary-50: var(--color-sky-50);
+  --color-primary-100: var(--color-sky-100);
+  --color-primary-200: var(--color-sky-200);
+  --color-primary-300: var(--color-sky-300);
+  --color-primary-400: var(--color-sky-400);
+  --color-primary-500: var(--color-sky-500);
+  --color-primary-600: var(--color-sky-600);
+  --color-primary-700: var(--color-sky-700);
+  --color-primary-800: var(--color-sky-800);
+  --color-primary-900: var(--color-sky-900);
+  --color-primary-950: var(--color-sky-950);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* Infima overrides. */
+:root {
+  --ifm-font-family-base: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --ifm-heading-font-family: "Red Hat Display", "Red Hat Text", ui-sans-serif,
+    system-ui, sans-serif;
+  --ifm-font-family-monospace: "Red Hat Mono", ui-monospace, SFMono-Regular,
+    Menlo, monospace;
+
+  --ifm-color-primary: #0284c7;
+  --ifm-color-primary-dark: #0277b3;
+  --ifm-color-primary-darker: #0270a9;
+  --ifm-color-primary-darkest: #015c8b;
+  --ifm-color-primary-light: #0291db;
+  --ifm-color-primary-lighter: #0298e5;
+  --ifm-color-primary-lightest: #04acfd;
+}
+
 [data-theme="dark"] {
-  --ifm-color-primary: #0ea5e9;
-  --ifm-color-primary-dark: #0d95d2;
-  --ifm-color-primary-darker: #0c8cc6;
-  --ifm-color-primary-darkest: #0a74a3;
-  --ifm-color-primary-light: #1eb0f1;
-  --ifm-color-primary-lighter: #2ab4f2;
-  --ifm-color-primary-lightest: #4dc0f4;
+  --ifm-color-primary: #38bdf8;
+  --ifm-color-primary-dark: #1ab3f7;
+  --ifm-color-primary-darker: #0badf6;
+  --ifm-color-primary-darkest: #0890cd;
+  --ifm-color-primary-light: #56c7f9;
+  --ifm-color-primary-lighter: #65ccfa;
+  --ifm-color-primary-lightest: #92dbfb;
+}
+
+/* Infima sets the dark background on `html[data-theme="dark"]`, so match its specificity. */
+html[data-theme="dark"] {
+  --ifm-background-color: #0b0f17;
+  --ifm-background-surface-color: #0f1520;
+  --ifm-navbar-background-color: #0b0f17;
+}
+
+/* GitHub icon for the navbar item with className "header-github-link". */
+.header-github-link {
+  display: flex;
+  align-items: center;
+}
+
+.header-github-link::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  background-color: var(--ifm-navbar-link-color);
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat center / contain;
+}
+
+.header-github-link:hover::before {
+  background-color: var(--ifm-navbar-link-hover-color);
 }

@@ -196,8 +196,7 @@ const config = {
     }),
 
   stylesheets: [
-    "https://fonts.googleapis.com/css2?family=Red+Hat+Text&display=swap",
-    "https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@400;700&display=swap",
+    "https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;900&family=Red+Hat+Mono:wght@400;500&family=Red+Hat+Text:wght@400;500;700&display=swap",
   ],
   scripts: [
     // {
@@ -281,9 +280,8 @@ const config = {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
-          // Appends TailwindCSS and AutoPrefixer.
-          postcssOptions.plugins.push(require("tailwindcss"));
-          postcssOptions.plugins.push(require("autoprefixer"));
+          // Tailwind CSS v4 (vendor prefixing is handled by Docusaurus' own PostCSS setup).
+          postcssOptions.plugins.push(require("@tailwindcss/postcss"));
           return postcssOptions;
         },
       };

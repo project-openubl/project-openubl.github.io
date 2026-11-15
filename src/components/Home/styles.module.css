@@ -1,0 +1,28 @@
+/* Faint engineering grid behind the hero, faded towards the edges. */
+.grid {
+  background-image: linear-gradient(
+      to right,
+      rgb(148 163 184 / 0.14) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.14) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 40%, transparent);
+}
+
+/* Docusaurus' CodeBlock adds a bottom margin meant for prose. */
+.code :global(.theme-code-block) {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.code :global(.theme-code-block) pre {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* Infima styles every link; keep cards and buttons free of underlines. */
+.plainLink,
+.plainLink:hover {
+  text-decoration: none;
+}

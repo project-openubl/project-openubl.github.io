@@ -3,13 +3,18 @@ import { useColorMode } from "@docusaurus/theme-common";
 import { RedocStandalone } from "redoc";
 import { lightTheme, darkTheme } from "../css/redocTheme";
 
-const RedocConfig = (props) => {
+interface ApiReferenceProps {
+  spec: string;
+  color: string;
+}
+
+const RedocConfig = (props: ApiReferenceProps) => {
   const { colorMode } = useColorMode();
   const isDarkTheme = colorMode === "dark";
 
   return (
     <RedocStandalone
-      spec={props.spec}
+      specUrl={props.spec}
       options={{
         scrollYOffset: ".navbar", // makes the fixed sidebar and scrolling play nicey with docusaurus navbar
         pathInMiddlePanel: true,
@@ -22,7 +27,7 @@ const RedocConfig = (props) => {
   );
 };
 
-export default function ApiReference(props) {
+export default function ApiReference(props: ApiReferenceProps) {
   return (
     <main>
       <div className="RedocStandalone">

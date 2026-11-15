@@ -11,7 +11,7 @@ const DOCUSAURUS = {
  * NOTE: Variables taken from infima
  * @see https://github.com/facebookincubator/infima/blob/master/packages/core/styles/common/variables.pcss
  */
-export function lightTheme(primaryColor) {
+export function lightTheme(primaryColor: string) {
   return {
     typography: {
       fontFamily: "var(--ifm-font-family-base)",
@@ -60,7 +60,7 @@ export function lightTheme(primaryColor) {
   };
 }
 
-export function darkTheme(primaryColor) {
+export function darkTheme(primaryColor: string) {
   return {
     typography: {
       fontFamily: "var(--ifm-font-family-base)",
