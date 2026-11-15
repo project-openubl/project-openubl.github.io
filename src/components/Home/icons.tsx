@@ -1,81 +1,53 @@
-import React, { type ReactNode, type SVGProps } from "react";
+import React, { type SVGProps } from "react";
 
+// Material Icons (Apache-2.0), https://fonts.google.com/icons
 type IconProps = SVGProps<SVGSVGElement>;
 
-function Icon({ children, ...props }: IconProps & { children: ReactNode }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      {children}
-    </svg>
-  );
+function icon(path: string) {
+  return function MaterialIcon(props: IconProps) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+        {...props}
+      >
+        <path d={path} />
+      </svg>
+    );
+  };
 }
 
-export function ArrowRightIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M5 12h14" />
-      <path d="m12 5 7 7-7 7" />
-    </Icon>
-  );
-}
-
-export function FileCodeIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <path d="M14 2v6h6" />
-      <path d="m10 13-2 2 2 2" />
-      <path d="m14 17 2-2-2-2" />
-    </Icon>
-  );
-}
-
-export function SendIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M22 2 11 13" />
-      <path d="M22 2 15 22l-4-9-9-4z" />
-    </Icon>
-  );
-}
-
-export function SearchIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
-    </Icon>
-  );
-}
-
-export function ServerIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <rect x="2" y="3" width="20" height="8" rx="2" />
-      <rect x="2" y="13" width="20" height="8" rx="2" />
-      <path d="M6 7h.01" />
-      <path d="M6 17h.01" />
-    </Icon>
-  );
-}
-
-export function ChatIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </Icon>
-  );
-}
+export const ArrowForwardIcon = icon(
+  "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z",
+);
+export const CheckIcon = icon(
+  "M9 16.17 4.83 12l-1.42 1.42L9 19 21 7l-1.41-1.41z",
+);
+export const CheckCircleIcon = icon(
+  "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z",
+);
+export const CopyIcon = icon(
+  "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z",
+);
+export const CodeIcon = icon(
+  "M9.4 16.6 4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
+);
+export const VisibilityIcon = icon(
+  "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z",
+);
+export const FunctionsIcon = icon("M18 4H6v2l6.5 6L6 18v2h12v-3h-7l5-5-5-5h7z");
+export const SendIcon = icon("M2.01 21 23 12 2.01 3 2 10l15 2-15 2z");
+export const DnsIcon = icon(
+  "M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 19c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM20 3H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z",
+);
+export const ForumIcon = icon(
+  "M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z",
+);
+export const LockIcon = icon(
+  "M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z",
+);
 
 export function GitHubIcon(props: IconProps) {
   return (

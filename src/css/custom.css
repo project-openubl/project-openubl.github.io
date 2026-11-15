@@ -5,12 +5,14 @@
  * Docusaurus, already provides the base styles). Utilities are imported
  * unlayered on purpose: Infima's CSS is unlayered too, and unlayered rules
  * always win over layered ones, which would make utilities unusable.
+ *
+ * Colors come from the Material Design palette:
+ * https://m2.material.io/design/color/the-color-system.html
  */
 @layer theme;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css";
 
-/* Only scan the files that actually use Tailwind classes. */
 @source not "../../build";
 @source not "../../.docusaurus";
 
@@ -23,20 +25,64 @@
     sans-serif;
   --font-mono: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-primary-50: var(--color-sky-50);
-  --color-primary-100: var(--color-sky-100);
-  --color-primary-200: var(--color-sky-200);
-  --color-primary-300: var(--color-sky-300);
-  --color-primary-400: var(--color-sky-400);
-  --color-primary-500: var(--color-sky-500);
-  --color-primary-600: var(--color-sky-600);
-  --color-primary-700: var(--color-sky-700);
-  --color-primary-800: var(--color-sky-800);
-  --color-primary-900: var(--color-sky-900);
-  --color-primary-950: var(--color-sky-950);
+  /* Material Indigo (primary) */
+  --color-primary-50: #e8eaf6;
+  --color-primary-100: #c5cae9;
+  --color-primary-200: #9fa8da;
+  --color-primary-300: #7986cb;
+  --color-primary-400: #5c6bc0;
+  --color-primary-500: #3f51b5;
+  --color-primary-600: #3949ab;
+  --color-primary-700: #303f9f;
+  --color-primary-800: #283593;
+  --color-primary-900: #1a237e;
+  --color-primary-a100: #8c9eff;
+  --color-primary-a200: #536dfe;
+  --color-primary-a400: #3d5afe;
+  --color-primary-a700: #304ffe;
+
+  /* Material Teal (success / accent) */
+  --color-accent-50: #e0f2f1;
+  --color-accent-100: #b2dfdb;
+  --color-accent-200: #80cbc4;
+  --color-accent-300: #4db6ac;
+  --color-accent-500: #009688;
+  --color-accent-700: #00796b;
+  --color-accent-800: #00695c;
+  --color-accent-a400: #1de9b6;
+  --color-accent-a700: #00bfa5;
+
+  /* Material Blue Grey (neutrals) */
+  --color-neutral-50: #eceff1;
+  --color-neutral-100: #cfd8dc;
+  --color-neutral-200: #b0bec5;
+  --color-neutral-300: #90a4ae;
+  --color-neutral-400: #78909c;
+  --color-neutral-500: #607d8b;
+  --color-neutral-600: #546e7a;
+  --color-neutral-700: #455a64;
+  --color-neutral-800: #37474f;
+  --color-neutral-900: #263238;
+
+  /* Material Grey (light surfaces) */
+  --color-grey-50: #fafafa;
+  --color-grey-100: #f5f5f5;
+  --color-grey-200: #eeeeee;
+  --color-grey-300: #e0e0e0;
+
+  /* Material Amber (highlight) */
+  --color-amber-300: #ffd54f;
+  --color-amber-a200: #ffd740;
+
+  /* Material dark theme surfaces (by elevation) */
+  --color-surface-0: #121212;
+  --color-surface-1: #1e1e1e;
+  --color-surface-2: #232323;
+  --color-surface-4: #272727;
+  --color-surface-8: #2e2e2e;
 }
 
-/* Infima overrides. */
+/* Infima overrides: light. */
 :root {
   --ifm-font-family-base: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
   --ifm-heading-font-family: "Red Hat Display", "Red Hat Text", ui-sans-serif,
@@ -44,30 +90,47 @@
   --ifm-font-family-monospace: "Red Hat Mono", ui-monospace, SFMono-Regular,
     Menlo, monospace;
 
-  --ifm-color-primary: #0284c7;
-  --ifm-color-primary-dark: #0277b3;
-  --ifm-color-primary-darker: #0270a9;
-  --ifm-color-primary-darkest: #015c8b;
-  --ifm-color-primary-light: #0291db;
-  --ifm-color-primary-lighter: #0298e5;
-  --ifm-color-primary-lightest: #04acfd;
+  --ifm-color-primary: #3949ab;
+  --ifm-color-primary-dark: #303f9f;
+  --ifm-color-primary-darker: #283593;
+  --ifm-color-primary-darkest: #1a237e;
+  --ifm-color-primary-light: #3f51b5;
+  --ifm-color-primary-lighter: #5c6bc0;
+  --ifm-color-primary-lightest: #7986cb;
+
+  --ifm-font-color-base: #263238;
+  --ifm-heading-color: #263238;
+  --ifm-toc-border-color: #e0e0e0;
+  --ifm-color-emphasis-300: #e0e0e0;
+  --ifm-navbar-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
+  --ifm-footer-background-color: #263238;
+  --docusaurus-highlighted-code-line-bg: rgb(57 73 171 / 0.12);
 }
 
-[data-theme="dark"] {
-  --ifm-color-primary: #38bdf8;
-  --ifm-color-primary-dark: #1ab3f7;
-  --ifm-color-primary-darker: #0badf6;
-  --ifm-color-primary-darkest: #0890cd;
-  --ifm-color-primary-light: #56c7f9;
-  --ifm-color-primary-lighter: #65ccfa;
-  --ifm-color-primary-lightest: #92dbfb;
-}
-
-/* Infima sets the dark background on `html[data-theme="dark"]`, so match its specificity. */
+/* Infima overrides: dark. Infima uses `html[data-theme="dark"]`, so match it. */
 html[data-theme="dark"] {
-  --ifm-background-color: #0b0f17;
-  --ifm-background-surface-color: #0f1520;
-  --ifm-navbar-background-color: #0b0f17;
+  --ifm-color-primary: #9fa8da;
+  --ifm-color-primary-dark: #8c9eff;
+  --ifm-color-primary-darker: #7986cb;
+  --ifm-color-primary-darkest: #5c6bc0;
+  --ifm-color-primary-light: #c5cae9;
+  --ifm-color-primary-lighter: #d6daf0;
+  --ifm-color-primary-lightest: #e8eaf6;
+
+  --ifm-background-color: #121212;
+  --ifm-background-surface-color: #1e1e1e;
+  --ifm-navbar-background-color: #121212;
+  --ifm-font-color-base: rgb(255 255 255 / 0.87);
+  --ifm-heading-color: rgb(255 255 255 / 0.87);
+  --ifm-toc-border-color: rgb(255 255 255 / 0.12);
+  --ifm-color-emphasis-300: rgb(255 255 255 / 0.12);
+  --ifm-navbar-shadow: 0 1px 0 rgb(255 255 255 / 0.08);
+  --ifm-footer-background-color: #1e1e1e;
+  --docusaurus-highlighted-code-line-bg: rgb(159 168 218 / 0.16);
+}
+
+.navbar {
+  box-shadow: var(--ifm-navbar-shadow);
 }
 
 /* GitHub icon for the navbar item with className "header-github-link". */

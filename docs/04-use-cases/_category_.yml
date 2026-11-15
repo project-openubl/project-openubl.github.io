@@ -1,0 +1,8 @@
+label: Casos de uso
+position: 4
+collapsed: false
+link:
+  type: generated-index
+  slug: /category/casos-de-uso
+  title: Casos de uso
+  description: Guías paso a paso para emitir cada tipo de comprobante y resolver las tareas más comunes, en Java, Rust, Python y Go.

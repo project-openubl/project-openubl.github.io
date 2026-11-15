@@ -1,3 +1,6 @@
 # Support
 
-Project OpenUBL tiene una comunidad de desarrolladores; es esta comunidad la que interactua con usuarios principalmente a travez de nuestro chat oficial https://projectopenubl.zulipchat.com
+Project OpenUBL tiene una comunidad de desarrolladores que interactúa con los usuarios principalmente a través de GitHub:
+
+- **Preguntas e ideas:** [GitHub Discussions](https://github.com/project-openubl/xhandler-java/discussions)
+- **Reporte de errores:** abre un issue en el repositorio correspondiente, por ejemplo [xhandler-java](https://github.com/project-openubl/xhandler-java/issues), [ublhub](https://github.com/project-openubl/ublhub/issues) o [searchpe](https://github.com/project-openubl/searchpe/issues).

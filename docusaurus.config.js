@@ -1,9 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const { themes } = require("prism-react-renderer");
-const lightCodeTheme = themes.palenight;
-const darkCodeTheme = themes.nightOwl;
+const { materialLight, materialDark } = require("./src/prism/material");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -40,13 +38,13 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/project-openubl/website/tree/master/",
+          editUrl: "https://github.com/project-openubl/project-openubl.github.io/tree/main/",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/project-openubl/website/tree/master/",
+          editUrl: "https://github.com/project-openubl/project-openubl.github.io/tree/main/",
           onInlineAuthors: "ignore",
           onUntruncatedBlogPosts: "ignore",
         },
@@ -62,34 +60,14 @@ const config = {
         },
       }),
     ],
-    [
-      "redocusaurus",
-      {
-        // Plugin Options for loading OpenAPI files
-        specs: [
-          {
-            id: "searchpe",
-            spec: "static/openapi/searchpe/openapi.yaml",
-            route: "/api/searchpe",
-          },
-          {
-            id: "ublhub",
-            spec: "static/openapi/ublhub/openapi.yaml",
-            route: "/api/ublhub",
-          },
-        ],
-        // Theme Options for modifying how redoc renders them
-        theme: {
-          // Change with your site colors
-          primaryColor: "#1890ff",
-        },
-      },
-    ],
   ],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        respectPrefersColorScheme: true,
+      },
       navbar: {
         title: "Project OpenUBL",
         logo: {
@@ -104,6 +82,7 @@ const config = {
             label: "Docs",
           },
           // { to: "/apis", label: "API Reference", position: "left" },
+          { to: "/playground", label: "Playground", position: "left" },
           { to: "/blog", label: "Blog", position: "left" },
           {
             to: "/community/support",
@@ -132,16 +111,16 @@ const config = {
             title: "Documentación",
             items: [
               {
-                label: "Crear XMLs",
-                to: "docs/xbuilder/",
+                label: "Inicio rápido",
+                to: "/docs/quickstart",
               },
               {
-                label: "Enviar XMLs",
-                to: "docs/xsender/",
+                label: "Casos de uso",
+                to: "/docs/category/casos-de-uso",
               },
               {
-                label: "Consulta RUC",
-                to: "docs/searchpe/",
+                label: "Línea de comandos",
+                to: "/docs/use-cases/cli",
               },
             ],
           },
@@ -153,12 +132,8 @@ const config = {
                 href: "https://www.youtube.com/channel/UChq3xxjyDgjcU346rp0bbtA?view_as=subscriber",
               },
               {
-                label: "Facebook",
-                href: "https://www.facebook.com/Openubl/",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/openubl",
+                label: "GitHub Discussions",
+                href: "https://github.com/project-openubl/xhandler-java/discussions",
               },
             ],
           },
@@ -183,9 +158,9 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Project OpenUBL, Inc.`,
       },
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
-        additionalLanguages: ["bash", "java", "scala", "php"],
+        theme: materialLight,
+        darkTheme: materialDark,
+        additionalLanguages: ["bash", "java", "toml", "properties", "groovy"],
       },
       algolia: {
         appId: "T6D5AOPGJ0",
@@ -224,7 +199,7 @@ const config = {
           {
             tagName: "meta",
             name: "theme-color",
-            content: "rgb(37, 194, 160)",
+            content: "#3949AB",
           },
           {
             tagName: "meta",
@@ -245,7 +220,7 @@ const config = {
             tagName: "link",
             rel: "mask-icon",
             href: "img/project-openubl-logo.png",
-            color: "rgb(62, 204, 94)",
+            color: "#3949AB",
           },
           {
             tagName: "meta",
@@ -268,7 +243,7 @@ const config = {
         path: "community",
         routeBasePath: "community",
         editUrl: ({ versionDocsDirPath, docPath }) => {
-          return `https://github.com/project-openubl/website/edit/master/${versionDocsDirPath}/${docPath}`;
+          return `https://github.com/project-openubl/project-openubl.github.io/edit/main/${versionDocsDirPath}/${docPath}`;
         },
         editCurrentVersion: true,
         sidebarPath: require.resolve("./sidebarsCommunity.js"),

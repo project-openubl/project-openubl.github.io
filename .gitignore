@@ -21,3 +21,5 @@ yarn-error.log*
 
 #
 /i18n
+# xhandler core for the playground (downloaded by scripts/fetch-xhandler-wasm.mjs)
+/static/wasm

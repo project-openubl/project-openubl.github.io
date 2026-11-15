@@ -1,0 +1,306 @@
+---
+title: Consultar y validar comprobantes
+description: Consulta el estado de un comprobante, recupera su CDR y valida comprobantes con los servicios de consulta de la SUNAT.
+slug: /use-cases/check-status
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Además de recibir comprobantes, la SUNAT tiene servicios para **consultar** los que ya enviaste (su estado y su CDR) y para **validar** un comprobante, tuyo o de un tercero. xhandler los expone en `SunatClient`, el mismo cliente que usa `FileSender` para enviar.
+
+## Antes de empezar
+
+- **Solo producción**: estos servicios no existen en el entorno beta. xhandler solo trae las URLs de producción y no define URLs beta para ellos.
+- **Credenciales reales**: necesitas tu usuario y clave SOL. Las credenciales de prueba `12345678959MODDATOS` no sirven aquí. En los ejemplos, `12345678912USUARIOSOL` / `CLAVE_SOL` son valores de ejemplo.
+- **Se llaman en `SunatClient`, no en `FileSender`**: en cada llamada pasas la URL del servicio, los datos del comprobante y las credenciales.
+
+| Servicio | Para qué sirve | URL (constante) |
+|---|---|---|
+| Consulta de estado | Estado de un comprobante ya enviado | `BILL_CONSULT_SERVICE_URL` |
+| Obtener CDR | Recuperar el CDR de un comprobante ya enviado | `BILL_CONSULT_SERVICE_URL` |
+| Validar por datos | Comprobar que existe un comprobante con esos datos | `BILL_VALID_SERVICE_URL` |
+| Validar un archivo | Validar el archivo de un comprobante | `BILL_VALID_SERVICE_URL` |
+
+En Java las constantes están en `SunatClient` (`SunatClient.BILL_CONSULT_SERVICE_URL`); en Go se llaman `xsender.BillConsultServiceURL` y `xsender.BillValidServiceURL`.
+
+## Consulta de estado
+
+Identificas el comprobante por el RUC del emisor, el tipo (Catálogo 1, `01` para factura), la serie y el número.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.Credentials;
+import io.github.project.openubl.xsender.sunat.ConsultResponse;
+import io.github.project.openubl.xsender.sunat.DocumentQuery;
+import io.github.project.openubl.xsender.sunat.SunatClient;
+
+SunatClient client = new SunatClient();
+Credentials credentials = Credentials.builder()
+        .username("12345678912USUARIOSOL")
+        .password("CLAVE_SOL")
+        .build();
+
+// RUC, tipo de comprobante, serie, número
+DocumentQuery document = new DocumentQuery("12345678912", "01", "F001", 1);
+
+ConsultResponse status = client.getStatus(SunatClient.BILL_CONSULT_SERVICE_URL, document, credentials);
+System.out.println(status.statusCode() + " " + status.statusMessage());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+use xhandler::prelude::*;
+
+let client = SunatClient::default();
+let credentials = Credentials {
+    username: "12345678912USUARIOSOL".into(),
+    password: "CLAVE_SOL".into(),
+    ..Default::default()
+};
+
+let document = ConsultDocument {
+    ruc: "12345678912".into(),
+    tipo_comprobante: "01".into(),
+    serie: "F001".into(),
+    numero: 1,
+};
+
+match client.get_status(BILL_CONSULT_SERVICE_URL, &document, &credentials).await? {
+    ConsultResponse::Status(status) => println!("{} {:?}", status.status_code, status.status_message),
+    ConsultResponse::Fault(fault) => println!("{} {}", fault.code, fault.message),
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from xhandler.xsender import (
+    BILL_CONSULT_SERVICE_URL,
+    ConsultDocument,
+    Credentials,
+    SunatClient,
+)
+
+credentials = Credentials(username="12345678912USUARIOSOL", password="CLAVE_SOL")
+document = ConsultDocument(ruc="12345678912", tipo_comprobante="01", serie="F001", numero=1)
+
+with SunatClient() as client:
+    result = client.get_status(BILL_CONSULT_SERVICE_URL, document, credentials)
+    if result.status:
+        print(result.status.status_code, result.status.status_message)
+    elif result.fault:
+        print(result.fault.code, result.fault.message)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+import "github.com/project-openubl/xhandler-go/v6/xsender"
+
+client := xsender.NewSunatClient(nil)
+credentials := xsender.Credentials{Username: "12345678912USUARIOSOL", Password: "CLAVE_SOL"}
+
+document := xsender.ConsultDocument{RUC: "12345678912", TipoComprobante: "01", Serie: "F001", Numero: 1}
+
+result, err := client.GetStatus(ctx, xsender.BillConsultServiceURL, document, credentials)
+if err != nil {
+	return err
+}
+switch {
+case result.Status != nil:
+	fmt.Println(result.Status.StatusCode) // StatusMessage es *string (puede ser nil)
+case result.Fault != nil:
+	fmt.Println(result.Fault.Code, result.Fault.Message)
+}
+```
+
+</TabItem>
+</Tabs>
+
+El código de estado es el que devuelve la SUNAT para este servicio (por ejemplo `0001` para un comprobante aceptado). xhandler no lo traduce a `ACEPTADO`/`RECHAZADO`: lo recibes tal cual, con su mensaje.
+
+## Obtener el CDR
+
+Usa los mismos datos que la consulta de estado. Si el CDR existe, la SUNAT lo devuelve como un zip (por ejemplo, con el código `0004` "La constancia existe").
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+ConsultResponse response = client.getStatusCdr(SunatClient.BILL_CONSULT_SERVICE_URL, document, credentials);
+if (response.cdr() != null) {
+    Files.write(Path.of("cdr.zip"), response.cdr()); // zip con el CDR
+}
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+if let ConsultResponse::Status(status) =
+    client.get_status_cdr(BILL_CONSULT_SERVICE_URL, &document, &credentials).await?
+{
+    if let Some(cdr_base64) = status.cdr_base64 {
+        // El zip llega en base64; CdrMetadata lo lee
+        let cdr = CdrMetadata::from_zip_base64(&cdr_base64)?;
+        println!("{} {}", cdr.status(), cdr.description);
+    }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from pathlib import Path
+
+result = client.get_status_cdr(BILL_CONSULT_SERVICE_URL, document, credentials)
+if result.status and result.status.cdr_zip:
+    Path("cdr.zip").write_bytes(result.status.cdr_zip)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+result, err := client.GetStatusCDR(ctx, xsender.BillConsultServiceURL, document, credentials)
+if err != nil {
+	return err
+}
+if result.Status != nil && len(result.Status.CDRZip) > 0 {
+	if err := os.WriteFile("cdr.zip", result.Status.CDRZip, 0o644); err != nil {
+		return err
+	}
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Validar un comprobante por sus datos
+
+Comprueba que existe un comprobante con estos datos: emisor, tipo, serie, número, receptor, fecha de emisión e importe total. Sirve, por ejemplo, para verificar una factura que te enviaron. La fecha va como texto en formato `dd/MM/yyyy`. Si todo coincide, la SUNAT responde con el código `0` ("El comprobante existe y está aceptado.").
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.sunat.CdpQuery;
+
+import java.math.BigDecimal;
+
+CdpQuery query = new CdpQuery(
+        "12345678912",              // RUC del emisor
+        "01",                       // tipo de comprobante
+        "F001",                     // serie
+        "1",                        // número (texto numérico)
+        "6",                        // tipo de documento del receptor
+        "12121212121",              // número de documento del receptor
+        "10/11/2026",               // fecha de emisión, dd/MM/yyyy
+        new BigDecimal("236.00"),   // importe total
+        null                        // número de autorización (opcional)
+);
+ConsultResponse validation = client.validateCdp(SunatClient.BILL_VALID_SERVICE_URL, query, credentials);
+System.out.println(validation.statusCode() + " " + validation.statusMessage());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let cdp = ValidateCdp {
+    document: document.clone(),
+    tipo_documento_identidad_receptor: "6".into(),
+    numero_documento_identidad_receptor: "12121212121".into(),
+    fecha_emision: "10/11/2026".into(), // dd/MM/yyyy
+    importe_total: "236.00".into(),
+    numero_autorizacion: None,
+};
+if let ConsultResponse::Status(status) =
+    client.validate_cdp(BILL_VALID_SERVICE_URL, &cdp, &credentials).await?
+{
+    println!("{} {:?}", status.status_code, status.status_message);
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from xhandler.xsender import BILL_VALID_SERVICE_URL, ValidateCDP
+
+cdp = ValidateCDP(
+    ruc="12345678912",
+    tipo_comprobante="01",
+    serie="F001",
+    numero=1,
+    tipo_documento_identidad_receptor="6",
+    numero_documento_identidad_receptor="12121212121",
+    fecha_emision="10/11/2026",  # dd/MM/yyyy
+    importe_total="236.00",
+)
+result = client.validate_cdp(BILL_VALID_SERVICE_URL, cdp, credentials)
+if result.status:
+    print(result.status.status_code, result.status.status_message)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+cdp := xsender.ValidateCDP{
+	ConsultDocument:                  document,
+	TipoDocumentoIdentidadReceptor:   "6",
+	NumeroDocumentoIdentidadReceptor: "12121212121",
+	FechaEmision:                     "10/11/2026", // dd/MM/yyyy
+	ImporteTotal:                     "236.00",
+}
+result, err := client.ValidateCDP(ctx, xsender.BillValidServiceURL, cdp, credentials)
+if err != nil {
+	return err
+}
+if result.Status != nil {
+	fmt.Println(result.Status.StatusCode) // "0": existe y está aceptado
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Validar un archivo
+
+El servicio `verificaCPEarchivo` de la SUNAT valida el archivo de un comprobante. xhandler lo expone así:
+
+| Lenguaje | Método | Archivo |
+|---|---|---|
+| Java | `validateFile(url, filename, bytes, credentials)` | nombre y bytes |
+| Rust | `validate_file(url, &file, &credentials)` | `File { filename, zip_base64 }` |
+| Python | `validate_file(url, file, credentials)` | `File(filename=..., zip=...)` |
+| Go | `ValidateFile(ctx, url, file, credentials)` | `xsender.File{Filename, Zip}` |
+
+En todos los casos xhandler envía el nombre y el contenido (en base64) tal como se los das, a `BILL_VALID_SERVICE_URL`.
+
+:::caution Formato del archivo sin confirmar
+
+No está documentado en xhandler si la SUNAT espera aquí el XML tal cual o comprimido en un zip, ni qué nombre debe llevar. Los tipos de Rust, Python y Go hablan de un zip, mientras que Java lo describe como "un archivo XML". Prueba primero con un comprobante conocido antes de depender de este servicio.
+
+:::
+
+## Tener en cuenta
+
+- **Un rechazo no es una excepción**: si la SUNAT responde con un error (por ejemplo, credenciales inválidas), recibes el fault en la respuesta. En Rust es `ConsultResponse::Fault`; en Python y Go, `result.fault` / `result.Fault`. En Java no hay un tipo aparte: el código de error (de 4 dígitos, como `0111`) llega en `statusCode()`, con `httpStatus()` informado.
+- **Tipos de los datos**: el número es entero en la consulta de estado. Para validar por datos, la fecha y el importe van como texto en Rust, Python y Go; en Java el número va como texto (debe ser numérico) y el importe como `BigDecimal`.
+- **Reintentos**: si la SUNAT limita la cantidad de peticiones, estas consultas se reintentan igual que los envíos.
+- **Comparte el cliente**: si consultas para varias empresas, usa un solo `SunatClient` y pasa las credenciales de cada una en cada llamada. Revisa [Facturar para varias empresas](./08-multiple-companies.mdx).
+
+## Ver también
+
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx)
+- [Errores](../05-fundamentals/05-errors.mdx)

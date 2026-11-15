@@ -1,24 +1,44 @@
-/* Faint engineering grid behind the hero, faded towards the edges. */
-.grid {
-  background-image: linear-gradient(
-      to right,
-      rgb(148 163 184 / 0.14) 1px,
-      transparent 1px
+/* Soft Material Indigo / Teal glow behind the hero. */
+.heroGlow {
+  position: absolute;
+  inset: -20% 0 auto 0;
+  height: 900px;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      40% 40% at 30% 40%,
+      rgb(61 90 254 / 0.12),
+      transparent 70%
     ),
-    linear-gradient(to bottom, rgb(148 163 184 / 0.14) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 40%, transparent);
+    radial-gradient(
+      35% 35% at 72% 50%,
+      rgb(29 233 182 / 0.1),
+      transparent 70%
+    );
 }
 
-/* Docusaurus' CodeBlock adds a bottom margin meant for prose. */
-.code :global(.theme-code-block) {
-  margin-bottom: 0;
-  box-shadow: none;
+[data-theme="dark"] .heroGlow {
+  background:
+    radial-gradient(
+      40% 40% at 30% 40%,
+      rgb(140 158 255 / 0.14),
+      transparent 70%
+    ),
+    radial-gradient(
+      35% 35% at 72% 50%,
+      rgb(29 233 182 / 0.07),
+      transparent 70%
+    );
 }
 
-.code :global(.theme-code-block) pre {
-  font-size: 0.8125rem;
-  line-height: 1.6;
+/* Dot pattern on the call-to-action card. */
+.ctaPattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000 30%, transparent);
 }
 
 /* Infima styles every link; keep cards and buttons free of underlines. */

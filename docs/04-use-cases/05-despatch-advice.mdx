@@ -1,0 +1,428 @@
+---
+title: Guías de remisión
+description: Crea una guía de remisión remitente y envíala a la API REST de la SUNAT con tus credenciales de producción.
+slug: /use-cases/despatch-advice
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+La **guía de remisión electrónica** sustenta el traslado de bienes: indica quién envía, quién recibe, desde dónde y hacia dónde se mueve la mercadería, cuándo empieza el traslado y cómo se transporta. La emite el remitente (serie `T…`, tipo `09`) o el transportista (serie `V…`, tipo `31`).
+
+Las guías funcionan distinto al resto de comprobantes:
+
+- Se envían a la **API REST** de la SUNAT, no al servicio SOAP de facturas.
+- Además de tu usuario y clave SOL, necesitas un **`client_id`** y un **`client_secret`** de la API, que generas desde el portal SOL.
+- La SUNAT **no tiene entorno beta** para guías: solo puedes enviarlas a producción, con datos y credenciales reales.
+- La respuesta siempre es un **ticket**, que consultas después, como en la [comunicación de baja](./03-void-documents.mdx).
+
+## Crear la guía
+
+Este ejemplo es una guía de remisión remitente por venta (motivo `01` del Catálogo 20) con transporte privado (modalidad `02` del Catálogo 18), con vehículo y conductor propios.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+DespatchAdvice guia = DespatchAdvice.builder()
+        .serieNumero("T001-1")                       // serie T: guía remitente (tipo "09")
+        .remitente(Remitente.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .destinatario(Destinatario.builder()
+                .tipoDocumentoIdentidad("6")
+                .numeroDocumentoIdentidad("12121212121")
+                .nombre("Carlos Feria")
+                .build())
+        .envio(Envio.builder()
+                .tipoTraslado("01")                  // Catálogo 20: venta
+                .tipoModalidadTraslado("02")         // Catálogo 18: transporte privado
+                .fechaTraslado(LocalDate.of(2026, 11, 15)) // obligatoria
+                .pesoTotal(new BigDecimal("25.5"))
+                .pesoTotalUnidadMedida("KGM")
+                .partida(Partida.builder().ubigeo("150101").direccion("Av. Los Olivos 123").build())
+                .destino(Partida.builder().ubigeo("040101").direccion("Jr. Arequipa 456").build())
+                .vehiculo(Vehiculo.builder().placa("ABC123").build())
+                .choferes(List.of(Chofer.builder()
+                        .tipo("CONDUCTOR_PRINCIPAL")
+                        .tipoDocumentoIdentidad("1")
+                        .numeroDocumentoIdentidad("12345678")
+                        .nombres("Carlos")
+                        .apellidos("Feria")
+                        .licencia("Q12345678")
+                        .build()))
+                .build())
+        .detalles(List.of(DespatchAdviceItem.builder()
+                .descripcion("Item")
+                .cantidad(new BigDecimal("2"))
+                .unidadMedida("NIU")
+                .codigo("P001")
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(guia);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut guia = DespatchAdvice {
+    serie_numero: "T001-1".into(), // serie T: guía remitente (tipo "09")
+    remitente: Remitente {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    destinatario: Destinatario {
+        tipo_documento_identidad: "6".into(),
+        numero_documento_identidad: "12121212121".into(),
+        nombre: "Carlos Feria".into(),
+    },
+    envio: Envio {
+        tipo_traslado: "01".into(),           // Catálogo 20: venta
+        tipo_modalidad_traslado: "02".into(), // Catálogo 18: transporte privado
+        fecha_traslado: NaiveDate::from_ymd_opt(2026, 11, 15), // obligatoria
+        peso_total: dec!(25.5),
+        peso_total_unidad_medida: "KGM".into(),
+        partida: Some(Partida {
+            ubigeo: "150101".into(),
+            direccion: "Av. Los Olivos 123".into(),
+            ..Default::default()
+        }),
+        destino: Some(Partida {
+            ubigeo: "040101".into(),
+            direccion: "Jr. Arequipa 456".into(),
+            ..Default::default()
+        }),
+        vehiculo: Some(Vehiculo { placa: "ABC123".into(), ..Default::default() }),
+        choferes: vec![Chofer {
+            tipo: Some("CONDUCTOR_PRINCIPAL".into()),
+            tipo_documento_identidad: "1".into(),
+            numero_documento_identidad: "12345678".into(),
+            nombres: Some("Carlos".into()),
+            apellidos: Some("Feria".into()),
+            licencia: Some("Q12345678".into()),
+        }],
+        ..Default::default()
+    },
+    detalles: vec![DespatchAdviceItem {
+        descripcion: Some("Item".into()),
+        cantidad: dec!(2),
+        unidad_medida: "NIU".into(),
+        codigo: "P001".into(),
+        ..Default::default()
+    }],
+    ..Default::default()
+};
+
+guia.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+let xml = guia.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+guia = xbuilder.DespatchAdvice(
+    serie_numero="T001-1",                 # serie T: guía remitente (tipo "09")
+    remitente=xbuilder.Remitente(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    destinatario=xbuilder.Destinatario(
+        tipo_documento_identidad="6",
+        numero_documento_identidad="12121212121",
+        nombre="Carlos Feria",
+    ),
+    envio=xbuilder.Envio(
+        tipo_traslado="01",                # Catálogo 20: venta
+        tipo_modalidad_traslado="02",      # Catálogo 18: transporte privado
+        fecha_traslado=date(2026, 11, 15), # obligatoria
+        peso_total=Decimal("25.5"),
+        peso_total_unidad_medida="KGM",
+        partida=xbuilder.Partida(ubigeo="150101", direccion="Av. Los Olivos 123"),
+        destino=xbuilder.Partida(ubigeo="040101", direccion="Jr. Arequipa 456"),
+        vehiculo=xbuilder.Vehiculo(placa="ABC123"),
+        choferes=[
+            xbuilder.Chofer(
+                tipo="CONDUCTOR_PRINCIPAL",
+                tipo_documento_identidad="1",
+                numero_documento_identidad="12345678",
+                nombres="Carlos",
+                apellidos="Feria",
+                licencia="Q12345678",
+            ),
+        ],
+    ),
+    detalles=[
+        xbuilder.DespatchAdviceItem(
+            descripcion="Item",
+            cantidad=Decimal(2),
+            unidad_medida="NIU",
+            codigo="P001",
+        ),
+    ],
+)
+
+xml = xbuilder.build(guia)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+guia := &xbuilder.DespatchAdvice{
+	SerieNumero: "T001-1", // serie T: guía remitente (tipo "09")
+	Remitente:   xbuilder.Remitente{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Destinatario: xbuilder.Destinatario{
+		TipoDocumentoIdentidad:   "6",
+		NumeroDocumentoIdentidad: "12121212121",
+		Nombre:                   "Carlos Feria",
+	},
+	Envio: xbuilder.Envio{
+		TipoTraslado:          "01", // Catálogo 20: venta
+		TipoModalidadTraslado: "02", // Catálogo 18: transporte privado
+		FechaTraslado:         xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 15)), // obligatoria
+		PesoTotal:             xbuilder.MustDecimal("25.5"),
+		PesoTotalUnidadMedida: "KGM",
+		Partida:               &xbuilder.Partida{Ubigeo: "150101", Direccion: "Av. Los Olivos 123"},
+		Destino:               &xbuilder.Partida{Ubigeo: "040101", Direccion: "Jr. Arequipa 456"},
+		Vehiculo:              &xbuilder.Vehiculo{Placa: "ABC123"},
+		Choferes: []xbuilder.Chofer{
+			{
+				Tipo:                     xbuilder.Ptr("CONDUCTOR_PRINCIPAL"),
+				TipoDocumentoIdentidad:   "1",
+				NumeroDocumentoIdentidad: "12345678",
+				Nombres:                  xbuilder.Ptr("Carlos"),
+				Apellidos:                xbuilder.Ptr("Feria"),
+				Licencia:                 xbuilder.Ptr("Q12345678"),
+			},
+		},
+	},
+	Detalles: []xbuilder.DespatchAdviceItem{
+		{
+			Descripcion:  xbuilder.Ptr("Item"),
+			Cantidad:     xbuilder.DecimalFromInt(2),
+			UnidadMedida: "NIU",
+			Codigo:       "P001",
+		},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, guia, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+La **fecha de traslado** es obligatoria: sin ella, la creación de la guía falla con un error de validación. Otros valores se completan solos: el tipo de comprobante a partir de la serie (`T` → `09`, `V` → `31`) y el firmante a partir del remitente.
+
+Los datos de placa, licencia y ubigeos del ejemplo son ficticios. xhandler genera el XML con los datos que le das, pero qué combinación de campos exige cada modalidad de transporte lo valida la SUNAT al recibir la guía. Para **transporte público** (modalidad `01`), en lugar de vehículo y conductores se indica el transportista (`transportista`, con su número de registro MTC).
+
+## Enviar y consultar el ticket
+
+Usa las **URLs de producción** y unas credenciales con usuario SOL, clave SOL, `client_id` y `client_secret`. xhandler pide el token OAuth a la SUNAT con esas credenciales, lo reutiliza mientras sea válido y lo renueva cuando vence; no tienes que gestionarlo tú.
+
+Los valores en mayúsculas del ejemplo son marcadores: reemplázalos por tus credenciales reales.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+SigningKey key = SigningKey.fromPkcs12(Files.readAllBytes(Path.of("certificado.pfx")), "password");
+byte[] signed = new XSigner().sign(xml.getBytes(StandardCharsets.UTF_8), key);
+
+FileSender sender = new FileSender(
+        URLs.production(),                           // no hay beta para guías
+        Credentials.builder()
+                .username("12345678912MIUSUARIO")    // RUC + usuario SOL
+                .password("MI_CLAVE_SOL")
+                .clientId("MI_CLIENT_ID")
+                .clientSecret("MI_CLIENT_SECRET")
+                .build()
+);
+
+SunatResponse sent = sender.sendFile(signed);
+if (!sent.isTicket()) {
+    // Errores de la API, por ejemplo HTTP 422 con el código 1033 (comprobante ya registrado)
+    throw new IllegalStateException(sent.getStatus() + " " + sent.getMetadata().getDescription());
+}
+String ticket = sent.getSunat().getTicket();
+
+SunatResponse result = sender.verifyFileTicket(signed, ticket);
+while (result.getStatus() == Status.EN_PROCESO) {
+    Thread.sleep(5_000);
+    result = sender.verifyFileTicket(signed, ticket);
+}
+System.out.println(result.getStatus() + " " + result.getMetadata().getDescription());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let key = RsaKeyPair::from_pkcs12(&std::fs::read("certificado.pfx")?, "password")?;
+let signed = UblFile::from_bytes(XSigner { xml_document: xml }.sign(&key)?)?;
+
+let sender = FileSender {
+    urls: Urls::production(), // no hay beta para guías
+    credentials: Credentials {
+        username: "12345678912MIUSUARIO".into(), // RUC + usuario SOL
+        password: "MI_CLAVE_SOL".into(),
+        client_id: Some("MI_CLIENT_ID".into()),
+        client_secret: Some("MI_CLIENT_SECRET".into()),
+        ..Default::default()
+    },
+};
+
+let ticket = match sender.send_file(&signed).await?.response {
+    SendFileAggregatedResponse::Ticket(ticket) => ticket,
+    // Errores de la API, por ejemplo el código 1033 (comprobante ya registrado)
+    SendFileAggregatedResponse::Fault(fault) => anyhow::bail!("{} {}", fault.code, fault.message),
+    SendFileAggregatedResponse::Cdr(..) => anyhow::bail!("la API de guías responde con ticket"),
+};
+
+loop {
+    match sender.verify_file_ticket(&signed, &ticket).await?.response {
+        VerifyTicketAggregatedResponse::NoCdr { status_code }
+            if Status::from_code_str(&status_code) == Status::InProgress =>
+        {
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        }
+        VerifyTicketAggregatedResponse::Cdr(_, cdr) => {
+            println!("{} {}", cdr.status(), cdr.description);
+            break;
+        }
+        VerifyTicketAggregatedResponse::NoCdr { status_code } => {
+            println!("sin CDR, código {status_code}");
+            break;
+        }
+        VerifyTicketAggregatedResponse::Fault(fault) => {
+            println!("{} {}", fault.code, fault.message);
+            break;
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+key = SigningKey.from_pkcs12(Path("certificado.pfx").read_bytes(), "password")
+signed = sign(xml.encode(), key)
+
+sender = FileSender(
+    URLs.production(),                    # no hay beta para guías
+    Credentials(
+        username="12345678912MIUSUARIO",  # RUC + usuario SOL
+        password="MI_CLAVE_SOL",
+        client_id="MI_CLIENT_ID",
+        client_secret="MI_CLIENT_SECRET",
+    ),
+)
+
+result = sender.send_file(signed)
+if result.fault:
+    # Errores de la API, por ejemplo HTTP 422 con el código 1033 (comprobante ya registrado)
+    raise SystemExit(f"{result.fault.code} ({result.fault.http_status}): {result.fault.message}")
+
+while True:
+    verify = sender.verify_file_ticket(signed, result.ticket)
+    if verify.no_cdr and verify.no_cdr.status is Status.IN_PROGRESS:
+        time.sleep(5)
+        continue
+    break
+
+if verify.cdr:
+    print(verify.cdr.status, verify.cdr.description)
+elif verify.fault:
+    print(verify.fault.code, verify.fault.message)
+else:
+    print(verify.no_cdr.status, verify.no_cdr.status_code)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+pfx, err := os.ReadFile("certificado.pfx")
+if err != nil {
+	return err
+}
+signed, err := xsigner.Sign(ctx, []byte(xml), xsigner.FromPKCS12(pfx, "password"))
+if err != nil {
+	return err
+}
+
+sender := &xsender.FileSender{
+	URLs: xsender.ProductionURLs, // no hay beta para guías
+	Credentials: xsender.Credentials{
+		Username:     "12345678912MIUSUARIO", // RUC + usuario SOL
+		Password:     "MI_CLAVE_SOL",
+		ClientID:     "MI_CLIENT_ID",
+		ClientSecret: "MI_CLIENT_SECRET",
+	},
+}
+
+result, err := sender.SendFile(ctx, signed)
+if err != nil {
+	return err
+}
+if result.Fault != nil {
+	// Errores de la API, por ejemplo HTTP 422 con el código 1033 (comprobante ya registrado)
+	return fmt.Errorf("SUNAT: %s (HTTP %d) %s", result.Fault.Code, result.Fault.HTTPStatus, result.Fault.Message)
+}
+if result.Ticket == nil {
+	return errors.New("la SUNAT no devolvió un ticket")
+}
+
+verify, err := sender.VerifyFileTicket(ctx, signed, *result.Ticket)
+for err == nil && verify.NoCDR != nil && verify.NoCDR.Status == xsender.StatusInProgress {
+	time.Sleep(5 * time.Second)
+	verify, err = sender.VerifyFileTicket(ctx, signed, *result.Ticket)
+}
+if err != nil {
+	return err
+}
+
+switch {
+case verify.CDR != nil:
+	fmt.Println(verify.CDR.Status, verify.CDR.Description)
+case verify.Fault != nil:
+	fmt.Println(verify.Fault.Code, verify.Fault.Message)
+case verify.NoCDR != nil:
+	fmt.Println(verify.NoCDR.Status, verify.NoCDR.StatusCode)
+}
+```
+
+</TabItem>
+</Tabs>
+
+Los errores de la API REST (por ejemplo, un HTTP 422 porque la guía ya fue registrada) **no** son excepciones: llegan como parte de la respuesta, con el código y el mensaje de la SUNAT.
+
+:::danger No uses las URLs beta para guías
+
+Las URLs beta dejan vacía la URL de guías, porque la SUNAT no tiene entorno de pruebas para ellas. Si envías una guía con las URLs beta, el envío falla antes de llegar a la SUNAT con un error de entrada inválida (`FileSenderError::NoDespatchUrl` en Rust). Las URLs de producción apuntan a `https://api-cpe.sunat.gob.pe/v1/contribuyente/gem`.
+
+:::
+
+## Credenciales y token
+
+- Sin `client_id` y `client_secret`, el envío de una guía falla con un error.
+- El token se pide a `https://api-seguridad.sunat.gob.pe`, se guarda en memoria y se reutiliza hasta un minuto antes de que venza. Si la SUNAT responde HTTP 401, xhandler pide un token nuevo y reintenta una vez.
+- Si ya obtienes el token por tu cuenta, pásalo en el campo `token` de las credenciales (`Credentials.builder().token(...)` en Java, `token` en Rust y Python, `Token` en Go); se usa tal cual.
+
+## Diferencias entre lenguajes
+
+- Los ítems de la guía son `DespatchAdviceItem`, no el `Detalle` de la factura: la descripción es opcional (`Option<String>` en Rust, `*string` en Go), y el código y la unidad de medida son textos simples.
+- En Rust, `Envio.destino` es del tipo `Destino`, que es un alias de `Partida`; por eso el ejemplo usa `Partida` para los dos.
+- Los nombres de las credenciales siguen la convención de cada lenguaje: `clientId` / `clientSecret` en Java, `client_id` / `client_secret` en Rust y Python, `ClientID` / `ClientSecret` en Go.
+
+## Siguientes pasos
+
+- [Firma digital](../05-fundamentals/02-signing.mdx) con tu certificado de producción.
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx) para interpretar los estados y los errores.
+- [Varias empresas](./08-multiple-companies.mdx) si emites guías para más de un RUC.

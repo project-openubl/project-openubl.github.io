@@ -1,0 +1,427 @@
+---
+title: Anular comprobantes
+description: Da de baja facturas con una comunicación de baja y revierte percepciones y retenciones con un resumen de reversiones.
+slug: /use-cases/void-documents
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Para anular un comprobante que la SUNAT ya aceptó envías una **comunicación de baja**: un documento que lista los comprobantes que quieres dar de baja y el motivo de cada uno. Las percepciones y retenciones se anulan de la misma forma, con un **resumen de reversiones**.
+
+A diferencia de una factura, estos documentos se procesan de forma **asíncrona**: al enviarlos, la SUNAT no responde con el CDR sino con un **ticket**. Luego consultas ese ticket para obtener el resultado.
+
+## Comunicación de baja
+
+Cada comprobante se indica con su serie y su número **por separado** (`F001` y `1`, no `F001-1`). El identificador del documento, `RA-AAAAMMDD-N`, se calcula a partir de la fecha de emisión de la baja y del correlativo (`numero`) que indicas; no lo escribas a mano.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+VoidedDocuments baja = VoidedDocuments.builder()
+        .numero(1L)                                          // correlativo del día: RA-AAAAMMDD-1
+        .fechaEmisionComprobantes(LocalDate.of(2026, 11, 14)) // fecha de emisión de F001-1
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .comprobantes(List.of(VoidedDocumentsItem.builder()
+                .serie("F001")
+                .numero(1L)
+                .descripcionSustento("Error en el documento")
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(baja);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let mut baja = VoidedDocuments {
+    numero: 1, // correlativo del día: RA-AAAAMMDD-1
+    fecha_emision_comprobantes: NaiveDate::from_ymd_opt(2026, 11, 14), // fecha de emisión de F001-1
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    comprobantes: vec![VoidedDocumentsItem {
+        tipo_comprobante: None, // "01", se deduce de la serie F
+        serie: "F001".into(),
+        numero: 1,
+        descripcion_sustento: "Error en el documento".into(),
+    }],
+    ..Default::default()
+};
+
+baja.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+println!("{:?}", baja.documento_id); // Some("RA-AAAAMMDD-1")
+let xml = baja.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+baja = xbuilder.VoidedDocuments(
+    numero=1,                                      # correlativo del día: RA-AAAAMMDD-1
+    fecha_emision_comprobantes=date(2026, 11, 14), # fecha de emisión de F001-1
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    comprobantes=[
+        xbuilder.VoidedDocumentsItem(
+            serie="F001",
+            numero=1,
+            descripcion_sustento="Error en el documento",
+        ),
+    ],
+)
+
+xml = xbuilder.build(baja)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+baja := &xbuilder.VoidedDocuments{
+	Numero:                   1, // correlativo del día: RA-AAAAMMDD-1
+	FechaEmisionComprobantes: xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 14)), // fecha de emisión de F001-1
+	Proveedor:                xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Comprobantes: []xbuilder.VoidedDocumentsItem{
+		{Serie: "F001", Numero: 1, DescripcionSustento: "Error en el documento"},
+	},
+}
+
+xml, err := xbuilder.Build(ctx, baja, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+Valores que se completan solos:
+
+- **Fecha de emisión** de la baja (`fechaEmision` / `fecha_emision` / `FechaEmision`): hoy en Perú.
+- **Tipo de cada comprobante**: se deduce del prefijo de la serie: `F` → `01` (factura), `B` → `03` (boleta), `P` → `40` (percepción), `R` → `20` (retención), `T` → `09` y `V` → `31` (guías).
+
+:::note Plazos de la SUNAT
+
+La SUNAT solo acepta la baja dentro de un plazo contado desde la emisión del comprobante. xhandler no controla ese plazo: si usas fechas antiguas, la SUNAT puede rechazar la baja.
+
+:::
+
+## Enviar y consultar el ticket
+
+Firma la baja y envíala con `FileSender`, igual que cualquier otro documento. xhandler reconoce que es una baja y usa el servicio de resúmenes de la SUNAT (`sendSummary`), que responde con un ticket. Después consulta el ticket hasta que deje de estar **en proceso** (código `98`).
+
+La consulta recibe el **mismo XML firmado** que enviaste: xhandler lo usa para saber a qué servicio de la SUNAT preguntar.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+SigningKey key = SigningKey.fromPkcs12(Files.readAllBytes(Path.of("certificado.pfx")), "password");
+byte[] signed = new XSigner().sign(xml.getBytes(StandardCharsets.UTF_8), key);
+
+FileSender sender = new FileSender(
+        URLs.beta(),
+        Credentials.builder()
+                .username("12345678959MODDATOS")
+                .password("MODDATOS")
+                .build()
+);
+
+// 1. Enviar: la SUNAT responde con un ticket
+SunatResponse sent = sender.sendFile(signed);
+if (!sent.isTicket()) {
+    throw new IllegalStateException(sent.getStatus() + " " + sent.getMetadata().getDescription());
+}
+String ticket = sent.getSunat().getTicket(); // guárdalo
+
+// 2. Consultar el ticket
+SunatResponse result = sender.verifyFileTicket(signed, ticket);
+while (result.getStatus() == Status.EN_PROCESO) {
+    Thread.sleep(5_000);
+    result = sender.verifyFileTicket(signed, ticket);
+}
+
+// ACEPTADO La Comunicacion de baja RA-..., ha sido aceptada
+System.out.println(result.getStatus() + " " + result.getMetadata().getDescription());
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+let key = RsaKeyPair::from_pkcs12(&std::fs::read("certificado.pfx")?, "password")?;
+let signed = UblFile::from_bytes(XSigner { xml_document: xml }.sign(&key)?)?;
+
+let sender = FileSender {
+    urls: Urls::beta(),
+    credentials: Credentials {
+        username: "12345678959MODDATOS".into(),
+        password: "MODDATOS".into(),
+        ..Default::default()
+    },
+};
+
+// 1. Enviar: la SUNAT responde con un ticket
+let ticket = match sender.send_file(&signed).await?.response {
+    SendFileAggregatedResponse::Ticket(ticket) => ticket, // guárdalo
+    SendFileAggregatedResponse::Fault(fault) => anyhow::bail!("{} {}", fault.code, fault.message),
+    SendFileAggregatedResponse::Cdr(_, cdr) => anyhow::bail!("CDR inesperado: {}", cdr.description),
+};
+
+// 2. Consultar el ticket
+loop {
+    match sender.verify_file_ticket(&signed, &ticket).await?.response {
+        VerifyTicketAggregatedResponse::NoCdr { status_code }
+            if Status::from_code_str(&status_code) == Status::InProgress =>
+        {
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        }
+        VerifyTicketAggregatedResponse::Cdr(_, cdr) => {
+            // ACEPTADO La Comunicacion de baja RA-..., ha sido aceptada
+            println!("{} {}", cdr.status(), cdr.description);
+            break;
+        }
+        VerifyTicketAggregatedResponse::NoCdr { status_code } => {
+            println!("sin CDR, código {status_code}");
+            break;
+        }
+        VerifyTicketAggregatedResponse::Fault(fault) => {
+            println!("{} {}", fault.code, fault.message);
+            break;
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+key = SigningKey.from_pkcs12(Path("certificado.pfx").read_bytes(), "password")
+signed = sign(xml.encode(), key)
+
+sender = FileSender(
+    URLs.beta(),
+    Credentials(username="12345678959MODDATOS", password="MODDATOS"),
+)
+
+# 1. Enviar: la SUNAT responde con un ticket
+result = sender.send_file(signed)
+if result.fault:
+    raise SystemExit(f"{result.fault.code}: {result.fault.message}")
+ticket = result.ticket  # guárdalo
+
+# 2. Consultar el ticket
+while True:
+    verify = sender.verify_file_ticket(signed, ticket)
+    if verify.no_cdr and verify.no_cdr.status is Status.IN_PROGRESS:
+        time.sleep(5)
+        continue
+    break
+
+if verify.cdr:
+    # ACEPTADO La Comunicacion de baja RA-..., ha sido aceptada
+    print(verify.cdr.status, verify.cdr.description)
+elif verify.fault:
+    print(verify.fault.code, verify.fault.message)
+else:
+    print(verify.no_cdr.status, verify.no_cdr.status_code)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+pfx, err := os.ReadFile("certificado.pfx")
+if err != nil {
+	return err
+}
+signed, err := xsigner.Sign(ctx, []byte(xml), xsigner.FromPKCS12(pfx, "password"))
+if err != nil {
+	return err
+}
+
+sender := &xsender.FileSender{
+	URLs:        xsender.BetaURLs,
+	Credentials: xsender.Credentials{Username: "12345678959MODDATOS", Password: "MODDATOS"},
+}
+
+// 1. Enviar: la SUNAT responde con un ticket
+result, err := sender.SendFile(ctx, signed)
+if err != nil {
+	return err
+}
+if result.Fault != nil {
+	return fmt.Errorf("SUNAT: %s %s", result.Fault.Code, result.Fault.Message)
+}
+if result.Ticket == nil {
+	return errors.New("la SUNAT no devolvió un ticket")
+}
+ticket := *result.Ticket // guárdalo
+
+// 2. Consultar el ticket
+verify, err := sender.VerifyFileTicket(ctx, signed, ticket)
+for err == nil && verify.NoCDR != nil && verify.NoCDR.Status == xsender.StatusInProgress {
+	time.Sleep(5 * time.Second)
+	verify, err = sender.VerifyFileTicket(ctx, signed, ticket)
+}
+if err != nil {
+	return err
+}
+
+switch {
+case verify.CDR != nil:
+	// ACEPTADO La Comunicacion de baja RA-..., ha sido aceptada
+	fmt.Println(verify.CDR.Status, verify.CDR.Description)
+case verify.Fault != nil:
+	fmt.Println(verify.Fault.Code, verify.Fault.Message)
+case verify.NoCDR != nil:
+	fmt.Println(verify.NoCDR.Status, verify.NoCDR.StatusCode)
+}
+```
+
+</TabItem>
+</Tabs>
+
+La consulta del ticket devuelve uno de tres resultados:
+
+- **CDR**: la SUNAT terminó de procesar la baja; el CDR indica si fue aceptada o rechazada.
+- **Sin CDR**: todavía no hay respuesta. El código `98` significa que sigue en proceso; vuelve a consultar más tarde.
+- **Error de la SUNAT** (fault): por ejemplo, un ticket que no existe.
+
+xhandler no consulta el ticket automáticamente: el bucle y el tiempo de espera de los ejemplos son tuyos. En una aplicación real **guarda el ticket** junto al documento, porque la consulta puede hacerse minutos u horas después, incluso desde otro proceso.
+
+### Consultar solo con el ticket
+
+Si no conservas el XML firmado, guarda también el **destino** del ticket que devuelve el envío y consulta con él. En Rust y Python es `verify_ticket_target` en el resultado del envío, que se pasa a `verify_ticket(target, ticket)`; en Go es `result.VerifyTicketTarget` (un puntero), que se pasa como `VerifyTicket(ctx, *result.VerifyTicketTarget, ticket)`.
+
+En Java la respuesta del envío no incluye el destino, así que lo más simple es conservar el XML firmado y usar `verifyFileTicket`, que lo acepta como `byte[]` o como `Path`.
+
+:::caution Consultas en el entorno beta
+
+El entorno beta de la SUNAT no siempre procesa los tickets de forma confiable. Si la consulta en beta se queda en proceso o falla, no significa necesariamente que tu código esté mal.
+
+:::
+
+## Resumen de reversiones (percepciones y retenciones)
+
+Las percepciones y retenciones no se dan de baja con una comunicación de baja sino con un **resumen de reversiones**. Tiene los mismos campos (y usa los mismos ítems, `VoidedDocumentsItem`), pero su identificador es **`RR-AAAAMMDD-N`**.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+Reversion reversion = Reversion.builder()
+        .numero(1L)                                          // RR-AAAAMMDD-1
+        .fechaEmisionComprobantes(LocalDate.of(2026, 11, 14))
+        .proveedor(Proveedor.builder()
+                .ruc("12345678912")
+                .razonSocial("Softgreen S.A.C.")
+                .build())
+        .comprobantes(List.of(VoidedDocumentsItem.builder()
+                .serie("P001")                               // P: percepción ("40"); R: retención ("20")
+                .numero(1L)
+                .descripcionSustento("Error en la emisión")
+                .build()))
+        .build();
+
+String xml = new XBuilder().build(reversion);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+```rust
+// Reversion envuelve un VoidedDocuments: sus campos se leen con `.0`
+let mut reversion = Reversion(VoidedDocuments {
+    numero: 1, // RR-AAAAMMDD-1
+    fecha_emision_comprobantes: NaiveDate::from_ymd_opt(2026, 11, 14),
+    proveedor: Proveedor {
+        ruc: "12345678912".into(),
+        razon_social: "Softgreen S.A.C.".into(),
+        ..Default::default()
+    },
+    comprobantes: vec![VoidedDocumentsItem {
+        tipo_comprobante: None, // P: percepción ("40"); R: retención ("20")
+        serie: "P001".into(),
+        numero: 1,
+        descripcion_sustento: "Error en la emisión".into(),
+    }],
+    ..Default::default()
+});
+
+reversion.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+println!("{:?}", reversion.0.documento_id); // Some("RR-AAAAMMDD-1")
+let xml = reversion.render()?;
+```
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+reversion = xbuilder.Reversion(
+    numero=1,                                      # RR-AAAAMMDD-1
+    fecha_emision_comprobantes=date(2026, 11, 14),
+    proveedor=xbuilder.Proveedor(ruc="12345678912", razon_social="Softgreen S.A.C."),
+    comprobantes=[
+        xbuilder.VoidedDocumentsItem(
+            serie="P001",                          # P: percepción ("40"); R: retención ("20")
+            numero=1,
+            descripcion_sustento="Error en la emisión",
+        ),
+    ],
+)
+
+xml = xbuilder.build(reversion)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+reversion := &xbuilder.Reversion{
+	Numero:                   1, // RR-AAAAMMDD-1
+	FechaEmisionComprobantes: xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 14)),
+	Proveedor:                xbuilder.Proveedor{Ruc: "12345678912", RazonSocial: "Softgreen S.A.C."},
+	Comprobantes: []xbuilder.VoidedDocumentsItem{
+		{Serie: "P001", Numero: 1, DescripcionSustento: "Error en la emisión"}, // P: percepción ("40"); R: retención ("20")
+	},
+}
+
+xml, err := xbuilder.Build(ctx, reversion, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+```
+
+</TabItem>
+</Tabs>
+
+El envío y la consulta del ticket son **idénticos** a los de la comunicación de baja. Como las líneas son percepciones (`40`) o retenciones (`20`), xhandler envía el documento y consulta el ticket en el servicio de percepciones y retenciones de la SUNAT (`perceptionRetention` / `perception_retention` / `PerceptionRetention` en las URLs). No mezcles en un mismo resumen de reversiones líneas de percepciones o retenciones con facturas o boletas: el servicio se elige según el tipo de la primera línea.
+
+:::note El identificador es RR, no RA
+
+El comentario del campo `documentoId` / `documento_id` / `DocumentoId` de `Reversion` dice `RA-AAAAMMDD-N` en Java, Python y Go. Es un error de documentación: el identificador que se genera es `RR-AAAAMMDD-N`.
+
+:::
+
+## Diferencias entre lenguajes
+
+- **Rust**: `Reversion` es una *tuple struct* que envuelve un `VoidedDocuments`; accede a sus campos con `reversion.0`. El resultado del envío trae el ticket en la variante `SendFileAggregatedResponse::Ticket`.
+- **Java**: comprueba `sent.isTicket()` antes de leer el ticket con `sent.getSunat().getTicket()`. `verifyFileTicket` lanza una excepción si le pasas un XML que no se procesa con ticket (por ejemplo, una factura).
+- **Python y Go**: el resultado del envío trae exactamente uno de `cdr`, `ticket` o `fault` (`CDR`, `Ticket`, `Fault` en Go).
+
+## Siguientes pasos
+
+- [Resumen diario de boletas](./04-daily-summary.mdx): las boletas también se pueden anular desde el resumen diario, con tipo de operación `3`.
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx) para entender los estados y los errores.
+- [Percepciones y retenciones](./06-perception-retention.mdx) para emitir esos comprobantes.

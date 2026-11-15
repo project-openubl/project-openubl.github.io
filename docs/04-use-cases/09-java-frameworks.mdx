@@ -1,0 +1,292 @@
+---
+title: Integrar con Spring Boot, Quarkus o Jakarta EE
+description: Configura xhandler en Spring Boot, Quarkus o Jakarta EE e inyecta FileSender y SunatClient en tus servicios.
+slug: /use-cases/java-frameworks
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+En Java hay integraciones para Spring Boot, Quarkus y Jakarta EE (CDI con MicroProfile Config). Configuras la empresa en tus propiedades y luego inyectas un `SunatClient` compartido y un `FileSender` listo para enviar. Quarkus, además, te da un `XBuilder` configurable.
+
+## Qué te da cada integración
+
+| | Spring Boot | Quarkus | Jakarta EE / MicroProfile |
+|---|---|---|---|
+| Dependencia | `spring-boot-xsender` | `quarkus-xbuilder`, `quarkus-xsender` | `xsender-cdi` |
+| Prefijo de propiedades | `xsender.*` | `quarkus.xsender.*`, `quarkus.xbuilder.*` | `xsender.*` |
+| `SunatClient` | Sí | Sí | Sí |
+| `FileSender` | Solo si defines `xsender.company.username` | Sí, si defines `quarkus.xsender.company.*` | Sí, si defines `xsender.company.*` |
+| `XBuilder` | No (créalo con `new XBuilder()`) | Sí | No (créalo con `new XBuilder()`) |
+
+Los beans son singletons: un único `SunatClient` (conexiones y tokens) y un `FileSender` para la empresa configurada, que usa ese mismo `SunatClient`. `XBuilder` y `XSigner` son seguros para usar desde varios hilos, así que puedes tenerlos como campos.
+
+## Dependencias
+
+<Tabs groupId="java-framework" queryString>
+<TabItem value="spring" label="Spring Boot">
+
+```xml title="pom.xml"
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>spring-boot-xsender</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+<!-- Para crear y firmar: no hay integración de xbuilder para Spring -->
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>xbuilder</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+```
+
+La configuración se carga sola (autoconfiguración de Spring Boot); no necesitas `@ComponentScan` ni `@Import`.
+
+</TabItem>
+<TabItem value="quarkus" label="Quarkus">
+
+```xml title="pom.xml"
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>quarkus-xbuilder</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>quarkus-xsender</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+```
+
+Las extensiones funcionan también en compilación nativa.
+
+</TabItem>
+<TabItem value="jakarta" label="Jakarta EE">
+
+```xml title="pom.xml"
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>xsender-cdi</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+<dependency>
+    <groupId>io.github.project-openubl</groupId>
+    <artifactId>xbuilder</artifactId>
+    <version>6.0.0-alpha.1</version>
+</dependency>
+```
+
+`xsender-cdi` necesita CDI y MicroProfile Config, pero no los incluye: los aporta tu servidor de aplicaciones (por ejemplo, WildFly).
+
+</TabItem>
+</Tabs>
+
+## Configuración
+
+Las claves son las mismas en los tres frameworks; solo cambia el prefijo. Los ejemplos usan el entorno beta.
+
+| Propiedad (`company.*`) | Para qué sirve |
+|---|---|
+| `invoice-url` | Facturas, boletas, notas, resúmenes y bajas |
+| `perception-retention-url` | Percepciones, retenciones y reversiones |
+| `despatch-url` | Guías de remisión |
+| `username`, `password` | Usuario y clave SOL |
+| `client-id`, `client-secret` | Credenciales de la API, solo para guías de remisión |
+
+<Tabs groupId="java-framework" queryString>
+<TabItem value="spring" label="Spring Boot">
+
+```properties title="application.properties"
+xsender.company.invoice-url=https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService
+xsender.company.perception-retention-url=https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService
+xsender.company.username=12345678959MODDATOS
+xsender.company.password=MODDATOS
+# Solo para guías de remisión (la SUNAT no tiene beta para ellas):
+# xsender.company.despatch-url=https://api-cpe.sunat.gob.pe/v1/contribuyente/gem
+# xsender.company.client-id=...
+# xsender.company.client-secret=...
+```
+
+</TabItem>
+<TabItem value="quarkus" label="Quarkus">
+
+```properties title="application.properties"
+quarkus.xsender.company.invoice-url=https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService
+quarkus.xsender.company.perception-retention-url=https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService
+quarkus.xsender.company.username=12345678959MODDATOS
+quarkus.xsender.company.password=MODDATOS
+# Solo para guías de remisión (la SUNAT no tiene beta para ellas):
+# quarkus.xsender.company.despatch-url=https://api-cpe.sunat.gob.pe/v1/contribuyente/gem
+# quarkus.xsender.company.client-id=...
+# quarkus.xsender.company.client-secret=...
+
+# Opcional: tasas por defecto del XBuilder inyectado (por defecto, las vigentes)
+# quarkus.xbuilder.igv-tasa=0.18
+# quarkus.xbuilder.icb-tasa=...
+# quarkus.xbuilder.ivap-tasa=...
+```
+
+</TabItem>
+<TabItem value="jakarta" label="Jakarta EE">
+
+Usa cualquier fuente de MicroProfile Config, por ejemplo:
+
+```properties title="META-INF/microprofile-config.properties"
+xsender.company.invoice-url=https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService
+xsender.company.perception-retention-url=https://e-beta.sunat.gob.pe/ol-ti-itemision-otroscpe-gem-beta/billService
+xsender.company.username=12345678959MODDATOS
+xsender.company.password=MODDATOS
+# Solo para guías de remisión (la SUNAT no tiene beta para ellas):
+# xsender.company.despatch-url=https://api-cpe.sunat.gob.pe/v1/contribuyente/gem
+# xsender.company.client-id=...
+# xsender.company.client-secret=...
+```
+
+</TabItem>
+</Tabs>
+
+Hay una propiedad más, fuera de `company`: `security-api-url` (`xsender.security-api-url` o `quarkus.xsender.security-api-url`), que indica dónde se piden los tokens de las guías. Por defecto es el de la SUNAT (`https://api-seguridad.sunat.gob.pe`); normalmente no necesitas cambiarla.
+
+## Inyectar y usar
+
+<Tabs groupId="java-framework" queryString>
+<TabItem value="spring" label="Spring Boot">
+
+```java title="InvoiceController.java"
+import io.github.project.openubl.xbuilder.XBuilder;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.sunat.SunatClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+@RestController
+public class InvoiceController {
+
+    private final FileSender xsender;       // la empresa de xsender.company.*
+    private final SunatClient sunatClient;  // compartido
+    private final XBuilder xbuilder = new XBuilder();
+
+    public InvoiceController(FileSender xsender, SunatClient sunatClient) {
+        this.xsender = xsender;
+        this.sunatClient = sunatClient;
+    }
+
+    @PostMapping("/api/file/upload")
+    public String upload(@RequestParam("file") MultipartFile file) throws IOException {
+        // Recibe un XML ya firmado y lo envía
+        return xsender.sendFile(file.getBytes()).getStatus().toString();
+    }
+}
+```
+
+</TabItem>
+<TabItem value="quarkus" label="Quarkus">
+
+```java title="InvoiceResource.java"
+import io.github.project.openubl.xbuilder.XBuilder;
+import io.github.project.openubl.xbuilder.models.Invoice;
+import io.github.project.openubl.xsigner.SigningKey;
+import io.github.project.openubl.xsigner.XSigner;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.sunat.SunatClient;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+@Path("/invoices")
+@ApplicationScoped
+public class InvoiceResource {
+
+    @Inject
+    XBuilder xbuilder;       // con las tasas de quarkus.xbuilder.*
+
+    @Inject
+    FileSender xsender;      // la empresa de quarkus.xsender.company.*
+
+    @Inject
+    SunatClient sunatClient; // compartido
+
+    private final XSigner xsigner = new XSigner();
+    private final SigningKey key;
+
+    public InvoiceResource() throws IOException {
+        key = SigningKey.fromPkcs12(Files.readAllBytes(Paths.get("certificado.pfx")), "password");
+    }
+
+    @POST
+    public String send(Invoice invoice) {
+        String xml = xbuilder.build(invoice);
+        byte[] signed = xsigner.sign(xml.getBytes(StandardCharsets.UTF_8), key);
+        return xsender.sendFile(signed).getStatus().toString();
+    }
+}
+```
+
+</TabItem>
+<TabItem value="jakarta" label="Jakarta EE">
+
+```java title="UBLResource.java"
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.sunat.SunatClient;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+
+@Path("/ubl")
+@RequestScoped
+public class UBLResource {
+
+    @Inject
+    FileSender xsender;      // la empresa de xsender.company.*
+
+    @Inject
+    SunatClient sunatClient; // compartido
+
+    @POST
+    public String send(byte[] signedXml) {
+        return xsender.sendFile(signedXml).getStatus().toString();
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Si falta la configuración
+
+- **Spring Boot**: si no defines `xsender.company.username`, el bean `FileSender` simplemente no se crea (el `SunatClient` sí). Si inyectas `FileSender` sin esa propiedad, Spring falla al arrancar porque no encuentra el bean. Si defines `username` pero no `password`, falla con `IllegalStateException`.
+- **Quarkus**: si inyectas `FileSender` sin `quarkus.xsender.company.*`, falla con `IllegalStateException` al crear el bean. Si defines `company`, `username` y `password` son obligatorios.
+- **Jakarta EE**: si inyectas `FileSender` sin `xsender.company.username` o sin `xsender.company.password`, falla con `IllegalStateException`.
+
+## Reemplazar los beans o usar varias empresas
+
+Los beans se pueden reemplazar por los tuyos:
+
+- **Spring Boot**: declara tu propio `@Bean` de tipo `SunatClient` o `FileSender` y el de xhandler no se crea.
+- **Quarkus**: los beans de xhandler son beans por defecto; un bean tuyo del mismo tipo los reemplaza.
+- **Jakarta EE**: produce el tuyo como `@Alternative @Priority(1)`.
+
+El bean `FileSender` envía para **una** empresa. Si emites para varias, inyecta el `SunatClient` compartido y crea un `FileSender` por empresa:
+
+```java
+FileSender sender = new FileSender(URLs.production(), credencialesDeLaEmpresa, sunatClient);
+```
+
+Revisa [Facturar para varias empresas](./08-multiple-companies.mdx).
+
+## Ver también
+
+- [Instalación](../02-installation.mdx)
+- [Consultar y validar comprobantes](./07-check-status.mdx): los servicios de consulta están en el `SunatClient` inyectado.
+- [Firma digital](../05-fundamentals/02-signing.mdx)

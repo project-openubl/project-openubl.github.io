@@ -1,0 +1,199 @@
+---
+title: Facturar para varias empresas
+description: Envía comprobantes de varias empresas desde una misma aplicación compartiendo conexiones y tokens.
+slug: /use-cases/multiple-companies
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Si tu aplicación emite comprobantes para varias empresas (varios RUC), cada empresa tiene sus propias credenciales, pero no necesitas un cliente HTTP por cada una. Crea un `FileSender` por empresa y haz que todos compartan el mismo `SunatClient`: así reutilizas las conexiones y cada empresa conserva su propio token para las guías de remisión.
+
+## Cómo funciona
+
+- **`FileSender` es una empresa**: solo guarda las URLs y las credenciales. Es liviano; puedes tener uno por empresa o crearlo en cada petición.
+- **`SunatClient` es la conexión**: mantiene las conexiones HTTP y una caché de tokens OAuth de las guías de remisión. Los tokens se guardan por `client_id` + usuario, así que las empresas no se mezclan aunque compartan cliente.
+- **Es seguro en concurrencia**: puedes usar el mismo `SunatClient` desde varios hilos. Los tokens se piden de uno en uno, para que dos llamadas simultáneas no revoquen el token de la otra.
+
+## Un cliente, varias empresas
+
+En los ejemplos, `20123456789` es una segunda empresa de ejemplo y las credenciales son valores de ejemplo de producción.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xsender.Credentials;
+import io.github.project.openubl.xsender.FileSender;
+import io.github.project.openubl.xsender.URLs;
+import io.github.project.openubl.xsender.sunat.SunatClient;
+
+// Uno para toda la aplicación
+SunatClient sunatClient = new SunatClient();
+
+FileSender softgreen = new FileSender(
+        URLs.production(),
+        Credentials.builder()
+                .username("12345678912USUARIOSOL")
+                .password("CLAVE_A")
+                .clientId("client-id-a")         // solo para guías de remisión
+                .clientSecret("client-secret-a")
+                .build(),
+        sunatClient);
+
+FileSender otraEmpresa = new FileSender(
+        URLs.production(),
+        Credentials.builder()
+                .username("20123456789USUARIOSOL")
+                .password("CLAVE_B")
+                .build(),
+        sunatClient);
+
+softgreen.sendFile(xmlFirmadoDeSoftgreen);
+otraEmpresa.sendFile(xmlFirmadoDeOtraEmpresa);
+```
+
+Con `new FileSender(urls, credentials)` (dos argumentos) cada `FileSender` crea su propio `SunatClient`. Con muchas empresas, usa el constructor de tres argumentos para compartir uno.
+
+Si necesitas otra configuración HTTP, `SunatClient` acepta tu propio `java.net.http.HttpClient`:
+
+```java
+SunatClient sunatClient = new SunatClient(
+        HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(30))
+                .build(),
+        SunatClient.SUNAT_SECURITY_API_URL // dónde se piden los tokens de las guías
+);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+En Rust, `FileSender` no recibe un `SunatClient`: solo tiene `urls` y `credentials`. No hace falta compartir nada a mano, porque el cliente HTTP y la caché de tokens ya son **globales del proceso**:
+
+- Todas las peticiones usan un único cliente HTTP compartido, así que las conexiones se reutilizan.
+- Los tokens de las guías se guardan en una caché global, también por `client_id` + usuario.
+
+Basta con un `FileSender` por empresa:
+
+```rust
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use xhandler::prelude::*;
+
+fn sender(username: &str, password: &str) -> Arc<FileSender> {
+    Arc::new(FileSender {
+        urls: Urls::production(),
+        credentials: Credentials {
+            username: username.into(),
+            password: password.into(),
+            ..Default::default()
+        },
+    })
+}
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Un FileSender por RUC
+    let senders: HashMap<String, Arc<FileSender>> = HashMap::from([
+        ("12345678912".to_string(), sender("12345678912USUARIOSOL", "CLAVE_A")),
+        ("20123456789".to_string(), sender("20123456789USUARIOSOL", "CLAVE_B")),
+    ]);
+
+    for path in ["12345678912-01-F001-1.xml", "20123456789-01-F001-1.xml"] {
+        let ubl = UblFile::from_path(path)?;
+        // El RUC del emisor se lee del propio XML
+        let sender = &senders[&ubl.metadata()?.ruc];
+        let result = sender.send_file(&ubl).await?;
+        if let SendFileAggregatedResponse::Cdr(_, cdr) = result.response {
+            println!("{} {}", cdr.status(), cdr.description);
+        }
+    }
+    Ok(())
+}
+```
+
+`FileSender` no implementa `Clone`; usa `Arc` si lo compartes entre tareas. `Urls` y `Credentials` sí se pueden clonar.
+
+Para los servicios de consulta, un solo `SunatClient::default()` sirve para todas las empresas, porque recibe las `Credentials` en cada llamada (revisa [Consultar y validar comprobantes](./07-check-status.mdx)).
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+import httpx
+
+from xhandler.xsender import Credentials, FileSender, SunatClient, URLs
+
+# Uno para toda la aplicación
+client = SunatClient(
+    http=httpx.Client(timeout=httpx.Timeout(60, connect=10)),  # opcional
+)
+
+softgreen = FileSender(
+    URLs.production(),
+    Credentials(
+        username="12345678912USUARIOSOL",
+        password="CLAVE_A",
+        client_id="client-id-a",  # solo para guías de remisión
+        client_secret="client-secret-a",
+    ),
+    client=client,
+)
+otra_empresa = FileSender(
+    URLs.production(),
+    Credentials(username="20123456789USUARIOSOL", password="CLAVE_B"),
+    client=client,
+)
+
+softgreen.send_file(xml_firmado_de_softgreen)
+otra_empresa.send_file(xml_firmado_de_otra_empresa)
+
+client.close()  # o usa: with SunatClient() as client: ...
+```
+
+Si no pasas `client`, todos los `FileSender` usan un `SunatClient` global que se crea la primera vez, así que también lo comparten. Pasarlo explícitamente te permite configurar el `httpx.Client` (timeouts, proxy) y cerrarlo cuando termines.
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+import (
+	"context"
+
+	"github.com/project-openubl/xhandler-go/v6/xsender"
+)
+
+// Uno para toda la aplicación. nil: timeouts por defecto (30 s de conexión, 120 s en total)
+var sunat = xsender.NewSunatClient(nil)
+
+type Empresa struct {
+	Ruc         string
+	Credentials xsender.Credentials
+}
+
+func senderDe(e Empresa) *xsender.FileSender {
+	return &xsender.FileSender{
+		URLs:        xsender.ProductionURLs,
+		Credentials: e.Credentials,
+		Client:      sunat, // compartido
+	}
+}
+
+func enviar(ctx context.Context, e Empresa, signed []byte) (xsender.SendResult, error) {
+	return senderDe(e).SendFile(ctx, signed)
+}
+```
+
+Si no indicas `Client`, todos los `FileSender` usan un `SunatClient` por defecto del paquete, que también es compartido. Crea el tuyo con `xsender.NewSunatClient(&http.Client{...})` para controlar timeouts, proxy o TLS. Si cambias `SecurityAPIURL` (dónde se piden los tokens de las guías), hazlo antes de la primera llamada.
+
+</TabItem>
+</Tabs>
+
+## Tener en cuenta
+
+- **Las guías de remisión** necesitan además el `client_id` y el `client_secret` de la API de cada empresa. Revisa [Guías de remisión](./05-despatch-advice.mdx).
+- **Cada empresa firma con su certificado**: compartir el cliente no cambia la firma. Firma el XML de cada empresa con su propio certificado digital antes de enviarlo. Revisa [Firma digital](../05-fundamentals/02-signing.mdx).
+- **Consultas**: los servicios de consulta y validación se llaman sobre el `SunatClient` con las credenciales de cada empresa. Revisa [Consultar y validar comprobantes](./07-check-status.mdx).
+- **En Spring Boot, Quarkus o Jakarta EE** puedes inyectar el `SunatClient` compartido y crear un `FileSender` por empresa con él. Revisa [Integrar con frameworks Java](./09-java-frameworks.mdx).

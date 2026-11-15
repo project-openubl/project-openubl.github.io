@@ -1,0 +1,285 @@
+---
+title: Cálculos automáticos
+description: Qué valores completa y calcula xhandler al crear un comprobante, cómo revisarlos y cómo cambiar la fecha de emisión y las tasas.
+slug: /fundamentals/calculations
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Al crear un comprobante solo describes lo esencial: serie y número, proveedor, cliente e ítems. Antes de generar el XML, xhandler **enriquece** el documento: completa los valores por defecto y calcula impuestos y totales. A este paso se le llama `enrich`.
+
+## Qué se completa y se calcula
+
+Solo se completa lo que no indicaste. Si das un valor, se respeta.
+
+**Datos del comprobante**
+
+- **Fecha de emisión**: la fecha de hoy en Perú (UTC-5). En Rust, la fecha que pasas en `Defaults`.
+- **Moneda**: soles (`PEN`).
+- **Tipo de comprobante**: según la serie; `F001` es factura (`01`) y `B001` es boleta (`03`).
+- **Tipo de operación**: venta interna (`0101`).
+- **Forma de pago**: contado.
+- **Firmante**: los datos del proveedor.
+- **Tasas**: las tasas vigentes de la SUNAT para IGV, ICBPER e IVAP.
+
+**Datos de cada ítem**
+
+- Unidad de medida (`NIU`) y tipo de IGV (`10`, gravado - operación onerosa).
+- Precio con y sin impuestos, a partir del que indicaste.
+- Base imponible, IGV, ISC, ICBPER y total de impuestos del ítem.
+
+**Totales**
+
+- Importe sin impuestos, con impuestos e importe total.
+- Totales de impuestos por tipo de operación (gravadas, exoneradas, inafectas, gratuitas, exportación, IVAP) e importes de ISC e ICBPER.
+
+**Leyendas**
+
+Se agregan las leyendas que dependen de los datos del comprobante, por ejemplo cuando hay detracción, percepción u operaciones sujetas a IVAP.
+
+:::caution La leyenda del monto en letras no se genera
+
+xhandler **no** agrega la leyenda `1000` (monto en letras). Si la necesitas, agrégala tú en el campo `leyendas` del comprobante, un mapa de código a texto.
+
+:::
+
+### Lo que no se calcula
+
+En el **resumen diario**, la **percepción** y la **retención** los importes no se calculan: debes indicarlos tú. Revisa [Resumen diario](../04-use-cases/04-daily-summary.mdx) y [Percepciones y retenciones](../04-use-cases/06-perception-retention.mdx).
+
+## Revisar el documento calculado
+
+Crear el XML no modifica tu documento. Para ver los valores calculados sin leer el XML, usa `enrich`: aplica exactamente los mismos cálculos que se usan al generar el XML.
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+`enrich` devuelve una **copia** del documento; el original no cambia.
+
+```java
+Invoice enriched = new XBuilder().enrich(invoice);
+
+enriched.getMoneda();                                 // "PEN"
+enriched.getFechaEmision();                           // hoy en Perú
+enriched.getTipoComprobante();                        // "01"
+enriched.getTotalImporte().getImporteSinImpuestos();  // 200
+enriched.getTotalImporte().getImporte();              // 236.00
+enriched.getTotalImpuestos().getTotal();              // 36.00
+
+Detalle detalle = enriched.getDetalles().get(0);
+detalle.getIgvTipo();             // "10"
+detalle.getPrecioConImpuestos();  // 118.00
+detalle.getIgv();                 // 36.00
+```
+
+Compara los `BigDecimal` con `compareTo`, no con `equals`: la escala puede variar (`200` o `200.00`).
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+En Rust, `enrich` modifica el documento en su lugar. Debes llamarlo antes de `render()`.
+
+```rust
+invoice.enrich(&Defaults::new(chrono::Local::now().date_naive()))?;
+
+println!("{:?}", invoice.moneda);         // Some("PEN")
+println!("{:?}", invoice.tipo_operacion); // Some("0101")
+if let Some(total) = &invoice.total_importe {
+    println!("{} {}", total.importe_sin_impuestos, total.importe);
+}
+if let Some(impuestos) = &invoice.total_impuestos {
+    println!("{}", impuestos.total);
+}
+
+let detalle = &invoice.detalles[0];
+println!("{:?} {:?} {:?}", detalle.igv_tipo, detalle.precio_con_impuestos, detalle.igv);
+
+let xml = invoice.render()?;
+```
+
+Todos los modelos implementan `Serialize`, así que puedes ver el documento completo como JSON con `serde_json`.
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+`enrich` devuelve un **nuevo** documento del mismo tipo; el original no cambia.
+
+```python
+from decimal import Decimal
+
+from xhandler import xbuilder
+
+enriched = xbuilder.enrich(invoice)
+
+print(enriched.moneda)            # PEN
+print(enriched.fecha_emision)     # hoy en Perú
+print(enriched.tipo_comprobante)  # 01
+print(enriched.forma_pago.tipo)   # TipoFormaPago.CONTADO
+assert enriched.total_importe.importe == Decimal("236")
+assert enriched.total_impuestos.total == Decimal("36")
+
+detalle = enriched.detalles[0]
+print(detalle.igv_tipo, detalle.precio_con_impuestos, detalle.igv)
+```
+
+Compara los `Decimal` por valor (`==`): la escala puede variar (`236` o `236.00`).
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+`Enrich` devuelve una **copia** del mismo tipo (`*xbuilder.Invoice`); el original no cambia.
+
+```go
+enriched, err := xbuilder.Enrich(ctx, invoice, xbuilder.Defaults{})
+if err != nil {
+	return err
+}
+
+fmt.Println(*enriched.Moneda)                         // PEN
+fmt.Println(*enriched.FechaEmision)                   // hoy en Perú
+fmt.Println(enriched.TotalImporte.Importe)            // 236.00
+fmt.Println(enriched.TotalImpuestos.GravadoImporte)   // 36.00
+for _, d := range enriched.Detalles {
+	fmt.Println(*d.IgvTipo, *d.PrecioConImpuestos, *d.Igv)
+}
+
+// Comparar importes
+if enriched.TotalImporte.Importe.Equal(xbuilder.MustDecimal("236").Decimal) {
+	fmt.Println("ok")
+}
+
+// Ver todo el documento calculado
+b, err := json.MarshalIndent(enriched, "", "  ")
+if err != nil {
+	return err
+}
+fmt.Println(string(b))
+```
+
+</TabItem>
+</Tabs>
+
+Los valores de los comentarios corresponden a un ítem de cantidad `2` y precio `100.00` con IGV del 18 %.
+
+## Cambiar la fecha y las tasas: Defaults
+
+`Defaults` define los valores que se usan cuando el documento no los indica. Tiene cuatro campos:
+
+| Campo | Qué es | Valor por defecto |
+|---|---|---|
+| Fecha de emisión | Fecha del comprobante | Hoy en Perú (UTC-5) |
+| Tasa de IGV | Fracción, `0.18` = 18 % | Tasa vigente de la SUNAT |
+| Tasa de ICBPER | Monto en soles por bolsa plástica | Tasa vigente de la SUNAT |
+| Tasa de IVAP | Fracción, `0.04` = 4 % | Tasa vigente de la SUNAT |
+
+:::caution Las tasas son fracciones
+
+Escribe `0.18`, no `18`. La única excepción es la tasa de IGV de los ítems del resumen diario, que es un porcentaje (`18`).
+
+:::
+
+<Tabs groupId="lang" queryString>
+<TabItem value="java" label="Java">
+
+```java
+import io.github.project.openubl.xbuilder.models.Defaults;
+
+Defaults defaults = Defaults.builder()
+        .fechaEmision(LocalDate.of(2026, 11, 15))
+        .igvTasa(new BigDecimal("0.18"))
+        .icbTasa(new BigDecimal("0.50"))
+        .ivapTasa(new BigDecimal("0.04"))
+        .build(); // todos los campos son opcionales
+
+// Para todos los documentos de un XBuilder (reutilizable y thread-safe)
+XBuilder xbuilder = new XBuilder(defaults);
+String xml = xbuilder.build(invoice);
+
+// O en cada llamada
+String xml2 = new XBuilder().build(invoice, defaults);
+Invoice enriched = new XBuilder().enrich(invoice, defaults);
+```
+
+</TabItem>
+<TabItem value="rust" label="Rust">
+
+`Defaults` es obligatorio en Rust. `Defaults::new(fecha)` usa las tasas vigentes; también puedes indicar todos los campos:
+
+```rust
+use chrono::NaiveDate;
+use rust_decimal_macros::dec;
+
+// Tasas vigentes, con la fecha que indiques
+let defaults = Defaults::new(chrono::Local::now().date_naive());
+
+// O todos los valores
+let defaults = Defaults {
+    fecha_emision: NaiveDate::from_ymd_opt(2026, 11, 15).unwrap(),
+    igv_tasa: dec!(0.18),
+    icb_tasa: dec!(0.5),
+    ivap_tasa: dec!(0.04),
+};
+
+invoice.enrich(&defaults)?;
+let xml = invoice.render()?;
+```
+
+`chrono::Local` usa la zona horaria del servidor. Si tu servidor no está en hora de Perú, calcula tú la fecha.
+
+</TabItem>
+<TabItem value="python" label="Python">
+
+```python
+from datetime import date
+from decimal import Decimal
+
+from xhandler import xbuilder
+
+defaults = xbuilder.Defaults(
+    fecha_emision=date(2026, 11, 15),
+    igv_tasa=Decimal("0.18"),
+    icb_tasa=Decimal("0.50"),
+    ivap_tasa=Decimal("0.04"),
+)  # todos los campos son opcionales
+
+xml = xbuilder.build(invoice, defaults)
+enriched = xbuilder.enrich(invoice, defaults)
+```
+
+</TabItem>
+<TabItem value="go" label="Go">
+
+```go
+defaults := xbuilder.Defaults{
+	FechaEmision: xbuilder.Ptr(xbuilder.NewDate(2026, time.November, 15)),
+	IgvTasa:      xbuilder.Ptr(xbuilder.MustDecimal("0.18")),
+	IcbTasa:      xbuilder.Ptr(xbuilder.MustDecimal("0.50")),
+	IvapTasa:     xbuilder.Ptr(xbuilder.MustDecimal("0.04")),
+} // todos los campos son opcionales; xbuilder.Defaults{} usa los valores por defecto
+
+xml, err := xbuilder.Build(ctx, invoice, defaults)
+if err != nil {
+	return err
+}
+enriched, err := xbuilder.Enrich(ctx, invoice, defaults)
+```
+
+</TabItem>
+</Tabs>
+
+### Prioridad
+
+Si un valor se indica en varios lugares, gana el más específico:
+
+1. El ítem (por ejemplo, la tasa de IGV de un `Detalle`).
+2. El documento (la fecha de emisión o la tasa de IGV del `Invoice`).
+3. `Defaults`.
+
+Así puedes fijar la fecha o una tasa para un solo comprobante sin cambiar `Defaults`.
+
+:::tip Pruebas reproducibles
+
+La fecha por defecto depende del reloj. En tus pruebas, fija la fecha de emisión en `Defaults` o en el documento para obtener siempre el mismo XML.
+
+:::

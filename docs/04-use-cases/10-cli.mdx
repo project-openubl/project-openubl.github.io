@@ -1,0 +1,342 @@
+---
+title: Usar la línea de comandos
+description: Crea, firma y envía comprobantes a la SUNAT desde la terminal con xhandler, describiéndolos en YAML o JSON.
+slug: /use-cases/cli
+---
+
+La línea de comandos `xhandler` crea, firma y envía comprobantes sin escribir código. Describes el comprobante en un archivo YAML o JSON y `xhandler` hace el resto. La salida es JSON y el código de salida indica si la SUNAT aceptó el comprobante, así que es fácil de usar en scripts.
+
+## Instalación
+
+Necesita [Rust](https://rustup.rs) y un compilador de C.
+
+```shell
+cargo install --locked xhandler-cli@6.0.0-alpha.1
+```
+
+Comprueba la instalación y revisa la ayuda de cada comando:
+
+```shell
+xhandler --version
+xhandler apply --help
+```
+
+## Describir un comprobante
+
+Cada archivo tiene dos campos: `kind`, el tipo de comprobante, y `spec`, sus datos. Los nombres de los campos de `spec` son los mismos que usan los modelos en Rust y Python (`serie_numero`, `razon_social`...). Igual que en las librerías, solo describes los datos esenciales: la fecha de emisión, los impuestos y los totales se calculan automáticamente.
+
+```yaml title="factura.yaml"
+kind: Invoice
+spec:
+  serie_numero: "F001-1"
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  cliente:
+    tipo_documento_identidad: "6" # RUC (Catálogo 6)
+    numero_documento_identidad: "12121212121"
+    nombre: "Carlos Feria"
+  detalles:
+    - descripcion: "Item"
+      cantidad: 2
+      precio: 100
+```
+
+Lo mismo en JSON:
+
+```json title="factura.json"
+{
+  "kind": "Invoice",
+  "spec": {
+    "serie_numero": "F001-1",
+    "proveedor": {
+      "ruc": "12345678912",
+      "razon_social": "Softgreen S.A.C."
+    },
+    "cliente": {
+      "tipo_documento_identidad": "6",
+      "numero_documento_identidad": "12121212121",
+      "nombre": "Carlos Feria"
+    },
+    "detalles": [
+      { "descripcion": "Item", "cantidad": 2, "precio": 100 }
+    ]
+  }
+}
+```
+
+- **Formato**: se detecta por la extensión (`.yaml`, `.yml` o `.json`). Si lees desde la entrada estándar (`-f -`), indica `--format yaml` o `--format json`.
+- **Fechas**: en formato `DD-MM-YYYY` o `YYYY-MM-DD`, por ejemplo `"15-01-2024"`.
+- **Valores por defecto**: si no indicas la fecha de emisión, se usa la fecha local de hoy. Las tasas por defecto son fijas: IGV 18%, ICB 0.20 e IVAP 4%. No hay opciones de línea de comandos para cambiarlas.
+
+### Tipos de comprobante
+
+| `kind` | Comprobante |
+|---|---|
+| `Invoice` | Factura o boleta |
+| `CreditNote` | Nota de crédito |
+| `DebitNote` | Nota de débito |
+| `VoidedDocuments` | Comunicación de baja |
+| `SummaryDocuments` | Resumen diario |
+| `Reversion` | Reversión de percepciones y retenciones |
+| `Perception` | Percepción |
+| `Retention` | Retención |
+| `DespatchAdvice` | Guía de remisión |
+
+Una nota de crédito:
+
+```yaml title="nota-credito.yaml"
+kind: CreditNote
+spec:
+  serie_numero: "FC01-1"
+  comprobante_afectado_serie_numero: "F001-1"
+  descripcion_sustento: "Anulación de operación"
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  cliente:
+    tipo_documento_identidad: "6"
+    numero_documento_identidad: "12121212121"
+    nombre: "Carlos Feria"
+  detalles:
+    - descripcion: "Item"
+      cantidad: 2
+      precio: 100
+```
+
+Una comunicación de baja:
+
+```yaml title="baja.yaml"
+kind: VoidedDocuments
+spec:
+  numero: 1
+  fecha_emision: "15-01-2024"
+  fecha_emision_comprobantes: "14-01-2024"
+  proveedor:
+    ruc: "12345678912"
+    razon_social: "Softgreen S.A.C."
+  comprobantes:
+    - serie: "F001"
+      numero: 1
+      descripcion_sustento: "Error en el documento"
+```
+
+Los campos de cada tipo son los mismos que en las librerías. Revisa la página de cada caso de uso, por ejemplo [Percepciones y retenciones](./06-perception-retention.mdx), que incluye su YAML.
+
+## Comandos
+
+Hay cinco comandos:
+
+| Comando | Qué hace |
+|---|---|
+| `create` | Crea el XML a partir del YAML o JSON |
+| `sign` | Firma un XML |
+| `send` | Envía un XML firmado a la SUNAT |
+| `apply` | Hace todo: crea, firma y envía |
+| `verify-ticket` | Consulta el resultado de un envío que devolvió un ticket |
+
+### `apply`: crear, firmar y enviar
+
+```shell
+# Entorno beta: credenciales y certificado de prueba incluidos
+xhandler apply -f factura.yaml --beta
+
+# Producción, con tu certificado y tu usuario SOL
+xhandler apply -f factura.yaml \
+  --pfx certificado.pfx --pfx-password password \
+  --username 12345678912USUARIOSOL --password CLAVE_SOL
+
+# Solo crear y firmar, sin enviar
+xhandler apply -f factura.yaml --beta --save-xml --dry-run
+```
+
+| Opción | Descripción |
+|---|---|
+| `-f`, `--file` | Archivo YAML o JSON (obligatorio) |
+| `-o`, `--output` | Dónde guardar el CDR. Por defecto `<archivo>.cdr.zip` |
+| `--format` | `yaml` o `json`, cuando lees desde la entrada estándar |
+| `--pfx`, `--pfx-password` | Certificado PKCS#12 |
+| `--private-key`, `--certificate` | Llave privada y certificado en PEM |
+| `--username`, `--password` | Usuario y clave SOL |
+| `--client-id`, `--client-secret` | Credenciales de la API, para guías de remisión |
+| `--beta` | Usa el entorno beta (ver más abajo) |
+| `--save-xml [RUTA]` | Guarda también el XML sin firmar. Por defecto `<archivo>.unsigned.xml` |
+| `--save-signed-xml RUTA` | Ruta del XML firmado, que siempre se guarda. Por defecto `<archivo>.signed.xml` |
+| `--dry-run` | Crea y firma, pero no envía |
+| `--no-interactive` | No pregunta si quieres verificar un ticket |
+
+`apply` no tiene opciones para cambiar las URLs de la SUNAT: usa las de beta con `--beta` y las de producción sin él. Si necesitas otras URLs, usa `create`, `sign` y `send` por separado.
+
+### `create`: crear el XML
+
+```shell
+xhandler create -f factura.yaml -o factura.xml
+cat factura.json | xhandler create -f - --format json
+xhandler create -f factura.yaml --dry-run
+```
+
+| Opción | Descripción |
+|---|---|
+| `-f`, `--file` | Archivo YAML o JSON, o `-` para la entrada estándar (obligatorio) |
+| `-o`, `--output` | Archivo XML de salida. Sin `-o`, el XML se imprime en la salida estándar |
+| `--format` | `yaml` o `json` |
+| `--dry-run` | No genera el XML: imprime el comprobante con los valores calculados (en JSON) |
+
+Con `--dry-run`, el resultado se imprime en la **salida de error** (stderr), no en la salida estándar. Para guardarlo en un archivo, redirige stderr: `xhandler create -f factura.yaml --dry-run 2> calculado.json`.
+
+### `sign`: firmar
+
+```shell
+xhandler sign -f factura.xml --pfx certificado.pfx --pfx-password password -o firmado.xml
+xhandler sign -f factura.xml --private-key llave.pem --certificate certificado.pem -o firmado.xml
+xhandler sign -f factura.xml --beta -o firmado.xml
+```
+
+| Opción | Descripción |
+|---|---|
+| `-f`, `--file` | XML a firmar, o `-` para la entrada estándar (obligatorio) |
+| `-o`, `--output` | XML firmado. Sin `-o`, se imprime en la salida estándar |
+| `--pfx`, `--pfx-password` | Certificado PKCS#12 |
+| `--private-key`, `--certificate` | Llave privada y certificado en PEM |
+| `--beta` | Firma con el certificado de prueba incluido |
+
+Si indicas `--pfx`, se usa en lugar de `--private-key` y `--certificate`.
+
+### `send`: enviar
+
+```shell
+xhandler send -f firmado.xml --beta
+xhandler send -f firmado.xml --username 12345678912USUARIOSOL --password CLAVE_SOL -o cdr.zip
+```
+
+| Opción | Descripción |
+|---|---|
+| `-f`, `--file` | XML firmado (obligatorio) |
+| `-o`, `--output` | Dónde guardar el CDR. Por defecto `<archivo>.zip` |
+| `--username`, `--password` | Usuario y clave SOL |
+| `--client-id`, `--client-secret` | Credenciales de la API, para guías de remisión |
+| `--url-invoice` | URL para facturas, boletas, notas, resúmenes y bajas |
+| `--url-perception-retention` | URL para percepciones, retenciones y reversiones |
+| `--url-despatch` | URL para guías de remisión |
+| `--beta` | Usa el entorno beta |
+| `--no-interactive` | No pregunta si quieres verificar un ticket |
+
+Igual que en las librerías, `send` elige el servicio de la SUNAT según el tipo de comprobante. Las opciones `--url-*` reemplazan solo la URL que indiques, por ejemplo para enviar a un OSE.
+
+### `verify-ticket`: consultar un ticket
+
+Los resúmenes diarios, las comunicaciones de baja y las guías de remisión no se responden al instante: la SUNAT devuelve un **ticket** que consultas después.
+
+```shell
+xhandler verify-ticket --ticket 1703154974517 -o respuesta.zip --beta
+
+# Ticket de una guía de remisión
+xhandler verify-ticket --ticket a7b3c1d2-0001 -o respuesta.zip --despatch \
+  --username 12345678912USUARIOSOL --password CLAVE_SOL \
+  --client-id ID --client-secret SECRETO
+```
+
+| Opción | Descripción |
+|---|---|
+| `--ticket` | Número de ticket (obligatorio) |
+| `-o`, `--output` | Dónde guardar el CDR (obligatorio) |
+| `--username`, `--password` | Usuario y clave SOL |
+| `--client-id`, `--client-secret` | Credenciales de la API, para guías de remisión |
+| `--url-invoice` | URL del servicio de facturas |
+| `--url-despatch` | URL del servicio de guías, con `--despatch` |
+| `--despatch` | El ticket es de una guía de remisión |
+| `--beta` | Usa el entorno beta |
+
+`-o` es obligatorio aunque la SUNAT todavía no tenga el CDR. Sin `--despatch`, el ticket se consulta en el servicio de facturas (`--url-invoice`); no se consulta el servicio de percepciones y retenciones.
+
+Cuando `send` o `apply` reciben un ticket, te preguntan en la terminal si quieres verificarlo en ese momento. En scripts, usa `--no-interactive` para que no pregunten y consulta el ticket después con `verify-ticket`.
+
+## El entorno beta: `--beta`
+
+Con `--beta`:
+
+- Se usan las URLs del entorno beta de la SUNAT.
+- Se usan las credenciales de prueba `12345678959MODDATOS` / `MODDATOS`.
+- En `sign` y `apply`, se firma con un certificado de prueba incluido en `xhandler`, así que no necesitas descargar nada.
+
+Cualquier opción o variable de entorno que indiques reemplaza el valor de prueba correspondiente. Sin `--beta`, se usan las URLs de producción y `--username` y `--password` son obligatorios.
+
+:::caution Guías de remisión
+
+La SUNAT no tiene entorno beta para las guías de remisión. Por eso:
+
+- `send --beta` rechaza una guía, salvo que indiques `--url-despatch`.
+- `apply --beta` no puede enviar guías (no acepta `--url-despatch`). Sin `--beta`, `apply` las envía a producción.
+- Siempre necesitas `--client-id` y `--client-secret`, además del usuario y la clave SOL.
+
+Revisa [Guías de remisión](./05-despatch-advice.mdx).
+
+:::
+
+## Variables de entorno
+
+En lugar de escribir credenciales en la línea de comandos, puedes usar variables de entorno. Una opción indicada en la línea de comandos tiene prioridad.
+
+| Variable | Opción | Comandos |
+|---|---|---|
+| `XHANDLER_USERNAME`, `XHANDLER_PASSWORD` | `--username`, `--password` | `send`, `apply`, `verify-ticket` |
+| `XHANDLER_CLIENT_ID`, `XHANDLER_CLIENT_SECRET` | `--client-id`, `--client-secret` | `send`, `apply`, `verify-ticket` |
+| `XHANDLER_PFX`, `XHANDLER_PFX_PASSWORD` | `--pfx`, `--pfx-password` | `sign`, `apply` |
+| `XHANDLER_PRIVATE_KEY`, `XHANDLER_CERTIFICATE` | `--private-key`, `--certificate` | `sign`, `apply` |
+| `XHANDLER_URL_INVOICE` | `--url-invoice` | `send`, `verify-ticket` |
+| `XHANDLER_URL_PERCEPTION_RETENTION` | `--url-perception-retention` | `send` |
+| `XHANDLER_URL_DESPATCH` | `--url-despatch` | `send`, `verify-ticket` |
+
+`apply` no lee las variables `XHANDLER_URL_*`.
+
+```shell
+export XHANDLER_USERNAME=12345678912USUARIOSOL
+export XHANDLER_PASSWORD=CLAVE_SOL
+export XHANDLER_PFX=certificado.pfx
+export XHANDLER_PFX_PASSWORD=password
+
+xhandler apply -f factura.yaml
+```
+
+## Salida y códigos de salida
+
+`send`, `apply` y `verify-ticket` imprimen el resultado en JSON. Si la SUNAT devuelve un CDR, se guarda en un archivo y la salida indica su ruta:
+
+```json
+{
+  "cdr": "/ruta/absoluta/firmado.xml.zip",
+  "response_code": "0",
+  "status": "ACEPTADO",
+  "description": "La Factura numero F001-1, ha sido aceptada",
+  "notes": []
+}
+```
+
+- Si la SUNAT devuelve un ticket, la salida es `{"ticket": "..."}`.
+- Si la SUNAT responde con un error, se imprime en la **salida de error** con `code`, `sunat_code`, `status` y `message`.
+- `apply` agrega las rutas de los XML generados en `unsigned_xml` y `signed_xml`.
+- `verify-ticket` agrega `status_code`. Si todavía no hay CDR, imprime solo `status_code` y `status`.
+
+El código de salida te dice cómo terminó:
+
+| Código | Significado |
+|---|---|
+| `0` | Aceptado (también con observaciones), se recibió un ticket o el envío sigue en proceso |
+| `1` | Cualquier otro error: archivo inválido, faltan credenciales, falla de red... El mensaje se imprime en stderr como `Error: ...` |
+| `2` | La SUNAT rechazó el comprobante, respondió con una excepción o con un estado desconocido |
+
+Las opciones inválidas o faltantes (por ejemplo, `verify-ticket` sin `-o`) también terminan con código `2`, con un mensaje de uso en stderr.
+
+```shell
+if xhandler apply -f factura.yaml --beta --no-interactive > resultado.json; then
+  echo "Aceptado"
+else
+  echo "Revisa el error (código $?)"
+fi
+```
+
+## Ver también
+
+- [Inicio rápido](../03-quickstart.mdx)
+- [Envío y respuestas de la SUNAT](../05-fundamentals/03-sending.mdx)
+- [Resumen diario](./04-daily-summary.mdx) y [Anular comprobantes](./03-void-documents.mdx), que responden con un ticket.

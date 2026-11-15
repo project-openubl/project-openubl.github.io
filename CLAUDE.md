@@ -23,25 +23,28 @@ There is no test suite — this is a docs-focused project.
 **Framework**: Docusaurus 3 with React 19, TypeScript 7, Tailwind CSS 4, and MDX v3. Requires Node >= 20.
 
 **Content areas** (each with its own sidebar):
-- `docs/` — Main documentation, auto-generated sidebar from filesystem. Files use numbered prefixes (01-, 02-) for ordering. Sub-projects: xbuilder, xsender, searchpe, ublhub.
+- `docs/` — Main documentation for **xhandler v6** (same API in Java, Rust, Python and Go, plus the `xhandler` CLI). Auto-generated sidebar; numbered prefixes (01-, 02-) set the order and every page pins its URL with a `slug`. Organised by use case, not by library: `02-installation`, `03-quickstart`, `04-use-cases/` (one page per SUNAT document/task), `05-fundamentals/` (signing, sending, calculations, errors), `90-project/`. Code samples use `<Tabs groupId="lang" queryString>` with TabItems `java`, `rust`, `python`, `go` (and `cli`), so `?lang=go` preselects a language and the choice syncs across pages. Link between docs with relative file paths so the build validates them.
 - `blog/` — Blog posts with author/date/tag front matter.
 - `community/` — Community docs under separate route `/community/`, uses `sidebarsCommunity.js`.
 
 **Source code** (`src/`):
 - `components/` — React components (mix of .js and .tsx). Uses `clsx` for conditional classes, Tailwind-first styling.
-- `pages/` — Route pages including homepage (`index.tsx`) and API reference pages.
-- `components/Home/` — Homepage sections (hero, projects, workflow, community).
+- `pages/` — Route pages, including the homepage (`index.tsx`).
+- `components/Home/` — Homepage sections (hero with a multi-language code demo, documents, features, languages, CTA).
 - `css/custom.css` — Global styles: Tailwind v4 config (`@theme`, dark variant) plus Infima CSS variable overrides.
-- `theme/` — Docusaurus theme overrides (swizzled). `prism-include-languages.js` works around redocusaurus' `ProvidePlugin({ Prism })`, which otherwise breaks syntax highlighting and hydration — keep it.
-
-**API documentation**: OpenAPI specs live in `static/openapi/{searchpe,ublhub}/openapi.yaml`, rendered via `redocusaurus` plugin. Custom ReDoc plugin in `redoc-plugin/`.
+- `prism/material.js` — Material Design Prism themes, used for docs code blocks and the homepage demo.
 
 **Configuration**:
-- `docusaurus.config.js` — Main config including a custom PostCSS plugin that adds `@tailwindcss/postcss`, PWA, ReDoc, Algolia search, and Google Analytics.
+- `docusaurus.config.js` — Main config including a custom PostCSS plugin that adds `@tailwindcss/postcss`, PWA, Algolia search, and Google Analytics.
+
+## Content rules
+
+- Never mention a software license on the site; "open source" is enough.
+- Searchpe and Ublhub were removed from the docs; don't reintroduce them (old blog posts stay as history).
 
 ## Styling
 
-Tailwind CSS v4 is the primary styling approach but Infima (Docusaurus default) handles base component styles. There is no `tailwind.config.js`: configuration lives in `src/css/custom.css`. Preflight is not imported, and utilities are imported *unlayered* so they can override Infima's (unlayered) styles. Dark mode uses `@custom-variant dark` bound to `[data-theme='dark']`. Custom CSS variables for the primary color palette are defined in `src/css/custom.css`. Dark mode is supported via CSS custom properties.
+Tailwind CSS v4 is the primary styling approach but Infima (Docusaurus default) handles base component styles. There is no `tailwind.config.js`: configuration lives in `src/css/custom.css`. Preflight is not imported, and utilities are imported *unlayered* so they can override Infima's (unlayered) styles. Dark mode uses `@custom-variant dark` bound to `[data-theme='dark']`. Colors come from the Material Design palette (Indigo primary, Teal accent, Blue Grey neutrals, Material dark surfaces `#121212`+), defined as Tailwind theme tokens and Infima variables in `src/css/custom.css`. Always check both light and dark mode.
 
 ## Deployment
 
