@@ -19,8 +19,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-#
-/i18n
+# Translations (Crowdin), except the Spanish UI strings of the search plugin
+/i18n/*
+!/i18n/es/
+/i18n/es/*
+!/i18n/es/code.json
 # xhandler core for the playground (downloaded by scripts/fetch-xhandler-wasm.mjs)
 /static/wasm
 

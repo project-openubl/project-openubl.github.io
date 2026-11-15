@@ -1,5 +1,6 @@
 ---
 title: Criterios de diseño
+description: Los principios que guían el diseño de xhandler, pasos independientes, solo los datos esenciales, el mismo modelo en todos los lenguajes y sin cajas negras.
 slug: /design-principles
 ---
 

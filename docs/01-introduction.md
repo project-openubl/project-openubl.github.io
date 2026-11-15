@@ -4,6 +4,27 @@ description: Project OpenUBL es una familia de librerías open source para crear
 slug: /
 ---
 
+<head>
+  <script type="application/ld+json">
+    {JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        ["Java", "xhandler-java"],
+        ["Rust", "xhandler-rust"],
+        ["Python", "xhandler-python"],
+        ["Go", "xhandler-go"],
+      ].map(([language, repository]) => ({
+        "@type": "SoftwareSourceCode",
+        name: repository,
+        description: `xhandler para ${language}: crea, firma y envía comprobantes electrónicos a la SUNAT.`,
+        codeRepository: `https://github.com/project-openubl/${repository}`,
+        programmingLanguage: language,
+        author: { "@id": "https://project-openubl.github.io/#organization" },
+      })),
+    })}
+  </script>
+</head>
+
 **Project OpenUBL** es un proyecto open source para que crees tu propio software de facturación electrónica para la SUNAT del Perú, sin intermediarios y sin costo por comprobante.
 
 Su componente principal es **xhandler**, una librería disponible en cuatro lenguajes con la misma API y los mismos conceptos:

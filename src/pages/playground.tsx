@@ -7,7 +7,7 @@ import LazyPlayground from "../components/Playground";
 export default function PlaygroundPage(): ReactNode {
   return (
     <Layout
-      title="Playground"
+      title="Playground: de YAML a XML UBL en tu navegador"
       description="Crea el XML de cualquier comprobante electrónico de la SUNAT desde YAML, con el núcleo de xhandler ejecutándose en tu navegador."
     >
       <main className="mx-auto w-full max-w-7xl px-6 py-12 md:py-16">

@@ -1,3 +1,7 @@
+---
+description: Dónde hacer preguntas, compartir ideas y reportar errores de Project OpenUBL en GitHub.
+---
+
 # Support
 
 Project OpenUBL tiene una comunidad de desarrolladores que interactúa con los usuarios principalmente a través de GitHub:
