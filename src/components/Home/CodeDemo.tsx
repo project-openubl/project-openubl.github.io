@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 import { Highlight } from "prism-react-renderer";
-import { materialDark } from "../../prism/material";
-import { CheckCircleIcon } from "./icons";
+import { patternflyDark } from "../../prism/patternfly";
+import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 
 interface Part {
   language: string;
@@ -185,7 +185,7 @@ xhandler apply -f factura.yaml --beta`,
 
 function CodePart({ part }: { part: Part }) {
   return (
-    <Highlight theme={materialDark} code={part.code} language={part.language}>
+    <Highlight theme={patternflyDark} code={part.code} language={part.language}>
       {({ tokens, getLineProps, getTokenProps }) => (
         <pre
           className={clsx(
@@ -199,7 +199,7 @@ function CodePart({ part }: { part: Part }) {
                 line.length > 0 && line.every((t) => t.types.includes("comment") || !t.content.trim());
               return (
                 <div key={i} {...getLineProps({ line })} className="flex px-5">
-                  <span className="mr-5 w-5 shrink-0 text-right text-neutral-600 select-none">
+                  <span className="mr-5 w-5 shrink-0 text-right text-pf-gray-50 select-none">
                     {part.prompt ? (isComment ? "" : "$") : i + 1}
                   </span>
                   <span>
@@ -221,7 +221,7 @@ export default function CodeDemo() {
   const [active, setActive] = useState(0);
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-neutral-900 text-left shadow-[0_24px_48px_-12px_rgb(26_35_126/0.35)] ring-1 ring-black/5 dark:shadow-[0_24px_48px_-12px_rgb(0_0_0/0.6)] dark:ring-white/10">
+    <div className="overflow-hidden rounded-2xl bg-code text-left shadow-[0_16px_32px_-12px_rgb(21_21_21/0.35)] ring-1 ring-black/5 dark:shadow-none dark:ring-white/10">
       <div
         role="tablist"
         aria-label="Lenguaje"
@@ -240,20 +240,20 @@ export default function CodeDemo() {
               onClick={() => setActive(i)}
               className={clsx(
                 "relative shrink-0 cursor-pointer border-0 bg-transparent px-4 pt-4 pb-3.5 font-sans text-[15px] font-semibold transition-colors",
-                selected ? "text-white" : "text-neutral-400 hover:text-neutral-100",
+                selected ? "text-white" : "text-pf-gray-40 hover:text-pf-gray-10",
               )}
             >
               {example.label}
               <span
                 className={clsx(
-                  "absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-primary-a100",
+                  "absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-pf-blue-30",
                   selected ? "opacity-100" : "opacity-0",
                 )}
               />
             </button>
           );
         })}
-        <span className="ml-auto hidden shrink-0 pb-3.5 pl-4 font-mono text-xs text-neutral-500 sm:block">
+        <span className="ml-auto hidden shrink-0 pb-3.5 pl-4 font-mono text-xs text-pf-gray-50 sm:block">
           {EXAMPLES[active].file}
         </span>
       </div>
@@ -279,9 +279,9 @@ export default function CodeDemo() {
 
       <div
         aria-live="polite"
-        className="flex items-center gap-2.5 border-t border-solid border-x-0 border-b-0 border-white/10 bg-black/20 px-5 py-3.5 font-mono text-[13px] text-accent-a400"
+        className="flex items-center gap-2.5 border-t border-solid border-x-0 border-b-0 border-white/10 bg-black/20 px-5 py-3.5 font-mono text-[13px] text-pf-green-30"
       >
-        <CheckCircleIcon className="size-4 shrink-0" />
+        <CheckCircleIcon className="shrink-0" />
         <span className="truncate">ACEPTADO · La Factura numero F001-1, ha sido aceptada</span>
       </div>
     </div>

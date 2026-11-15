@@ -6,8 +6,9 @@
  * unlayered on purpose: Infima's CSS is unlayered too, and unlayered rules
  * always win over layered ones, which would make utilities unusable.
  *
- * Colors come from the Material Design palette:
- * https://m2.material.io/design/color/the-color-system.html
+ * Colors follow PatternFly 6 (https://www.patternfly.org/foundations-and-styles/colors):
+ * the palette below plus semantic tokens that switch between light and dark,
+ * mapped the same way PatternFly maps its `--pf-t--global--*` tokens.
  */
 @layer theme;
 @import "tailwindcss/theme.css" layer(theme);
@@ -19,118 +20,145 @@
 /* Follow Docusaurus' color mode toggle. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* PatternFly palette (--pf-t--color--*) and fonts */
 @theme {
   --font-sans: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui,
-    sans-serif;
+  --font-display: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Material Indigo (primary) */
-  --color-primary-50: #e8eaf6;
-  --color-primary-100: #c5cae9;
-  --color-primary-200: #9fa8da;
-  --color-primary-300: #7986cb;
-  --color-primary-400: #5c6bc0;
-  --color-primary-500: #3f51b5;
-  --color-primary-600: #3949ab;
-  --color-primary-700: #303f9f;
-  --color-primary-800: #283593;
-  --color-primary-900: #1a237e;
-  --color-primary-a100: #8c9eff;
-  --color-primary-a200: #536dfe;
-  --color-primary-a400: #3d5afe;
-  --color-primary-a700: #304ffe;
+  --color-pf-blue-10: #e0f0ff;
+  --color-pf-blue-20: #b9dafc;
+  --color-pf-blue-30: #92c5f9;
+  --color-pf-blue-40: #4394e5;
+  --color-pf-blue-50: #0066cc;
+  --color-pf-blue-60: #004d99;
+  --color-pf-blue-70: #003366;
+  --color-pf-blue-80: #032142;
 
-  /* Material Teal (success / accent) */
-  --color-accent-50: #e0f2f1;
-  --color-accent-100: #b2dfdb;
-  --color-accent-200: #80cbc4;
-  --color-accent-300: #4db6ac;
-  --color-accent-500: #009688;
-  --color-accent-700: #00796b;
-  --color-accent-800: #00695c;
-  --color-accent-a400: #1de9b6;
-  --color-accent-a700: #00bfa5;
+  --color-pf-gray-10: #f2f2f2;
+  --color-pf-gray-20: #e0e0e0;
+  --color-pf-gray-30: #c7c7c7;
+  --color-pf-gray-40: #a3a3a3;
+  --color-pf-gray-50: #707070;
+  --color-pf-gray-60: #4d4d4d;
+  --color-pf-gray-70: #383838;
+  --color-pf-gray-80: #292929;
+  --color-pf-gray-90: #1f1f1f;
+  --color-pf-gray-95: #151515;
 
-  /* Material Blue Grey (neutrals) */
-  --color-neutral-50: #eceff1;
-  --color-neutral-100: #cfd8dc;
-  --color-neutral-200: #b0bec5;
-  --color-neutral-300: #90a4ae;
-  --color-neutral-400: #78909c;
-  --color-neutral-500: #607d8b;
-  --color-neutral-600: #546e7a;
-  --color-neutral-700: #455a64;
-  --color-neutral-800: #37474f;
-  --color-neutral-900: #263238;
+  --color-pf-green-30: #afdc8f;
+  --color-pf-green-40: #87bb62;
+  --color-pf-green-60: #3d7317;
+  --color-pf-red-orange-30: #f89b78;
+  --color-pf-red-orange-60: #b1380b;
+  --color-pf-yellow-30: #ffcc17;
+}
 
-  /* Material Grey (light surfaces) */
-  --color-grey-50: #fafafa;
-  --color-grey-100: #f5f5f5;
-  --color-grey-200: #eeeeee;
-  --color-grey-300: #e0e0e0;
+/* Semantic colors, resolved per theme below */
+@theme inline {
+  --color-brand: var(--ou-brand);
+  --color-brand-hover: var(--ou-brand-hover);
+  --color-brand-subtle: var(--ou-brand-subtle);
+  --color-on-brand: var(--ou-on-brand);
+  --color-fg: var(--ou-fg);
+  --color-fg-subtle: var(--ou-fg-subtle);
+  --color-page: var(--ou-page);
+  --color-band: var(--ou-band);
+  --color-card: var(--ou-card);
+  --color-line: var(--ou-line);
+  --color-success: var(--ou-success);
+  --color-code: var(--ou-code);
+}
 
-  /* Material Amber (highlight) */
-  --color-amber-300: #ffd54f;
-  --color-amber-a200: #ffd740;
+:root {
+  --ou-brand: #0066cc; /* blue-50: global--color--brand--default */
+  --ou-brand-hover: #004d99; /* blue-60 */
+  --ou-brand-subtle: #e0f0ff; /* blue-10: brand--subtle--default */
+  --ou-on-brand: #ffffff;
+  --ou-fg: #151515; /* gray-95: text--color--regular */
+  --ou-fg-subtle: #4d4d4d; /* gray-60: text--color--subtle */
+  --ou-page: #ffffff; /* background--color--primary */
+  --ou-band: #f2f2f2; /* gray-10: background--color--secondary */
+  --ou-card: #ffffff;
+  --ou-line: #e0e0e0; /* gray-20: border--color--subtle */
+  --ou-success: #3d7317; /* green-60 */
+  --ou-code: #1f1f1f; /* gray-90: code windows */
+}
 
-  /* Material dark theme surfaces (by elevation) */
-  --color-surface-0: #121212;
-  --color-surface-1: #1e1e1e;
-  --color-surface-2: #232323;
-  --color-surface-4: #272727;
-  --color-surface-8: #2e2e2e;
+html[data-theme="dark"] {
+  --ou-brand: #92c5f9; /* blue-30 */
+  --ou-brand-hover: #b9dafc; /* blue-20 */
+  --ou-brand-subtle: #003366; /* blue-70 */
+  --ou-on-brand: #1f1f1f; /* gray-90: text--color--inverse */
+  --ou-fg: #ffffff;
+  --ou-fg-subtle: #c7c7c7; /* gray-30 */
+  --ou-page: #151515; /* gray-95 */
+  --ou-band: #1f1f1f; /* gray-90 */
+  --ou-card: #292929; /* gray-80: background--color--primary */
+  --ou-line: #383838; /* gray-70 */
+  --ou-success: #87bb62; /* green-40 */
+  --ou-code: #292929; /* gray-80 */
 }
 
 /* Infima overrides: light. */
 :root {
   --ifm-font-family-base: "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
-  --ifm-heading-font-family: "Red Hat Display", "Red Hat Text", ui-sans-serif,
-    system-ui, sans-serif;
-  --ifm-font-family-monospace: "Red Hat Mono", ui-monospace, SFMono-Regular,
-    Menlo, monospace;
+  --ifm-heading-font-family: "Red Hat Display", "Red Hat Text", ui-sans-serif, system-ui, sans-serif;
+  --ifm-font-family-monospace: "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --ifm-color-primary: #3949ab;
-  --ifm-color-primary-dark: #303f9f;
-  --ifm-color-primary-darker: #283593;
-  --ifm-color-primary-darkest: #1a237e;
-  --ifm-color-primary-light: #3f51b5;
-  --ifm-color-primary-lighter: #5c6bc0;
-  --ifm-color-primary-lightest: #7986cb;
+  --ifm-color-primary: #0066cc;
+  --ifm-color-primary-dark: #005cb8;
+  --ifm-color-primary-darker: #004d99;
+  --ifm-color-primary-darkest: #003366;
+  --ifm-color-primary-light: #1a75d1;
+  --ifm-color-primary-lighter: #4394e5;
+  --ifm-color-primary-lightest: #92c5f9;
 
-  --ifm-font-color-base: #263238;
-  --ifm-heading-color: #263238;
+  --ifm-font-color-base: #151515;
+  --ifm-heading-color: #151515;
+  --ifm-background-color: #ffffff;
   --ifm-toc-border-color: #e0e0e0;
   --ifm-color-emphasis-300: #e0e0e0;
-  --ifm-navbar-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
-  --ifm-footer-background-color: #263238;
-  --docusaurus-highlighted-code-line-bg: rgb(57 73 171 / 0.12);
+  --ifm-navbar-shadow: 0 1px 0 #e0e0e0;
+  --ifm-footer-background-color: #151515;
+  --ifm-code-border-radius: 6px;
+  --docusaurus-highlighted-code-line-bg: rgb(0 102 204 / 0.1);
 }
 
 /* Infima overrides: dark. Infima uses `html[data-theme="dark"]`, so match it. */
 html[data-theme="dark"] {
-  --ifm-color-primary: #9fa8da;
-  --ifm-color-primary-dark: #8c9eff;
-  --ifm-color-primary-darker: #7986cb;
-  --ifm-color-primary-darkest: #5c6bc0;
-  --ifm-color-primary-light: #c5cae9;
-  --ifm-color-primary-lighter: #d6daf0;
-  --ifm-color-primary-lightest: #e8eaf6;
+  --ifm-color-primary: #92c5f9;
+  --ifm-color-primary-dark: #6aaef0;
+  --ifm-color-primary-darker: #4394e5;
+  --ifm-color-primary-darkest: #0066cc;
+  --ifm-color-primary-light: #a6d0fa;
+  --ifm-color-primary-lighter: #b9dafc;
+  --ifm-color-primary-lightest: #e0f0ff;
 
-  --ifm-background-color: #121212;
-  --ifm-background-surface-color: #1e1e1e;
-  --ifm-navbar-background-color: #121212;
-  --ifm-font-color-base: rgb(255 255 255 / 0.87);
-  --ifm-heading-color: rgb(255 255 255 / 0.87);
-  --ifm-toc-border-color: rgb(255 255 255 / 0.12);
-  --ifm-color-emphasis-300: rgb(255 255 255 / 0.12);
-  --ifm-navbar-shadow: 0 1px 0 rgb(255 255 255 / 0.08);
-  --ifm-footer-background-color: #1e1e1e;
-  --docusaurus-highlighted-code-line-bg: rgb(159 168 218 / 0.16);
+  --ifm-font-color-base: #ffffff;
+  --ifm-heading-color: #ffffff;
+  --ifm-background-color: #151515;
+  --ifm-background-surface-color: #1f1f1f;
+  --ifm-navbar-background-color: #151515;
+  --ifm-toc-border-color: #383838;
+  --ifm-color-emphasis-300: #383838;
+  --ifm-navbar-shadow: 0 1px 0 #383838;
+  --ifm-footer-background-color: #1f1f1f;
+  --docusaurus-highlighted-code-line-bg: rgb(146 197 249 / 0.14);
 }
 
 .navbar {
   box-shadow: var(--ifm-navbar-shadow);
+}
+
+/* Infima's dark footer sets its own background on .footer--dark; use PatternFly grays. */
+.footer--dark {
+  --ifm-footer-background-color: #151515; /* gray-95 */
+}
+
+html[data-theme="dark"] .footer--dark {
+  --ifm-footer-background-color: #1f1f1f; /* gray-90 */
+  border-top: 1px solid #383838;
 }
 
 /* GitHub icon for the navbar item with className "header-github-link". */

@@ -13,20 +13,20 @@ import { HighlightStyle, indentOnInput, syntaxHighlighting } from "@codemirror/l
 import { yaml } from "@codemirror/lang-yaml";
 import { tags } from "@lezer/highlight";
 
-// Material palette, same colors as the Prism theme in src/prism/material.js
-const materialHighlight = HighlightStyle.define([
-  { tag: tags.comment, color: "#78909C", fontStyle: "italic" },
-  { tag: [tags.propertyName, tags.definition(tags.propertyName)], color: "#81D4FA" },
-  { tag: [tags.string, tags.special(tags.string)], color: "#C5E1A5" },
-  { tag: [tags.number, tags.bool, tags.null], color: "#80CBC4" },
-  { tag: [tags.keyword, tags.typeName], color: "#CE93D8" },
-  { tag: [tags.punctuation, tags.separator, tags.operator], color: "#90A4AE" },
+// PatternFly palette, same colors as the Prism theme in src/prism/patternfly.js
+const patternflyHighlight = HighlightStyle.define([
+  { tag: tags.comment, color: "#a3a3a3", fontStyle: "italic" },
+  { tag: [tags.propertyName, tags.definition(tags.propertyName)], color: "#92c5f9" },
+  { tag: [tags.string, tags.special(tags.string)], color: "#afdc8f" },
+  { tag: [tags.number, tags.bool, tags.null], color: "#9ad8d8" },
+  { tag: [tags.keyword, tags.typeName], color: "#b6a6e9" },
+  { tag: [tags.punctuation, tags.separator, tags.operator], color: "#c7c7c7" },
 ]);
 
-const materialTheme = EditorView.theme(
+const patternflyTheme = EditorView.theme(
   {
     "&": {
-      color: "#ECEFF1",
+      color: "#f2f2f2",
       backgroundColor: "transparent",
       fontSize: "13px",
       height: "100%",
@@ -35,19 +35,19 @@ const materialTheme = EditorView.theme(
       fontFamily: "var(--ifm-font-family-monospace)",
       lineHeight: "1.7",
     },
-    ".cm-content": { padding: "16px 0", caretColor: "#8C9EFF" },
+    ".cm-content": { padding: "16px 0", caretColor: "#92c5f9" },
     ".cm-gutters": {
       backgroundColor: "transparent",
-      color: "#546E7A",
+      color: "#707070",
       border: "none",
       paddingLeft: "8px",
     },
     ".cm-activeLine": { backgroundColor: "rgb(255 255 255 / 0.04)" },
-    ".cm-activeLineGutter": { backgroundColor: "transparent", color: "#B0BEC5" },
+    ".cm-activeLineGutter": { backgroundColor: "transparent", color: "#c7c7c7" },
     "&.cm-focused": { outline: "none" },
-    "&.cm-focused .cm-cursor": { borderLeftColor: "#8C9EFF" },
+    "&.cm-focused .cm-cursor": { borderLeftColor: "#92c5f9" },
     ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
-      backgroundColor: "rgb(140 158 255 / 0.25) !important",
+      backgroundColor: "rgb(146 197 249 / 0.25) !important",
     },
   },
   { dark: true },
@@ -80,8 +80,8 @@ export default function YamlEditor({ value, onChange, ariaLabel }: Props) {
           EditorState.tabSize.of(2),
           keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
           yaml(),
-          syntaxHighlighting(materialHighlight),
-          materialTheme,
+          syntaxHighlighting(patternflyHighlight),
+          patternflyTheme,
           EditorView.contentAttributes.of({ "aria-label": ariaLabel }),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) onChangeRef.current(update.state.doc.toString());

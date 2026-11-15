@@ -5,7 +5,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Highlight } from "prism-react-renderer";
 import { dump, load } from "js-yaml";
 
-import { materialDark } from "../../prism/material";
+import { patternflyDark } from "../../prism/patternfly";
 import { CORE_VERSION, invoke } from "./core";
 import { EXAMPLES } from "./examples";
 import YamlEditor from "./YamlEditor";
@@ -56,13 +56,13 @@ function money(amount: string | undefined, currency = "PEN") {
 
 function Code({ code, language }: { code: string; language: string }) {
   return (
-    <Highlight theme={materialDark} code={code} language={language}>
+    <Highlight theme={patternflyDark} code={code} language={language}>
       {({ tokens, getLineProps, getTokenProps }) => (
         <pre className="m-0 rounded-none bg-transparent p-0 py-4 font-mono text-[12.5px] leading-[1.65]">
           <code className="block min-w-max">
             {tokens.map((line, i) => (
               <div key={i} {...getLineProps({ line })} className="flex px-4">
-                <span className="mr-4 w-6 shrink-0 text-right text-neutral-600 select-none">{i + 1}</span>
+                <span className="mr-4 w-6 shrink-0 text-right text-pf-gray-50 select-none">{i + 1}</span>
                 <span>
                   {line.map((token, key) => (
                     <span key={key} {...getTokenProps({ token })} />
@@ -90,12 +90,12 @@ function Calculated({ spec }: { spec: Spec }) {
             ["Impuestos", spec.total_impuestos?.total],
             ["Total", totals.importe],
           ].map(([label, amount], i) => (
-            <div key={label} className="bg-neutral-900 px-4 py-3">
-              <p className="m-0 text-[11px] font-semibold tracking-wide text-neutral-400 uppercase">{label}</p>
+            <div key={label} className="bg-code px-4 py-3">
+              <p className="m-0 text-[11px] font-semibold tracking-wide text-pf-gray-40 uppercase">{label}</p>
               <p
                 className={clsx(
                   "m-0 font-mono text-base font-semibold tabular-nums",
-                  i === 2 ? "text-accent-a400" : "text-white",
+                  i === 2 ? "text-pf-green-30" : "text-white",
                 )}
               >
                 {money(amount, currency)}
@@ -207,8 +207,8 @@ export default function Playground() {
               className={clsx(
                 "cursor-pointer rounded-full border border-solid px-4 py-1.5 font-sans text-sm font-medium transition-colors",
                 selected
-                  ? "border-primary-600 bg-primary-600 text-white dark:border-primary-a100 dark:bg-primary-a100 dark:text-primary-900"
-                  : "border-grey-300 bg-white text-neutral-700 hover:border-primary-300 hover:text-primary-700 dark:border-white/10 dark:bg-surface-4 dark:text-white/80 dark:hover:border-primary-a100/50 dark:hover:text-white",
+                  ? "border-brand bg-brand text-on-brand"
+                  : "border-line bg-card text-fg hover:border-brand hover:text-brand",
               )}
             >
               {example.label}
@@ -218,13 +218,13 @@ export default function Playground() {
       </div>
 
       {/* Workbench */}
-      <div className="overflow-hidden rounded-2xl bg-neutral-900 text-left shadow-[0_24px_48px_-12px_rgb(26_35_126/0.35)] ring-1 ring-black/5 dark:shadow-[0_24px_48px_-12px_rgb(0_0_0/0.6)] dark:ring-white/10">
+      <div className="overflow-hidden rounded-2xl bg-code text-left shadow-[0_16px_32px_-12px_rgb(21_21_21/0.35)] ring-1 ring-black/5 dark:shadow-none dark:ring-white/10">
         <div className="grid lg:grid-cols-2">
           {/* Input */}
           <div className="flex min-w-0 flex-col border-b border-solid border-x-0 border-t-0 border-white/10 lg:border-r lg:border-b-0">
             <div className="flex h-12 items-center justify-between border-b border-solid border-x-0 border-t-0 border-white/10 px-4">
-              <span className="font-mono text-xs text-neutral-400">documento.yaml</span>
-              <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-[11px] text-neutral-400">editable</span>
+              <span className="font-mono text-xs text-pf-gray-40">documento.yaml</span>
+              <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-[11px] text-pf-gray-40">editable</span>
             </div>
             <div className="h-[380px] lg:h-[480px]">
               <YamlEditor value={source} onChange={setSource} ariaLabel="Documento en YAML" />
@@ -244,12 +244,12 @@ export default function Playground() {
                     onClick={() => setTab(t.id)}
                     className={clsx(
                       "relative cursor-pointer border-0 bg-transparent px-3 pb-3 font-sans text-sm font-semibold transition-colors",
-                      tab === t.id ? "text-white" : "text-neutral-400 hover:text-neutral-100",
+                      tab === t.id ? "text-white" : "text-pf-gray-40 hover:text-pf-gray-10",
                     )}
                   >
                     {t.label}
                     {tab === t.id && (
-                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary-a100" />
+                      <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-pf-blue-30" />
                     )}
                   </button>
                 ))}
@@ -259,7 +259,7 @@ export default function Playground() {
                   type="button"
                   onClick={copy}
                   disabled={!output}
-                  className="cursor-pointer rounded-md border-0 bg-white/5 px-2.5 py-1 font-sans text-xs font-medium text-neutral-300 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                  className="cursor-pointer rounded-md border-0 bg-white/5 px-2.5 py-1 font-sans text-xs font-medium text-pf-gray-30 hover:bg-white/10 hover:text-white disabled:opacity-40"
                 >
                   {copied ? "¡Copiado!" : "Copiar"}
                 </button>
@@ -267,7 +267,7 @@ export default function Playground() {
                   type="button"
                   onClick={download}
                   disabled={!output}
-                  className="cursor-pointer rounded-md border-0 bg-white/5 px-2.5 py-1 font-sans text-xs font-medium text-neutral-300 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                  className="cursor-pointer rounded-md border-0 bg-white/5 px-2.5 py-1 font-sans text-xs font-medium text-pf-gray-30 hover:bg-white/10 hover:text-white disabled:opacity-40"
                 >
                   Descargar
                 </button>
@@ -286,7 +286,7 @@ export default function Playground() {
                   <Calculated spec={output.spec} />
                 )
               ) : (
-                <div className="flex h-full items-center justify-center p-6 text-center font-mono text-xs text-neutral-500">
+                <div className="flex h-full items-center justify-center p-6 text-center font-mono text-xs text-pf-gray-50">
                   {status.state === "error" ? "" : "Cargando el núcleo de xhandler…"}
                 </div>
               )}
@@ -299,19 +299,19 @@ export default function Playground() {
           aria-live="polite"
           className={clsx(
             "flex min-h-11 items-center gap-2.5 border-t border-solid border-x-0 border-b-0 border-white/10 bg-black/20 px-4 py-2.5 font-mono text-[12.5px]",
-            status.state === "error" ? "text-[#EF9A9A]" : "text-accent-a400",
+            status.state === "error" ? "text-pf-red-orange-30" : "text-pf-green-30",
           )}
         >
           <span
             className={clsx(
               "size-2 shrink-0 rounded-full",
-              status.state === "loading" && "animate-pulse bg-neutral-400",
-              status.state === "ok" && "bg-accent-a400",
-              status.state === "error" && "bg-[#EF9A9A]",
+              status.state === "loading" && "animate-pulse bg-pf-gray-40",
+              status.state === "ok" && "bg-pf-green-30",
+              status.state === "error" && "bg-pf-red-orange-30",
             )}
           />
           <span className="min-w-0 flex-1 truncate">
-            {status.state === "loading" && <span className="text-neutral-400">Cargando el núcleo de xhandler…</span>}
+            {status.state === "loading" && <span className="text-pf-gray-40">Cargando el núcleo de xhandler…</span>}
             {status.state === "ok" && <>XML generado en {Math.max(1, Math.round(status.ms))} ms · {fileName}</>}
             {status.state === "error" && (
               <>
@@ -319,13 +319,13 @@ export default function Playground() {
               </>
             )}
           </span>
-          <span className="hidden shrink-0 text-neutral-500 sm:block">xhandler {CORE_VERSION} · WebAssembly</span>
+          <span className="hidden shrink-0 text-pf-gray-50 sm:block">xhandler {CORE_VERSION} · WebAssembly</span>
         </div>
       </div>
 
-      <p className="mt-5 mb-0 text-center text-sm text-neutral-500 dark:text-white/50">
+      <p className="mt-5 mb-0 text-center text-sm text-fg-subtle">
         Genera lo mismo desde tu terminal con{" "}
-        <code className="rounded bg-grey-100 px-1.5 py-0.5 text-[13px] text-neutral-800 dark:bg-white/10 dark:text-white/80">
+        <code className="rounded-md border border-solid border-line bg-card px-1.5 py-0.5 text-[13px] text-fg">
           xhandler create -f documento.yaml
         </code>{" "}
         · <Link to="/docs/use-cases/cli">Línea de comandos</Link>

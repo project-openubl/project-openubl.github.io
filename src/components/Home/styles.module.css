@@ -1,47 +1,4 @@
-/* Soft Material Indigo / Teal glow behind the hero. */
-.heroGlow {
-  position: absolute;
-  inset: -20% 0 auto 0;
-  height: 900px;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      40% 40% at 30% 40%,
-      rgb(61 90 254 / 0.12),
-      transparent 70%
-    ),
-    radial-gradient(
-      35% 35% at 72% 50%,
-      rgb(29 233 182 / 0.1),
-      transparent 70%
-    );
-}
-
-[data-theme="dark"] .heroGlow {
-  background:
-    radial-gradient(
-      40% 40% at 30% 40%,
-      rgb(140 158 255 / 0.14),
-      transparent 70%
-    ),
-    radial-gradient(
-      35% 35% at 72% 50%,
-      rgb(29 233 182 / 0.07),
-      transparent 70%
-    );
-}
-
-/* Dot pattern on the call-to-action card. */
-.ctaPattern {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: radial-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000 30%, transparent);
-}
-
-/* Infima styles every link; keep cards and buttons free of underlines. */
+/* Infima styles every link; keep buttons free of underlines. */
 .plainLink,
 .plainLink:hover {
   text-decoration: none;

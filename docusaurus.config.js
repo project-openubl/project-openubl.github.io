@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const { materialLight, materialDark } = require("./src/prism/material");
+const { patternflyLight, patternflyDark } = require("./src/prism/patternfly");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -158,8 +158,8 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Project OpenUBL, Inc.`,
       },
       prism: {
-        theme: materialLight,
-        darkTheme: materialDark,
+        theme: patternflyLight,
+        darkTheme: patternflyDark,
         additionalLanguages: ["bash", "java", "toml", "properties", "groovy"],
       },
       algolia: {
@@ -199,7 +199,7 @@ const config = {
           {
             tagName: "meta",
             name: "theme-color",
-            content: "#3949AB",
+            content: "#0066cc",
           },
           {
             tagName: "meta",
@@ -220,7 +220,7 @@ const config = {
             tagName: "link",
             rel: "mask-icon",
             href: "img/project-openubl-logo.png",
-            color: "#3949AB",
+            color: "#0066cc",
           },
           {
             tagName: "meta",

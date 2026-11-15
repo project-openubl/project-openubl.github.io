@@ -9,10 +9,10 @@ function Placeholder() {
     <div aria-hidden="true">
       <div className="mb-5 flex flex-wrap gap-2">
         {Array.from({ length: 10 }, (_, i) => (
-          <span key={i} className="h-[34px] w-28 rounded-full bg-grey-200 dark:bg-surface-4" />
+          <span key={i} className="h-[34px] w-28 rounded-full bg-line" />
         ))}
       </div>
-      <div className="h-[805px] rounded-2xl bg-neutral-900 lg:h-[530px]" />
+      <div className="h-[805px] rounded-2xl bg-code lg:h-[530px]" />
     </div>
   );
 }
