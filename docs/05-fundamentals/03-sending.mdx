@@ -524,7 +524,7 @@ Por defecto, el crate de Rust incluye un cliente HTTP (la feature `http`). Si qu
 
 ```toml title="Cargo.toml"
 [dependencies]
-xhandler = { version = "6.0.0-alpha.1", default-features = false }
+xhandler = { version = "6.0.0-alpha.2", default-features = false }
 ```
 
 Así obtienes una librería Rust pura: crear y firmar funcionan igual, pero desaparecen `SunatClient` y los métodos `async` de `FileSender` (`send_file`, `send_pack`, `verify_ticket`, `verify_file_ticket`). En su lugar, el módulo `xsender::exchange` arma las peticiones HTTP y lee las respuestas; tú solo las envías.

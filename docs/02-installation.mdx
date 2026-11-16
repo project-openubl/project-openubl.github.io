@@ -7,7 +7,7 @@ slug: /installation
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-Elige tu lenguaje. La versión actual es **6.0.0-alpha.1**; al ser una versión preliminar, en algunos gestores de paquetes debes indicarla explícitamente.
+Elige tu lenguaje. La versión actual es **6.0.0-alpha.2**; al ser una versión preliminar, en algunos gestores de paquetes debes indicarla explícitamente.
 
 <Tabs groupId="lang" queryString>
 <TabItem value="java" label="Java">
@@ -18,12 +18,12 @@ Requiere **Java 25** o superior.
 <dependency>
     <groupId>io.github.project-openubl</groupId>
     <artifactId>xbuilder</artifactId>
-    <version>6.0.0-alpha.1</version>
+    <version>6.0.0-alpha.2</version>
 </dependency>
 <dependency>
     <groupId>io.github.project-openubl</groupId>
     <artifactId>xsender</artifactId>
-    <version>6.0.0-alpha.1</version>
+    <version>6.0.0-alpha.2</version>
 </dependency>
 ```
 
@@ -31,8 +31,8 @@ Con Gradle (Kotlin DSL):
 
 ```kotlin title="build.gradle.kts"
 dependencies {
-    implementation("io.github.project-openubl:xbuilder:6.0.0-alpha.1")
-    implementation("io.github.project-openubl:xsender:6.0.0-alpha.1")
+    implementation("io.github.project-openubl:xbuilder:6.0.0-alpha.2")
+    implementation("io.github.project-openubl:xsender:6.0.0-alpha.2")
 }
 ```
 
@@ -46,14 +46,14 @@ dependencies {
 <TabItem value="rust" label="Rust">
 
 ```shell
-cargo add xhandler@6.0.0-alpha.1
+cargo add xhandler@6.0.0-alpha.2
 ```
 
 Los ejemplos de esta documentación también usan estos crates:
 
 ```toml title="Cargo.toml"
 [dependencies]
-xhandler = "6.0.0-alpha.1"
+xhandler = "6.0.0-alpha.2"
 rust_decimal = "1"
 rust_decimal_macros = "1"
 chrono = "0.4"
@@ -72,8 +72,8 @@ Requiere **Python 3.10** o superior, en Linux, macOS o Windows.
 ```shell
 pip install --pre xhandler
 # o, fijando la versión
-pip install "xhandler==6.0.0a1"
-uv add "xhandler==6.0.0a1"
+pip install "xhandler==6.0.0a2"
+uv add "xhandler==6.0.0a2"
 ```
 
 - No hay extensiones nativas que compilar: el paquete es una _wheel_ universal.
@@ -85,7 +85,7 @@ uv add "xhandler==6.0.0a1"
 Requiere **Go 1.25** o superior.
 
 ```shell
-go get github.com/project-openubl/xhandler-go/v6@v6.0.0-alpha.1
+go get github.com/project-openubl/xhandler-go/v6@v6.0.0-alpha.2
 ```
 
 ```go
@@ -97,7 +97,7 @@ import (
 ```
 
 - Go puro, sin cgo: compila para cualquier sistema operativo y arquitectura que soporte Go.
-- Indica la versión (`@v6.0.0-alpha.1`) mientras la versión 6 sea preliminar; `@latest` no elige versiones preliminares.
+- Indica la versión (`@v6.0.0-alpha.2`) mientras la versión 6 sea preliminar; `@latest` no elige versiones preliminares.
 
 </TabItem>
 </Tabs>
@@ -106,10 +106,10 @@ import (
 
 La línea de comandos `xhandler` crea, firma y envía comprobantes descritos en YAML o JSON, sin escribir código.
 
-Descarga el binario para tu sistema (Linux, macOS o Windows) desde la [página de la versión 6.0.0-alpha.1](https://github.com/project-openubl/xhandler-rust/releases/tag/v6.0.0-alpha.1), o compílalo con [Rust](https://rustup.rs) (necesita un compilador de C):
+Descarga el binario para tu sistema (Linux, macOS o Windows) desde la [página de la versión 6.0.0-alpha.2](https://github.com/project-openubl/xhandler-rust/releases/tag/v6.0.0-alpha.2), o compílalo con [Rust](https://rustup.rs) (necesita un compilador de C):
 
 ```shell
-cargo install --locked xhandler-cli@6.0.0-alpha.1
+cargo install --locked xhandler-cli@6.0.0-alpha.2
 ```
 
 ¿Quieres probar el formato antes de instalar nada? Usa el [playground](pathname:///playground/).
